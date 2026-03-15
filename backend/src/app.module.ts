@@ -7,25 +7,17 @@ import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
-import { PaymentModule } from './payment/payment.module';
-import { JobsModule } from './jobs/jobs.module';
 import { PrismaModule } from './prisma/prisma.module';
-
 import { SearchModule } from './search/search.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AssetsModule } from './assets/assets.module';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { RateLimitMiddleware } from './middleware/rate-limit.middleware';
 import { SettingsModule } from './settings/settings.module';
-// Learning and E-commerce modules removed (Prod project)
-// import { QuotesModule } from './quotes/quotes.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { ServiceOffersModule } from './service-offers/service-offers.module';
 import { PortfolioItemsModule } from './portfolio-items/portfolio-items.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-// import { EmployeesModule } from './employees/employees.module';
-// import { FinanceModule } from './finance/finance.module';
-// import { ExpensesModule } from './expenses/expenses.module';
 import { PagesModule } from './pages/pages.module';
 import { HealthModule } from './health/health.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
@@ -35,7 +27,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditInterceptor } from './middleware/audit.interceptor';
 import { MarketingModule } from './marketing/marketing.module';
 import { FaqModule } from './faq/faq.module';
-// import { SuppliersModule } from './suppliers/suppliers.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProjectsModule } from './projects/projects.module';
 
