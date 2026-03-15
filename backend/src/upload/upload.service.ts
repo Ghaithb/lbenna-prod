@@ -12,7 +12,7 @@ export class UploadService {
   private allowedTypes: string[];
 
   constructor(private configService: ConfigService) {
-    this.uploadDir = path.join(process.cwd(), 'uploads');
+    this.uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.join(process.cwd(), 'uploads');
     this.maxFileSize = this.parseFileSize(
       this.configService.get<string>('MAX_FILE_SIZE', '50MB'),
     );
