@@ -1,0 +1,644 @@
+// Schéma Prisma pour Photoskop
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Lab {
+  id         String   @id @default(cuid())
+  courseId   String
+  moduleId   String?
+  title      String
+  description String?
+  preset     Json     // Preset JSON v1 (scene, camera, lights, objectives, scoring)
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  module     Module?  @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  submissions Submission[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([courseId])
+  @@index([moduleId])
+  @@map("labs")
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  labId     String
+  userId    String
+  imageUrl  String?
+  settings  Json?
+  score     Float?
+
+  lab       Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  @@index([labId])
+  @@index([userId])
+  @@map("submissions")
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USERS & AUTH
+// ============================================
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  OPERATOR
+  B2B
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  phone         String?
+  role          UserRole  @default(CLIENT)
+  isB2B         Boolean   @default(false)
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  addresses     Address[]
+  orders        Order[]
+  cartItems     CartItem[]
+  projects      Project[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  label       String?  // "Domicile", "Bureau", etc.
+  firstName   String
+  lastName    String
+  street      String
+  city        String
+  postalCode  String
+  country     String   @default("TN")
+  phone       String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders      Order[]
+  
+  @@index([userId])
+  @@map("addresses")
+}
+
+// ============================================
+// PRODUCTS & CATALOG
+// ============================================
+
+enum ProductCategory {
+  TIRAGE        // Tirage photo standard
+  ALBUM         // Albums photo
+  CADRE         // Cadres
+  PHOTOBOOK     // Photobooks personnalisés
+  PANNEAU       // Panneaux (MDF, mousse, etc.)
+  CARTE         // Cartes de visite, flyers
+  EVENEMENT     // Production événementielle
+}
+
+enum PaperType {
+  STANDARD
+  GLOSSY
+  MATTE
+  PREMIUM
+  METALLIC
+  CANVAS
+}
+
+model Product {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  title           String
+  description     String?
+  category        ProductCategory
+  basePrice       Float           // Prix de base
+  isActive        Boolean         @default(true)
+  
+  // Options disponibles (JSON)
+  availableSizes  Json            // [{width: 10, height: 15, unit: "cm", priceMultiplier: 1.0}]
+  availablePapers Json            // [{type: "GLOSSY", priceMultiplier: 1.2}]
+  availableFrames Json?           // [{name: "Cadre noir", price: 15.00}]
+  
+  // Production
+  productionTime  Int             @default(3) // Jours
+  minDPI          Int             @default(300)
+  requiresBleed   Boolean         @default(true)
+  bleedMM         Float           @default(3.0)
+  
+  // Stock (optionnel)
+  stockQuantity   Int?
+  lowStockAlert   Int?
+  
+  // Metadata
+  imageUrl        String?
+  tags            String[]
+  sortOrder       Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  
+  @@index([category])
+  @@index([slug])
+  @@map("products")
+}
+
+// ============================================
+// CART
+// ============================================
+
+model CartItem {
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String
+  quantity    Int      @default(1)
+  
+  // Options choisies (JSON)
+  options     Json     // {size: {width:10, height:15}, paper: "GLOSSY", frame: {...}}
+  
+  // Fichiers uploadés
+  files       Json     // [{url: "s3://...", filename: "photo.jpg", dpi: 300, width: 3000, height: 2000}]
+  
+  price       Float    // Prix calculé au moment de l'ajout
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("cart_items")
+}
+
+// ============================================
+// ORDERS
+// ============================================
+
+enum OrderStatus {
+  PENDING       // En attente de paiement
+  PAID          // Payé
+  PROCESSING    // En traitement
+  PREFLIGHT     // Vérification fichiers
+  PRINTING      // En impression
+  READY         // Prêt pour retrait/expédition
+  SHIPPED       // Expédié
+  DELIVERED     // Livré
+  CANCELLED     // Annulé
+  REFUNDED      // Remboursé
+}
+
+enum ShippingMethod {
+  PICKUP        // Retrait en boutique
+  DELIVERY      // Livraison
+  EXPRESS       // Livraison express
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  orderNumber     String          @unique // Format: ORD-2024-00001
+  userId          String
+  status          OrderStatus     @default(PENDING)
+  
+  // Montants
+  subtotal        Float
+  shippingCost    Float           @default(0)
+  tax             Float           @default(0)
+  discount        Float           @default(0)
+  total           Float
+  
+  // Livraison
+  shippingMethod  ShippingMethod
+  addressId       String?
+  trackingNumber  String?
+  
+  // Paiement
+  paymentId       String?         // Stripe payment intent ID
+  paymentMethod   String?         // "card", "cash", etc.
+  paidAt          DateTime?
+  
+  // Notes
+  customerNotes   String?
+  adminNotes      String?
+  
+  // Dates
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  estimatedDate   DateTime?       // Date estimée de livraison/retrait
+  completedAt     DateTime?
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  address         Address?        @relation(fields: [addressId], references: [id])
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+  jobs            Job[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  
+  // Options et fichiers (snapshot au moment de la commande)
+  options     Json
+  files       Json
+  
+  // Prix au moment de la commande
+  unitPrice   Float
+  totalPrice  Float
+  
+  createdAt   DateTime @default(now())
+  
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+  
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id          String      @id @default(cuid())
+  orderId     String
+  status      OrderStatus
+  notes       String?
+  createdBy   String?     // User ID de l'admin/opérateur
+  createdAt   DateTime    @default(now())
+  
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+  @@map("order_status_history")
+}
+
+// ============================================
+// JOBS & QUEUE
+// ============================================
+
+enum JobType {
+  GENERATE_PDF
+  PREFLIGHT_CHECK
+  IMAGE_TRANSFORM
+  SEND_EMAIL
+  SEND_SMS
+  GENERATE_THUMBNAIL
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  orderId     String?
+  type        JobType
+  status      JobStatus @default(PENDING)
+  payload     Json      // Données du job
+  result      Json?     // Résultat ou erreur
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  
+  order       Order?    @relation(fields: [orderId], references: [id])
+  
+  @@index([status])
+  @@index([type])
+  @@map("jobs")
+}
+
+// ============================================
+// TEMPLATES (Photobooks, etc.)
+// ============================================
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // "photobook", "card", "flyer"
+  layoutJson  Json     // Structure du template
+  previewUrl  String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("templates")
+}
+
+// ============================================
+// FORMATION (Electron App Sync)
+// ============================================
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  modules     Module[]
+  labs        Lab[]
+  
+  @@map("courses")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String?
+  order       Int      @default(0)
+  videoUrl    String?
+  duration    Int?     // Durée en secondes
+  content     Json?    // Contenu du module
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  labs        Lab[]
+  progress    UserProgress[]
+  
+  @@index([courseId])
+  @@map("modules")
+}
+
+model Lesson {
+  id        String   @id @default(cuid())
+  moduleId  String
+  title     String
+  content   String?
+  videoUrl  String?
+  duration  Int?     // en minutes ou secondes
+  order     Int      @default(0)
+  // Nouveaux champs pour support Quiz et Ressources
+  quiz      Json?
+  resources Json?    // tableau d'objets: [{type:"PDF"|"IMAGE"|"LINK", title?: string, url: string}]
+
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([moduleId])
+  @@map("lessons")
+}
+
+model UserProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  moduleId    String
+  completed   Boolean  @default(false)
+  score       Int?
+  timeSpent   Int      @default(0) // Secondes
+  lastAccess  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, moduleId])
+  @@index([userId])
+  @@map("user_progress")
+}
+
+// ============================================
+// SUBSCRIPTIONS & LICENSES (Desktop App)
+// ============================================
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
+model Subscription {
+  id              String              @id @default(cuid())
+  userId          String
+  status          SubscriptionStatus  @default(PENDING)
+  
+  // Paiement Flouci
+  flouciPaymentId String?             @unique
+  flouciTransId   String?
+  
+  // Période
+  startDate       DateTime
+  endDate         DateTime
+  autoRenew       Boolean             @default(false)
+  
+  // Montant
+  amount          Float
+  currency        String              @default("TND")
+  
+  // Metadata
+  paymentMethod   String?             // "flouci_card", "flouci_mobile"
+  lastPaymentDate DateTime?
+  nextBillingDate DateTime?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  // Relations
+  licenses        License[]
+  
+  @@index([userId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  type        String    // "order_update", "payment_success", etc.
+  title       String
+  message     String
+  isRead      Boolean   @default(false)
+  data        Json?     // Données additionnelles
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?
+  
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+model License {
+  id              String       @id @default(cuid())
+  subscriptionId  String
+  userId          String
+  
+  // Jeton JWT signé
+  token           String       @unique @db.Text
+  
+  // Empreinte machine (HWID)
+  machineId       String?
+  machineName     String?
+  
+  // Validité
+  isActive        Boolean      @default(true)
+  expiresAt       DateTime
+  
+  // Offline grace period
+  lastOnlineCheck DateTime?
+  offlineGraceDays Int         @default(7)
+  
+  // Révocation
+  revokedAt       DateTime?
+  revokedReason   String?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  subscription    Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([machineId])
+  @@index([isActive])
+  @@map("licenses")
+}
+
+// ============================================
+// CAMERA / LENSES / ASSETS / PRESETS
+// ============================================
+
+enum SensorFormat {
+  FULL_FRAME
+  APS_C
+  MICRO_43
+  MEDIUM_FORMAT
+  OTHER
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+model CameraBody {
+  id           String       @id @default(cuid())
+  brand        String
+  model        String
+  mount        String
+  sensorFormat SensorFormat @default(FULL_FRAME)
+  megapixels   Float?
+  isoMin       Int?         @default(100)
+  isoMax       Int?         @default(25600)
+  notes        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("camera_bodies")
+}
+
+model Lens {
+  id             String   @id @default(cuid())
+  brand          String
+  model          String
+  mount          String
+  focalMin       Int?     // mm
+  focalMax       Int?     // mm (same as focalMin for prime)
+  apertureMin    Float?   // e.g. 1.4
+  apertureMax    Float?   // e.g. 22
+  isPrime        Boolean  @default(false)
+  cropFactor     Float?   // 1.0 for full-frame
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("lenses")
+}
+
+model Asset {
+  id         String    @id @default(cuid())
+  type       AssetType
+  url        String
+  filename   String?
+  mime       String?
+  size       Int?      // bytes
+  width      Int?
+  height     Int?
+  metadata   Json?
+  uploadedBy String?
+  createdAt  DateTime  @default(now())
+
+  @@index([type])
+  @@map("assets")
+}
+
+model LabPreset {
+  id        String   @id @default(cuid())
+  labId     String?
+  name      String
+  version   Int      @default(1)
+  preset    Json     // Preset JSON v1 (scene, camera, lights, objectives, scoring)
+  isPublic  Boolean  @default(false)
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@index([labId])
+  @@map("lab_presets")
+}
+
+// ============================================
+// PROJECTS / PORTFOLIO
+// ============================================
+
+model Project {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  summary     String?
+  content     Json?
+  imageUrl    String?
+  tags        String[] @default([])
+  published   Boolean  @default(false)
+  authorId    String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  author      User?    @relation(fields: [authorId], references: [id])
+
+  @@index([slug])
+  @@map("projects")
+}

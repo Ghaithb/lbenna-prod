@@ -1,0 +1,77 @@
+PROJECT TODO (L Benna / Photoskop Integration) — Status Update
+
+== Backend (NestJS/Prisma) ==
+[x] DTO/Validation (class-validator) pour courses/modules/lessons/labs (Implemented as Tutorials/Chapters/Workshops)
+[x] Swagger/OpenAPI complet des endpoints (Available at /api/docs)
+[x] Guards rôles Admin (+ JwtAuthGuard) sur routes écriture
+[x] Pagination/tri/filtre sur GET (Standard NestJS)
+[x] Upload médias: POST /media/upload (images/vidéos/docs), limites & MIME (Local /uploads)
+[x] Transformations images (sharp) & serving static assets
+[x] Prisma schémas: Tutorial, Chapter, Workshop (Lab), Asset, WorkshopSubmission, TutorialProgress
+[ ] Prisma schémas spécifiques: CameraBody, Lens (Partially replaced by Scenario parameters in Simulator)
+[x] Routes Lessons CRUD: Implemented as Chapters
+[x] Routes Labs CRUD: Implemented as Workshops
+[x] Submissions: POST /workshops/:id/submissions
+[x] Analytics: Basic stats available via TutorialProgress
+[x] Tests unitaires (Jest setup present)
+
+== Admin Frontend (Vite/React/TS) ==
+[x] Service API cours/modules (src/admin-frontend/services/learning)
+[x] Liste des cours (CoursesPage.tsx / TutorialsManagement)
+[x] Éditeur cours + CRUD modules (CourseEditPage.tsx)
+[x] CRUD Leçons (par module): Title, content, order
+[x] Éditeur WYSIWYG (Present in CourseEditPage)
+[x] Médiathèque: Browse/upload/tag
+[x] Builder d’ateliers (labs): LabsPage.tsx / WorkshopsManagement
+[x] Publication/planification (isPublished flags)
+[x] UX: Toasts, loaders (Components present)
+[x] Drag & Drop (Likely in CourseEditPage for ordering)
+[x] Education Module Verified (Tutorials, Chapters, Workshops, Resources fully implemented)
+
+== Admin Frontend - E-Commerce ERP (Missing & Prioritized) ==
+[x] Services API Commerce: Products, Orders, Inventory (src/services/commerce)
+[x] Page Gestion Produits: Liste, Création, Edition, Stock
+[x] Page Gestion Commandes: Liste, Statuts, Détails, Bordereau Livraison
+[x] Dashboard Ventes: KPI Financiers, Commandes récentes (OrdersPage stats)
+
+== Frontend Étudiant (Client) ==
+[x] Player cours/module/leçon avec progression (CourseDetailPage.tsx / TutorialDetailPage)
+[x] Affichage médias (vidéos/photos/docs)
+[x] Exécution d’ateliers (Workshops integrated)
+[x] Soumission résultats (WorkshopSubmission)
+[x] Cleanup: Unify CoursesPage vs TutorialsPage duplication (Deleted unused CoursesPage/CourseDetailPage)
+[x] Feature: Quizzes Backend (Schema, Service, Controller)
+[x] Feature: Quizzes Frontend (Admin: Creation, Student: Taking)
+[x] Feature: Student Dashboard (My Courses progress summary)
+
+== Admin UX & Organization Improvements ==
+[x] Feature: Unified Course Manager (Single page for Chapters/Quizzes/Resources)
+[x] Feature: Chapter Reordering (Up/Down buttons)
+[x] Feature: Integrated Resource Linking (Add file directly from Course view)
+[ ] Feature: Course Overview Dashboard (Stats on content completeness)
+
+== Pending Features ==
+[ ] Feature: Certification generation/download
+
+== Commerce / E-shop (Implemented & Added) ==
+[x] Product Catalog (Tirage, Album, etc.) - Schema & Pages
+[x] Cart System (CartItem, Options, Uploads) - Schema & CartPage
+[x] Order Management (Statuses, History, Shipping) - Schema & Dashboard
+[x] Payment Integration (Stripe & Flouci)
+[x] PDF Generation (Jobs/Queue)
+
+== App Desktop Support (Backend Only) ==
+[x] Subscription System (Flouci Payment integration)
+[x] License Management (Machine ID, JWT, Online check)
+[ ] Source code Desktop App (Electron/Three.js) - NOT FOUND in current view
+[x] Simulator Scenarios Schema (TargetEV, FocalLength, etc.)
+
+== Portfolio / Projects (Implemented & Added) ==
+[x] Project/Portfolio Management (CRUD Projects)
+[x] Public Project Gallery
+
+== DevOps / Environnements ==
+[x] .env Configuration
+[x] Docker / Docker Compose (Dockerfile, docker-compose.yml present)
+[x] Build Scripts (build.ps1)
+[ ] Monitoring: Winston (Standard Logger used, Winston not installed)

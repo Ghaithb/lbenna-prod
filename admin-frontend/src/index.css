@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  body {
+    /* Use explicit colors to avoid failures when Tailwind utilities are not
+       resolved by the build plugin in some dev environments */
+    background-color: #f3f4f6; /* approx. gray-100 */
+    color: #111827; /* approx. gray-900 / text color */
+  }
+}
+
+@layer components {
+  .btn {
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    border-radius: 0.5rem; /* rounded-lg */
+    font-weight: 500;
+    transition: background-color 150ms ease-in-out; /* transition-colors */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background-color: #0284c7; /* primary-600 */
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background-color: #0369a1; /* primary-700 */
+  }
+
+  .btn-secondary {
+    background-color: #e5e7eb; /* approx. gray-200 */
+    color: #374151; /* approx. gray-700 */
+  }
+
+  .btn-secondary:hover {
+    background-color: #d1d5db; /* approx. gray-300 */
+  }
+
+  .input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    box-sizing: border-box;
+  }
+
+  .input:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(14,165,233,0.15); /* focus:ring using primary-500 */
+  }
+
+  .card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    padding: 1rem;
+  }
+}

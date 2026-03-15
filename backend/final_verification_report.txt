@@ -1,0 +1,38 @@
+
+> backend@1.0.0 verify
+> ts-node src/verify-system.ts
+
+???? Starting Deep System API Audit...
+
+
+--- Finance & Accounting ---
+??? /finance/stats            [401] (Auth Required)
+??? /expenses                 [401] (Auth Required)
+??? /expenses/stats           [401] (Auth Required)
+??? /invoices                 [200]
+??? /invoices/stats           [200]
+
+--- Inventory & Stock ---
+??? /inventory/warehouses     [200]
+??? /inventory/alerts         [200]
+
+--- Human Resources ---
+??? /employees                [401] (Auth Required)
+??? /employees/stats          [401] (Auth Required)
+
+--- Commerce & CRM ---
+??? /products                 [200]
+??? /categories               [200]
+??? /suppliers                [401] (Auth Required)
+??? /suppliers/stats          [401] (Auth Required)
+??? /quotes                   [200]
+??? /orders                   [401] (Auth Required)
+
+--- Printing & Services ---
+??? /printing/stats           [401] (Auth Required)
+??? /service-offers           [200]
+??? /bookings                 [401] (Auth Required)
+
+--- Summary ---
+Total: 18 | Passed: 18 | Failures: 0
+??? System is logically sound at the API level!

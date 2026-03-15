@@ -1,0 +1,1194 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://lbenna:password123@127.0.0.1:5434/lbenna_prod?schema=public"
+}
+
+model User {
+  id                   String                 @id @default(cuid())
+  email                String                 @unique
+  passwordHash         String
+  firstName            String?
+  lastName             String?
+  phone                String?
+  role                 UserRole               @default(CLIENT)
+  isB2B                Boolean                @default(false)
+  emailVerified        Boolean                @default(false)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  addresses            Address[]
+  auditLogs            AuditLog[]
+  bookings             Booking[]
+  cart_items           cart_items[]
+  certificates         certificates[]
+  company              Company?
+  employeeProfile      Employee?
+  invoices             invoices[]
+  order_items          order_items[]
+  orders               orders[]
+  passwordResetTokens  PasswordResetToken[]
+  performanceReviews   PerformanceReview[]    @relation("Reviewer")
+  projects             Project[]
+  quiz_attempts        quiz_attempts[]
+  quotes               Quote[]
+  stock_movements      stock_movements[]
+  tutorial_progress    tutorial_progress[]
+  workshop_submissions workshop_submissions[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  label      String?
+  firstName  String
+  lastName   String
+  street     String
+  city       String
+  postalCode String
+  country    String   @default("TN")
+  phone      String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders     orders[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model Company {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  name           String
+  taxId          String   @unique
+  registryNumber String?
+  address        String?
+  city           String?
+  isVerified     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("companies")
+}
+
+model Employee {
+  id                 String              @id @default(cuid())
+  userId             String              @unique
+  firstName          String
+  lastName           String
+  email              String              @unique
+  phone              String?
+  position           String
+  department         Department          @default(SALES)
+  hireDate           DateTime            @default(now())
+  salary             Float?
+  contractType       String?             @default("CDI")
+  status             String              @default("ACTIVE")
+  notes              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveRequests      LeaveRequest[]
+  performanceReviews PerformanceReview[]
+
+  @@index([department])
+  @@map("employees")
+}
+
+model LeaveRequest {
+  id         String      @id @default(cuid())
+  employeeId String
+  startDate  DateTime
+  endDate    DateTime
+  type       String
+  reason     String?
+  status     LeaveStatus @default(PENDING)
+  adminNotes String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  employee   Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("leave_requests")
+}
+
+model PerformanceReview {
+  id           String   @id @default(cuid())
+  employeeId   String
+  reviewerId   String
+  reviewDate   DateTime @default(now())
+  period       String
+  rating       Int
+  goals        String?
+  strengths    String?
+  improvements String?
+  comments     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  reviewer     User     @relation("Reviewer", fields: [reviewerId], references: [id])
+
+  @@map("performance_reviews")
+}
+
+model Category {
+  id             String          @id @default(cuid())
+  name           String
+  slug           String          @unique
+  description    String?
+  parentId       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  color          String?
+  icon           String?
+  parent         Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children       Category[]      @relation("CategoryHierarchy")
+  portfolioItems PortfolioItem[] @relation("CategoryPortfolio")
+  products       products[]
+  serviceOffers  ServiceOffer[]
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+model ServiceOffer {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  price       Float?
+  duration    Int?
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  categoryId  String?
+  badge       String?
+  features    String[]
+  bookings    Booking[]
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  @@map("service_offers")
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  serviceOfferId String
+  userId         String?
+  bookingDate    DateTime
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  notes          String?
+  status         BookingStatus @default(PENDING)
+  adminNotes     String?
+  paidAmount     Float?
+  paymentMethod  PaymentMethod @default(CASH)
+  transferToken  String?       @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  serviceOffer   ServiceOffer  @relation(fields: [serviceOfferId], references: [id])
+  user           User?         @relation(fields: [userId], references: [id])
+
+  @@index([bookingDate])
+  @@index([status])
+  @@map("bookings")
+}
+
+model PortfolioItem {
+  id          String    @id @default(cuid())
+  title       String
+  category    String?
+  coverUrl    String
+  galleryUrls String[]
+  videoUrl    String?
+  eventDate   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  categoryId  String?
+  categoryObject Category? @relation("CategoryPortfolio", fields: [categoryId], references: [id])
+
+  @@map("portfolio_items")
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  summary   String?
+  content   Json?
+  imageUrl  String?
+  tags      String[] @default([])
+  published Boolean  @default(false)
+  authorId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User?    @relation(fields: [authorId], references: [id])
+
+  @@index([slug])
+  @@map("projects")
+}
+
+model Quote {
+  id               String      @id @default(cuid())
+  quoteNumber      String      @unique
+  userId           String?
+  clientName       String?
+  clientEmail      String?
+  items            Json
+  subtotal         Float
+  taxAmount        Float
+  total            Float
+  status           QuoteStatus @default(DRAFT)
+  validUntil       DateTime?
+  convertedOrderId String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  user             User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("quotes")
+}
+
+model Page {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         Json
+  metaTitle       String?
+  metaDescription String?
+  isPublished     Boolean  @default(false)
+  showInMenu      Boolean  @default(true)
+  menuOrder       Int      @default(0)
+  template        String   @default("default")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([showInMenu, menuOrder])
+  @@map("pages")
+}
+
+model Asset {
+  id        String    @id @default(cuid())
+  type      AssetType
+  url       String
+  filename  String?
+  mime      String?
+  size      Int?
+  width     Int?
+  height    Int?
+  metadata  Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([type])
+  @@map("assets")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  isRead    Boolean   @default(false)
+  data      Json?
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  payload   Json?
+  timestamp DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model GlobalSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  group     String   @default("GENERAL")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("global_settings")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  isRevoked Boolean  @default(false)
+  userAgent String?
+  ipAddress String?
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model Announcement {
+  id        String    @id @default(cuid())
+  text      String
+  code      String?
+  link      String?
+  startDate DateTime?
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+  priority  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("announcements")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  content     String
+  isRead      Boolean  @default(false)
+  isArchived   Boolean   @default(false)
+  replyContent String?
+  repliedAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("messages")
+}
+
+model Expense {
+  id            String          @id @default(cuid())
+  amount        Float
+  category      ExpenseCategory
+  date          DateTime        @default(now())
+  description   String?
+  reference     String?
+  paymentMethod PaymentMethod   @default(CASH)
+  createdById   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([category])
+  @@index([date])
+  @@map("expenses")
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+
+model Job {
+  id          String    @id @default(cuid())
+  orderId     String?
+  type        JobType
+  status      JobStatus @default(PENDING)
+  payload     Json
+  result      Json?
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  orders      orders?   @relation(fields: [orderId], references: [id])
+
+  @@index([status])
+  @@index([type])
+  @@map("jobs")
+}
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  contactName    String?
+  email          String?
+  phone          String?
+  address        String?
+  taxId          String?
+  category       String?
+  paymentTerms   String?
+  notes          String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id           String              @id @default(cuid())
+  poNumber     String              @unique
+  supplierId   String
+  status       PurchaseOrderStatus @default(DRAFT)
+  totalAmount  Float               @default(0)
+  expectedDate DateTime?
+  notes        String?
+  createdById  String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  items        PurchaseOrderItem[]
+  supplier     Supplier            @relation(fields: [supplierId], references: [id])
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  description     String
+  quantity        Int
+  unitPrice       Float
+  totalPrice      Float
+  sku             String?
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_order_items")
+}
+
+model cart_items {
+  id        String   @id
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  options   Json
+  files     Json
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  products  products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  users     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model certificates {
+  id       String   @id
+  userId   String
+  title    String
+  issuedAt DateTime @default(now())
+  code     String   @unique
+  pdfUrl   String?
+  users    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model chapters {
+  id          String    @id
+  tutorialId  String
+  title       String
+  description String?
+  content     String?
+  videoUrl    String?
+  mediaUrls   Json?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  tutorials   tutorials @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+
+  @@index([tutorialId])
+}
+
+model coupons {
+  id                String     @id
+  code              String     @unique
+  type              CouponType @default(PERCENTAGE)
+  value             Float
+  minOrderAmount    Float?
+  maxDiscountAmount Float?
+  startDate         DateTime   @default(now())
+  endDate           DateTime?
+  usageLimit        Int?
+  usageCount        Int        @default(0)
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime
+  orders            orders[]
+}
+
+model invoices {
+  id            String        @id
+  invoiceNumber String        @unique
+  orderId       String?       @unique
+  userId        String
+  subtotal      Float
+  taxAmount     Float
+  total         Float
+  currency      String        @default("TND")
+  status        InvoiceStatus @default(DRAFT)
+  issuedAt      DateTime?
+  dueDate       DateTime?
+  pdfUrl        String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  orders        orders?       @relation(fields: [orderId], references: [id])
+  users         User          @relation(fields: [userId], references: [id])
+
+  @@index([invoiceNumber])
+  @@index([userId])
+}
+
+model licenses {
+  id               String        @id
+  subscriptionId   String
+  userId           String
+  token            String        @unique
+  machineId        String?
+  machineName      String?
+  isActive         Boolean       @default(true)
+  expiresAt        DateTime
+  lastOnlineCheck  DateTime?
+  offlineGraceDays Int           @default(7)
+  revokedAt        DateTime?
+  revokedReason    String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime
+  subscriptions    subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
+  @@index([machineId])
+  @@index([userId])
+}
+
+model order_items {
+  id                    String              @id
+  orderId               String
+  productId             String
+  quantity              Int
+  options               Json
+  files                 Json
+  unitPrice             Float
+  totalPrice            Float
+  createdAt             DateTime            @default(now())
+  customizationFeedback String?
+  customizationStatus   CustomizationStatus @default(PENDING)
+  validatedAt           DateTime?
+  validatedById         String?
+  orders                orders              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  products              products            @relation(fields: [productId], references: [id])
+  users                 User?               @relation(fields: [validatedById], references: [id])
+
+  @@index([orderId])
+}
+
+model order_status_history {
+  id        String      @id
+  orderId   String
+  status    OrderStatus
+  notes     String?
+  createdBy String?
+  createdAt DateTime    @default(now())
+  orders    orders      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model orders {
+  id                   String                 @id
+  orderNumber          String                 @unique
+  userId               String
+  status               OrderStatus            @default(PENDING)
+  subtotal             Float
+  shippingCost         Float                  @default(0)
+  tax                  Float                  @default(0)
+  discount             Float                  @default(0)
+  total                Float
+  shippingMethod       ShippingMethod         @default(DELIVERY)
+  addressId            String?
+  trackingNumber       String?
+  paymentId            String?
+  paidAt               DateTime?
+  customerNotes        String?
+  adminNotes           String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  estimatedDate        DateTime?
+  completedAt          DateTime?
+  carrier              String?
+  couponId             String?
+  cashierId            String?
+  source               OrderSource            @default(ONLINE)
+  paymentMethod        PaymentMethod          @default(ONLINE)
+  invoices             invoices?
+  jobs                 Job[]
+  order_items          order_items[]
+  order_status_history order_status_history[]
+  addresses            Address?               @relation(fields: [addressId], references: [id])
+  coupons              coupons?               @relation(fields: [couponId], references: [id])
+  users                User                   @relation(fields: [userId], references: [id])
+
+  @@index([orderNumber])
+  @@index([status])
+  @@index([userId])
+}
+
+model products {
+  id                  String             @id
+  slug                String             @unique
+  title               String
+  description         String?
+  category            ProductCategory?
+  basePrice           Float
+  isActive            Boolean            @default(true)
+  availableSizes      Json
+  availablePapers     Json
+  availableFrames     Json?
+  productionTime      Int                @default(3)
+  minDPI              Int                @default(300)
+  requiresBleed       Boolean            @default(true)
+  bleedMM             Float              @default(3.0)
+  stockQuantity       Int?
+  lowStockAlert       Int?
+  imageUrl            String?
+  tags                String[]
+  sortOrder           Int                @default(0)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime
+  availablePacks      Json?
+  bulkPricing         Json?
+  categoryId          String?
+  customizationConfig Json?
+  productType         ProductType        @default(PHYSICAL)
+  purchaseExperience  PurchaseExperience @default(SIMPLE)
+  cart_items          cart_items[]
+  order_items         order_items[]
+  categories          Category?          @relation(fields: [categoryId], references: [id])
+  stock_levels        stock_levels[]
+  stock_movements     stock_movements[]
+
+  @@index([categoryId])
+  @@index([category])
+  @@index([slug])
+}
+
+model quiz_attempts {
+  id        String   @id
+  userId    String
+  quizId    String
+  score     Int
+  passed    Boolean  @default(false)
+  answers   Json
+  createdAt DateTime @default(now())
+  quizzes   quizzes  @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  users     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@index([userId])
+}
+
+model quiz_options {
+  id             String         @id
+  questionId     String
+  text           String
+  isCorrect      Boolean        @default(false)
+  quiz_questions quiz_questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model quiz_questions {
+  id           String         @id
+  quizId       String
+  text         String
+  order        Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  quiz_options quiz_options[]
+  quizzes      quizzes        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+}
+
+model quizzes {
+  id             String           @id
+  title          String
+  description    String?
+  passScore      Int              @default(70)
+  tutorialId     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  quiz_attempts  quiz_attempts[]
+  quiz_questions quiz_questions[]
+  tutorials      tutorials?       @relation(fields: [tutorialId], references: [id])
+
+  @@index([tutorialId])
+}
+
+model resources {
+  id            String       @id
+  title         String
+  description   String?
+  type          ResourceType @default(PDF)
+  fileUrl       String
+  fileSize      Int?
+  category      String?
+  tags          String[]
+  isPublished   Boolean      @default(false)
+  isFree        Boolean      @default(true)
+  downloadCount Int          @default(0)
+  tutorialId    String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime
+  tutorials     tutorials?   @relation(fields: [tutorialId], references: [id])
+
+  @@index([tutorialId])
+  @@index([type])
+}
+
+model scenarios {
+  id                  String       @id
+  title               String
+  description         String
+  imageUrl            String
+  difficulty          String       @default("Beginner")
+  targetEv            Float
+  goals               String[]
+  targetX             Float        @default(50)
+  targetY             Float        @default(50)
+  optimalFocalLength  Float        @default(50)
+  isPublished         Boolean      @default(false)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime
+  type                ScenarioType @default(OTHER)
+  initialAperture     Float        @default(5.6)
+  initialIso          Int          @default(100)
+  initialShutterSpeed String       @default("1/125")
+}
+
+model stock_levels {
+  id          String     @id
+  warehouseId String
+  productId   String
+  quantity    Int        @default(0)
+  minQuantity Int        @default(5)
+  updatedAt   DateTime
+  products    products   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouses  warehouses @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, productId])
+}
+
+model stock_movements {
+  id          String            @id
+  warehouseId String
+  productId   String
+  type        StockMovementType
+  quantity    Int
+  reason      String?
+  userId      String?
+  createdAt   DateTime          @default(now())
+  products    products          @relation(fields: [productId], references: [id])
+  users       User?             @relation(fields: [userId], references: [id])
+  warehouses  warehouses        @relation(fields: [warehouseId], references: [id])
+
+  @@index([productId])
+  @@index([warehouseId])
+}
+
+model subscriptions {
+  id              String             @id
+  userId          String
+  status          SubscriptionStatus @default(PENDING)
+  flouciPaymentId String?            @unique
+  flouciTransId   String?
+  startDate       DateTime
+  endDate         DateTime
+  autoRenew       Boolean            @default(false)
+  amount          Float
+  currency        String             @default("TND")
+  paymentMethod   String?
+  lastPaymentDate DateTime?
+  nextBillingDate DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime
+  licenses        licenses[]
+
+  @@index([status])
+  @@index([userId])
+}
+
+model templates {
+  id         String   @id
+  name       String
+  category   String
+  layoutJson Json
+  previewUrl String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model tutorial_progress {
+  id                  String    @id
+  userId              String
+  tutorialId          String
+  completedChapterIds String[]
+  isCompleted         Boolean   @default(false)
+  lastAccessedAt      DateTime  @default(now())
+  tutorials           tutorials @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  users               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tutorialId])
+}
+
+model tutorials {
+  id                String              @id
+  slug              String              @unique
+  title             String
+  description       String?
+  content           String?
+  videoUrl          String?
+  duration          Int?
+  category          TutorialCategory    @default(PHOTOGRAPHY)
+  level             TutorialLevel       @default(BEGINNER)
+  tags              String[]
+  thumbnailUrl      String?
+  coverUrl          String?
+  isPublished       Boolean             @default(false)
+  isFree            Boolean             @default(true)
+  viewCount         Int                 @default(0)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  language          TutorialLanguage    @default(FR)
+  chapters          chapters[]
+  quizzes           quizzes[]
+  resources         resources[]
+  tutorial_progress tutorial_progress[]
+  workshops         workshops[]
+
+  @@index([category])
+  @@index([language])
+  @@index([level])
+  @@index([slug])
+}
+
+model warehouses {
+  id              String            @id
+  name            String
+  location        String?
+  isDefault       Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  stock_levels    stock_levels[]
+  stock_movements stock_movements[]
+}
+
+model workshop_submissions {
+  id         String    @id
+  workshopId String
+  userId     String
+  imageUrl   String
+  notes      String?
+  score      Int?
+  feedback   String?
+  createdAt  DateTime  @default(now())
+  users      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workshops  workshops @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([workshopId])
+}
+
+model workshops {
+  id                   String                 @id
+  slug                 String                 @unique
+  title                String
+  description          String?
+  instructions         String?
+  type                 WorkshopType           @default(PHOTO_CHALLENGE)
+  difficulty           TutorialLevel          @default(BEGINNER)
+  duration             Int?
+  objectives           Json?
+  thumbnailUrl         String?
+  exampleUrl           String?
+  isPublished          Boolean                @default(false)
+  isFree               Boolean                @default(true)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  tutorialId           String?
+  workshop_submissions workshop_submissions[]
+  tutorials            tutorials?             @relation(fields: [tutorialId], references: [id])
+
+  @@index([slug])
+  @@index([type])
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  OPERATOR
+  B2B
+  HR
+  ACCOUNTANT
+  SUPPLY_MANAGER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Department {
+  MANAGEMENT
+  SALES
+  FINANCE
+  HR
+  LOGISTICS
+  PRODUCTION
+  IT
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum JobType {
+  GENERATE_PDF
+  PREFLIGHT_CHECK
+  IMAGE_TRANSFORM
+  SEND_EMAIL
+  SEND_SMS
+  GENERATE_THUMBNAIL
+}
+
+enum PaymentMethod {
+  ONLINE
+  CASH
+  CARD_TERMINAL
+  CHECK
+  TRANSFER
+}
+
+enum ExpenseCategory {
+  RENT
+  SALARY
+  UTILITIES
+  MARKETING
+  SOFTWARE
+  EQUIPMENT
+  TAXES
+  OTHER
+}
+
+enum AnnouncementType {
+  INFO
+  WARNING
+  SUCCESS
+  ERROR
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  RECEIVED_PARTIAL
+  RECEIVED_FULL
+  CANCELLED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum CustomizationStatus {
+  PENDING
+  APPROVED
+  MODIFICATION_REQUESTED
+  REJECTED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum OrderSource {
+  ONLINE
+  POS
+  MANUAL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  PREFLIGHT
+  PRINTING
+  READY
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaperType {
+  STANDARD
+  GLOSSY
+  MATTE
+  PREMIUM
+  METALLIC
+  CANVAS
+}
+
+enum ProductCategory {
+  TIRAGE
+  ALBUM
+  CADRE
+  PHOTOBOOK
+  PANNEAU
+  CARTE
+  EVENEMENT
+}
+
+enum ProductType {
+  PHYSICAL
+  SERVICE
+  DIGITAL
+}
+
+enum PurchaseExperience {
+  SIMPLE
+  UPLOAD_ONLY
+  DESIGNER
+}
+
+enum ResourceType {
+  PDF
+  PRESET
+  TEMPLATE
+  CHEATSHEET
+  EBOOK
+}
+
+enum ScenarioType {
+  PORTRAIT
+  LANDSCAPE
+  MACRO
+  ASTRO
+  ACTION
+  PRODUCT
+  OTHER
+}
+
+enum ShippingMethod {
+  PICKUP
+  DELIVERY
+  EXPRESS
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUST
+  TRANSFER
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
+enum TutorialCategory {
+  PHOTOGRAPHY
+  EDITING
+  LIGHTING
+  COMPOSITION
+  EQUIPMENT
+}
+
+enum TutorialLanguage {
+  FR
+  EN
+  AR
+}
+
+enum TutorialLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum WorkshopType {
+  PHOTO_CHALLENGE
+  EDITING_EXERCISE
+  COMPOSITION_STUDY
+}

@@ -1,0 +1,94 @@
+[
+  {
+    "id": "cmk76r5cw0000ly9rbijzba82",
+    "slug": "tirage-fine-art",
+    "title": "Tirage Fine Art",
+    "description": "Impression de haute qualité sur papier d'art.",
+    "category": "TIRAGE",
+    "categoryId": null,
+    "productType": "PHYSICAL",
+    "purchaseExperience": "UPLOAD_ONLY",
+    "basePrice": 30,
+    "isActive": true,
+    "availableSizes": [
+      {
+        "id": "A4",
+        "base": 30,
+        "name": "A4 (21x29.7cm)"
+      },
+      {
+        "id": "A3",
+        "base": 55,
+        "name": "A3 (29.7x42cm)"
+      },
+      {
+        "id": "A2",
+        "base": 100,
+        "name": "A2 (42x59.4cm)"
+      },
+      {
+        "id": "50x70",
+        "base": 130,
+        "name": "50x70cm"
+      }
+    ],
+    "availablePapers": [
+      {
+        "id": "MATTE",
+        "name": "Papier Mat Fine Art",
+        "price": 0
+      },
+      {
+        "id": "SATIN",
+        "name": "Papier Satiné (Lustré)",
+        "price": 5
+      },
+      {
+        "id": "GLOSSY",
+        "name": "Papier Glacé (Brillant)",
+        "price": 5
+      },
+      {
+        "id": "CANVAS",
+        "name": "Toile Canvas (Sur châssis)",
+        "price": 40
+      }
+    ],
+    "availablePacks": null,
+    "availableFrames": [
+      {
+        "id": "NONE",
+        "name": "Sans Encadrement",
+        "price": 0
+      },
+      {
+        "id": "WOOD",
+        "name": "Cadre Bois Naturel",
+        "price": 45
+      },
+      {
+        "id": "BLACK",
+        "name": "Cadre Noir Alu",
+        "price": 50
+      },
+      {
+        "id": "WHITE",
+        "name": "Cadre Blanc",
+        "price": 50
+      }
+    ],
+    "customizationConfig": null,
+    "bulkPricing": null,
+    "productionTime": 3,
+    "minDPI": 300,
+    "requiresBleed": true,
+    "bleedMM": 3,
+    "stockQuantity": null,
+    "lowStockAlert": null,
+    "imageUrl": null,
+    "tags": [],
+    "sortOrder": 0,
+    "createdAt": "2026-01-09T18:04:24.417Z",
+    "updatedAt": "2026-01-09T18:04:24.417Z"
+  }
+]

@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: lbenna-postgres
+    environment:
+      POSTGRES_USER: lbenna
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: lbenna_prod
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    restart: always
+    networks:
+      - app-network
+
+  # Cache
+  redis:
+    image: redis:alpine
+    container_name: lbenna-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: always
+    networks:
+      - app-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lbenna-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://lbenna:password123@postgres:5432/lbenna_prod?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3001
+      - NODE_ENV=production
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads-data:/app/uploads
+    restart: always
+    networks:
+      - app-network
+
+  # Frontend Web
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lbenna-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+  redis-data:
+  uploads-data:
+
+
+networks:
+  app-network:
+    driver: bridge
