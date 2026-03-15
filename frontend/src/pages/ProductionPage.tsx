@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-    Check, ArrowRight, Sparkles, Play, Loader2, Heart, Star, ShieldCheck, Users
+    Check, ArrowRight, Sparkles, Loader2, Heart, Star, ShieldCheck, Users
 } from 'lucide-react';
 import { SectionHeader } from '../components/SectionHeader';
 import { Link } from 'react-router-dom';
