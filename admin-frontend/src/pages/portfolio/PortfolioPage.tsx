@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Switch, DatePicker, Tag } from 'antd';
-import { portfolioService, PortfolioItem, CreatePortfolioItemDto } from '../../services/portfolio';
+import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Switch, DatePicker, Tag, Upload } from 'antd';
+import { portfolioService, PortfolioItem } from '../../services/portfolio';
 import { EditOutlined, DeleteOutlined, PlusOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { categoryService, Category } from '../../services/categories';
@@ -13,6 +13,7 @@ export default function PortfolioPage() {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [fileList, setFileList] = useState<any[]>([]);
     const [form] = Form.useForm();
 
     const handleBulkSuccess = (urls: string[]) => {
@@ -49,21 +50,35 @@ export default function PortfolioPage() {
 
     const handleSave = async (values: any) => {
         try {
-            const formattedValues: CreatePortfolioItemDto = {
-                ...values,
-                eventDate: values.eventDate ? values.eventDate.toISOString() : undefined,
-                galleryUrls: values.galleryUrls ? values.galleryUrls.split('\n').filter((u: string) => u.trim()) : [],
-            };
+            const formData = new FormData();
+            
+            // Add all form values to FormData
+            Object.keys(values).forEach(key => {
+                if (key === 'eventDate' && values[key]) {
+                    formData.append(key, values[key].toISOString());
+                } else if (key === 'galleryUrls' && values[key]) {
+                    const urls = values[key].split('\n').filter((u: string) => u.trim());
+                    urls.forEach((url: string) => formData.append('galleryUrls[]', url));
+                } else if (values[key] !== undefined && values[key] !== null) {
+                    formData.append(key, values[key]);
+                }
+            });
+
+            // Add the file if selected
+            if (fileList.length > 0) {
+                formData.append('file', fileList[0].originFileObj);
+            }
 
             if (editingItem) {
-                await portfolioService.update(editingItem.id, formattedValues);
+                await portfolioService.update(editingItem.id, formData as any);
                 message.success('Projet mis à jour');
             } else {
-                await portfolioService.create(formattedValues);
+                await portfolioService.create(formData as any);
                 message.success('Projet créé');
             }
             setIsModalOpen(false);
             setEditingItem(null);
+            setFileList([]);
             form.resetFields();
             fetchItems();
         } catch (error) {
@@ -134,6 +149,7 @@ export default function PortfolioPage() {
                         icon={<EditOutlined />}
                         onClick={() => {
                             setEditingItem(record);
+                            setFileList([]); // Clear file list when editing
                             form.setFieldsValue({
                                 ...record,
                                 eventDate: record.eventDate ? dayjs(record.eventDate) : undefined,
@@ -167,6 +183,7 @@ export default function PortfolioPage() {
                     </Button>
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => {
                         setEditingItem(null);
+                        setFileList([]);
                         form.resetFields();
                         setIsModalOpen(true);
                     }} className="bg-gray-950 hover:bg-primary-600 rounded-xl px-6 font-bold uppercase tracking-widest text-[10px]">
@@ -204,10 +221,26 @@ export default function PortfolioPage() {
                     <Form.Item name="description" label="Description">
                         <Input.TextArea rows={4} />
                     </Form.Item>
-                    <Form.Item name="coverUrl" label="URL Image de Couverture" rules={[{ required: true, type: 'url' }]}>
-                        <Input placeholder="https://..." />
+                    
+                    <Form.Item label="Image de Couverture">
+                        <div className="flex flex-col gap-2">
+                            <Form.Item name="coverUrl" noStyle>
+                                <Input placeholder="URL de l'image (https://...)" disabled={fileList.length > 0} />
+                            </Form.Item>
+                            <div className="text-center text-gray-400 my-1">- OU -</div>
+                            <Upload
+                                listType="picture"
+                                maxCount={1}
+                                fileList={fileList}
+                                onChange={({ fileList }) => setFileList(fileList)}
+                                beforeUpload={() => false}
+                            >
+                                <Button icon={<CloudUploadOutlined />}>Sélectionner un fichier depuis mon bureau</Button>
+                            </Upload>
+                        </div>
                     </Form.Item>
-                    <Form.Item name="galleryUrls" label="URLs Galerie (une par ligne)">
+
+                    <Form.Item name="galleryUrls" label="Lien Galerie (un par ligne)">
                         <Input.TextArea rows={4} placeholder="https://...\nhttps://..." />
                     </Form.Item>
                     <Form.Item name="videoUrl" label="URL Vidéo (Youtube/Vimeo)">

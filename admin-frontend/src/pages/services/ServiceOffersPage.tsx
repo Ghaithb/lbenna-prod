@@ -211,7 +211,12 @@ export default function ServiceOffersPage() {
                         }
                     </Form.Item>
                     <Form.Item name="features" label="Points Forts / Caractéristiques">
-                        <Select mode="tags" style={{ width: '100%' }} placeholder="Ajoutez des caractéristiques..." />
+                        <Select 
+                            mode="tags" 
+                            style={{ width: '100%' }} 
+                            placeholder="Tapez un texte et appuyez sur 'Entrée' pour ajouter" 
+                            tokenSeparators={[',', ';']}
+                        />
                     </Form.Item>
                 </Form>
 
