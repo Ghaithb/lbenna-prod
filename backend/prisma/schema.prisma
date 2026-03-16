@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -14,9 +15,11 @@ model User {
   passwordHash         String
   firstName            String?
   lastName             String?
+  name                 String?
   phone                String?
   role                 UserRole               @default(CLIENT)
   isB2B                Boolean                @default(false)
+  isActive             Boolean                @default(true)
   emailVerified        Boolean                @default(false)
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
@@ -155,9 +158,13 @@ model ServiceOffer {
   price       Float?
   duration    Int?
   imageUrl    String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive       Boolean   @default(true)
+  isPack         Boolean   @default(false)
+  isPromo        Boolean   @default(false)
+  promoPrice     Float?
+  promoExpiresAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   categoryId  String?
   badge       String?
   features    String[]
@@ -194,6 +201,7 @@ model Booking {
 model PortfolioItem {
   id             String    @id @default(cuid())
   title          String
+  description    String?
   category       String?
   coverUrl       String
   galleryUrls    String[]

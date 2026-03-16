@@ -2,17 +2,29 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
 import { UpdatePortfolioItemDto } from './dto/update-portfolio-item.dto';
+import { StorageService } from '../upload/storage.service';
 
 @Injectable()
 export class PortfolioItemsService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private storageService: StorageService
+    ) { }
 
-    async create(createDto: CreatePortfolioItemDto) {
+    async create(createDto: CreatePortfolioItemDto, file?: Express.Multer.File) {
         const { categoryId, ...data } = createDto;
+
+        let coverUrl = data.coverUrl;
+
+        // If a file is uploaded, it takes precedence over the provided URL
+        if (file) {
+            coverUrl = await this.storageService.uploadFile(file, 'portfolio');
+        }
 
         return this.prisma.portfolioItem.create({
             data: {
                 ...data,
+                coverUrl: coverUrl || '', // Ensure we have a string if no file/URL provided
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });
@@ -36,12 +48,20 @@ export class PortfolioItemsService {
         return item;
     }
 
-    async update(id: string, updateDto: UpdatePortfolioItemDto) {
+    async update(id: string, updateDto: UpdatePortfolioItemDto, file?: Express.Multer.File) {
         const { categoryId, ...data } = updateDto;
+
+        let coverUrl = data.coverUrl;
+
+        if (file) {
+            coverUrl = await this.storageService.uploadFile(file, 'portfolio');
+        }
+
         return this.prisma.portfolioItem.update({
             where: { id },
             data: {
                 ...data,
+                ...(coverUrl && { coverUrl }),
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });

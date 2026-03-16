@@ -18,9 +18,8 @@ export class CreatePortfolioItemDto {
     categoryId?: string;
 
     @IsString()
-    @IsNotEmpty()
-    @IsUrl()
-    coverUrl: string;
+    @IsOptional()
+    coverUrl?: string;
 
     @IsArray()
     @IsUrl({}, { each: true })
