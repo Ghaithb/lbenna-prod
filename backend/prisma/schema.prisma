@@ -141,7 +141,6 @@ model Category {
   updatedAt      DateTime        @updatedAt
   color          String?
   icon           String?
-  defaultFeatures String[]      @default([])
   parent         Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children       Category[]      @relation("CategoryHierarchy")
   portfolioItems PortfolioItem[] @relation("CategoryPortfolio")

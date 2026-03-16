@@ -166,13 +166,6 @@ export default function ServiceOffersPage() {
                 <div className="flex gap-3">
                     <Button
                         icon={<UnorderedListOutlined />}
-                        onClick={() => navigate('/services/characteristics')}
-                        className="bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100"
-                    >
-                        Gérer les Points Forts
-                    </Button>
-                    <Button
-                        icon={<UnorderedListOutlined />}
                         onClick={() => navigate('/services/categories')}
                     >
                         Gérer les Catégories
@@ -214,12 +207,6 @@ export default function ServiceOffersPage() {
                             placeholder="Sélectionner une catégorie"
                             options={categories.map((c: Category) => ({ label: c.name, value: c.id }))}
                             allowClear
-                            onChange={(value: string) => {
-                                const selectedCat = categories.find((c: Category) => c.id === value);
-                                if (selectedCat?.defaultFeatures && !form.getFieldValue('features')?.length) {
-                                    form.setFieldsValue({ features: selectedCat.defaultFeatures });
-                                }
-                            }}
                         />
                     </Form.Item>
                     <Form.Item name="badge" label="Badge Marketing (ex: Populaire, Promo)">

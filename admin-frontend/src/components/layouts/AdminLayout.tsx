@@ -38,7 +38,6 @@ export default function AdminLayout() {
         { key: '/services/bookings', icon: <CalendarOutlined />, label: 'Réservations', onClick: () => navigate('/services/bookings') },
         { key: '/services/calendar', icon: <CalendarOutlined />, label: 'Calendrier', onClick: () => navigate('/services/calendar') },
         { key: '/services/offers', icon: <AppstoreOutlined />, label: 'Offres & Services', onClick: () => navigate('/services/offers') },
-        { key: '/services/characteristics', icon: <UnorderedListOutlined />, label: 'Points Forts / Caractéristiques', onClick: () => navigate('/services/characteristics') },
         { key: '/services/categories', icon: <UnorderedListOutlined />, label: 'Configuration Catégories', onClick: () => navigate('/services/categories') },
       ]
     },

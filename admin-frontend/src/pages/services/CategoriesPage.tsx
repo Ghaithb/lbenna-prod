@@ -196,15 +196,6 @@ export default function CategoriesPage() {
                             <Input placeholder="Code Hex" />
                         </Form.Item>
                     </div>
-
-                    <Form.Item name="defaultFeatures" label="Points Forts / Caractéristiques par défaut">
-                        <Select
-                            mode="tags"
-                            style={{ width: '100%' }}
-                            placeholder="Points forts suggérés pour les offres de cette catégorie"
-                            tokenSeparators={[',', ';']}
-                        />
-                    </Form.Item>
                 </Form>
             </Modal>
         </div>

@@ -19,8 +19,4 @@ export class CreateCategoryDto {
     @IsOptional()
     @IsString()
     color?: string;
-
-    @IsOptional()
-    @IsString({ each: true })
-    defaultFeatures?: string[];
 }
