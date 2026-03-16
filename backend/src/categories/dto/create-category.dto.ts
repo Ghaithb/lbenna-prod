@@ -12,9 +12,6 @@ export class CreateCategoryDto {
     @IsString()
     slug?: string;
 
-    @IsOptional()
-    @IsString()
-    parentId?: string;
 
     @IsOptional()
     @IsString()

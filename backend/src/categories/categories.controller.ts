@@ -24,10 +24,6 @@ export class CategoriesController {
         return this.categoriesService.findAll();
     }
 
-    @Get('tree')
-    findTree() {
-        return this.categoriesService.findTree();
-    }
 
     @Get(':id')
     findOne(@Param('id') id: string) {

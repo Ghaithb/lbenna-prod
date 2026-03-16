@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Tag } from 'antd';
+import { Table, Button, Popconfirm, message, Modal, Form, Input, Tag } from 'antd';
 import { categoryService, Category } from '@/services/categories';
 import { EditOutlined, DeleteOutlined, PlusOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
@@ -28,10 +28,8 @@ export default function CategoriesPage() {
 
     const handleSave = async (values: any) => {
         try {
-            // Handle parentId: convert empty string to null
             const formattedValues = {
                 ...values,
-                parentId: values.parentId === '' ? null : values.parentId
             };
 
             if (editingCategory) {
@@ -105,7 +103,6 @@ export default function CategoriesPage() {
                             setEditingCategory(record);
                             form.setFieldsValue({
                                 ...record,
-                                parentId: record.parentId || undefined
                             });
                             setIsModalOpen(true);
                         }}
@@ -177,16 +174,6 @@ export default function CategoriesPage() {
                         <Input placeholder="ex: photographie-mariage" />
                     </Form.Item>
 
-                    <Form.Item name="parentId" label="Catégorie Parente">
-                        <Select
-                            placeholder="Sélectionner une catégorie parente (facultatif)"
-                            allowClear
-                            options={categories
-                                .filter((c: Category) => !editingCategory || c.id !== editingCategory.id)
-                                .map((c: Category) => ({ label: c.name, value: c.id }))
-                            }
-                        />
-                    </Form.Item>
 
                     <div className="grid grid-cols-2 gap-4">
                         <Form.Item name="icon" label="Icône (ex: 📸, 🚁)">
