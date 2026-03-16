@@ -16,6 +16,7 @@ import PortfolioPage from './pages/portfolio/PortfolioPage';
 import BookingsPage from './pages/services/BookingsPage';
 import BookingsCalendarPage from './pages/services/BookingsCalendarPage';
 import ServiceOffersPage from './pages/services/ServiceOffersPage';
+import CategoriesPage from './pages/services/CategoriesPage';
 
 import PagesManagement from './pages/content/PagesManagement';
 import PageEditor from './pages/content/PageEditor';
@@ -43,6 +44,7 @@ function App() {
           <Route path="/services/bookings" element={<BookingsPage />} />
           <Route path="/services/calendar" element={<BookingsCalendarPage />} />
           <Route path="/services/offers" element={<ServiceOffersPage />} />
+          <Route path="/services/categories" element={<CategoriesPage />} />
           <Route path="/services/portfolio" element={<PortfolioPage />} />
 
           {/* Other Routes */}

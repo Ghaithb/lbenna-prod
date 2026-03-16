@@ -6,7 +6,8 @@ import {
   SettingOutlined, LogoutOutlined, AppstoreOutlined, FileTextOutlined,
   BellOutlined, UserOutlined, MessageOutlined,
   SecurityScanOutlined,
-  PictureOutlined, ProjectOutlined
+  PictureOutlined, ProjectOutlined,
+  UnorderedListOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -37,6 +38,7 @@ export default function AdminLayout() {
         { key: '/services/bookings', icon: <CalendarOutlined />, label: 'Réservations', onClick: () => navigate('/services/bookings') },
         { key: '/services/calendar', icon: <CalendarOutlined />, label: 'Calendrier', onClick: () => navigate('/services/calendar') },
         { key: '/services/offers', icon: <AppstoreOutlined />, label: 'Offres & Services', onClick: () => navigate('/services/offers') },
+        { key: '/services/categories', icon: <UnorderedListOutlined />, label: 'Catégories (CMS)', onClick: () => navigate('/services/categories') },
       ]
     },
     {
