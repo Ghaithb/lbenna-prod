@@ -17,7 +17,4 @@ export class CreateCategoryDto {
     @IsString()
     color?: string;
 
-    @IsOptional()
-    @IsString()
-    icon?: string;
 }

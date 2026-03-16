@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ArrowRight, Loader2, Star } from 'lucide-react';
 import { categoriesService, Category } from '../services/categories';
-import * as LucideIcons from 'lucide-react';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e';
 
@@ -17,11 +16,11 @@ export default function UniversesCarousel() {
             try {
                 const data = await categoriesService.getAll();
                 // Filter top-level categories or those intended for carousel
-                const mapped = data.filter((c: Category) => !c.parentId).map((c: Category) => ({
+                const mapped = data.map((c: Category) => ({
                     id: c.id,
                     title: c.name,
                     subtitle: c.description || 'Service professionnel',
-                    icon: (LucideIcons as any)[c.icon || ''] || Star,
+                    icon: Star,
                     color: c.color || 'bg-primary-500',
                     gradient: 'from-gray-950/90 via-gray-900/40',
                     image: FALLBACK_IMAGE, // Ideally, Category model should have an image field, but we use a default

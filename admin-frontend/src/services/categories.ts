@@ -5,7 +5,6 @@ export interface Category {
     name: string;
     slug: string;
     description?: string;
-    icon?: string;
     color?: string;
     _count?: {
         serviceOffers?: number;

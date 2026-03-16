@@ -32,7 +32,6 @@ export default function CategoriesPage() {
                 name: values.name,
                 description: values.description,
                 slug: values.slug,
-                icon: values.icon,
                 color: values.color
             };
 
@@ -67,9 +66,8 @@ export default function CategoriesPage() {
             title: 'Nom',
             dataIndex: 'name',
             key: 'name',
-            render: (name: string, record: any) => (
+            render: (name: string) => (
                 <div className="flex items-center">
-                    {record.icon && <span className="mr-2">{record.icon}</span>}
                     <span className="font-medium">{name}</span>
                 </div>
             )
@@ -179,10 +177,7 @@ export default function CategoriesPage() {
                     </Form.Item>
 
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <Form.Item name="icon" label="Icône (ex: 📸, 🚁)">
-                            <Input placeholder="Icône ou Emoji" />
-                        </Form.Item>
+                    <div className="grid grid-cols-1 gap-4">
                         <Form.Item name="color" label="Couleur (ex: #1890ff)">
                             <Input placeholder="Code Hex" />
                         </Form.Item>

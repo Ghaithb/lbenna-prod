@@ -7,12 +7,10 @@ export interface Category {
     name: string;
     slug: string;
     description?: string;
-    icon?: string;
     color?: string;
-    parentId?: string;
-    children?: Category[];
     _count?: {
-        products: number;
+        serviceOffers: number;
+        portfolioItems: number;
     };
 }
 
@@ -22,10 +20,6 @@ export const categoriesService = {
         return res.data;
     },
 
-    getTree: async () => {
-        const res = await axios.get(`${API_URL}/categories/tree`);
-        return res.data;
-    },
 
     create: async (data: any) => {
         const res = await axios.post(`${API_URL}/categories`, data, {
