@@ -13,6 +13,9 @@ async function bootstrap() {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'],
     });
 
+    // Enable trust proxy for Vercel/proxies (Required for express-rate-limit)
+    (app as any).set('trust proxy', 1);
+
     // Basic rate limiting for security
     app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
