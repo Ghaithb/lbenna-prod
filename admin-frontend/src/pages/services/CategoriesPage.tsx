@@ -29,7 +29,11 @@ export default function CategoriesPage() {
     const handleSave = async (values: any) => {
         try {
             const formattedValues = {
-                ...values,
+                name: values.name,
+                description: values.description,
+                slug: values.slug,
+                icon: values.icon,
+                color: values.color
             };
 
             if (editingCategory) {
