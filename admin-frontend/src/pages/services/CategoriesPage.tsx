@@ -182,8 +182,8 @@ export default function CategoriesPage() {
                             placeholder="Sélectionner une catégorie parente (facultatif)"
                             allowClear
                             options={categories
-                                .filter(c => !editingCategory || c.id !== editingCategory.id) // Empêcher de choisir soi-même comme parent
-                                .map(c => ({ label: c.name, value: c.id }))
+                                .filter((c: Category) => !editingCategory || c.id !== editingCategory.id)
+                                .map((c: Category) => ({ label: c.name, value: c.id }))
                             }
                         />
                     </Form.Item>

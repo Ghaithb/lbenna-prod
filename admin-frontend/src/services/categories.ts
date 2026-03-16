@@ -10,7 +10,8 @@ export interface Category {
     parentId?: string;
     children?: Category[];
     _count?: {
-        products: number;
+        serviceOffers?: number;
+        portfolioItems?: number;
     };
 }
 
