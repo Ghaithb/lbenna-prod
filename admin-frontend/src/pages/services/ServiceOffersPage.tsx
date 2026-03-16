@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, Button, Popconfirm, message, Modal, Form, Input, InputNumber, Switch, Tag, Select, DatePicker } from 'antd';
 import { serviceOffersService, ServiceOffer } from '@/services/serviceOffers';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { categoryService, Category } from '@/services/categories';
 import dayjs from 'dayjs';
 
@@ -12,6 +13,7 @@ export default function ServiceOffersPage() {
     const [editingOffer, setEditingOffer] = useState<ServiceOffer | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const fetchOffers = async () => {
         setLoading(true);
@@ -108,6 +110,20 @@ export default function ServiceOffersPage() {
             key: 'duration',
         },
         {
+            title: 'Points Forts',
+            dataIndex: 'features',
+            key: 'features',
+            width: 200,
+            render: (features: string[]) => (
+                <div className="flex flex-wrap gap-1">
+                    {features?.slice(0, 3).map((f, i) => (
+                        <Tag key={i} color="blue" className="text-[10px]">{f}</Tag>
+                    ))}
+                    {features?.length > 3 && <Tag className="text-[10px]">+{features.length - 3}</Tag>}
+                </div>
+            )
+        },
+        {
             title: 'Actif',
             dataIndex: 'isActive',
             key: 'isActive',
@@ -143,12 +159,30 @@ export default function ServiceOffersPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Offres de Services (Drone, Photobooth...)</h1>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => {
-                    setEditingOffer(null);
-                    form.resetFields();
-                    setIsModalOpen(true);
-                }}>Nouvelle Offre</Button>
+                <div>
+                    <h1 className="text-2xl font-bold">Offres de Services (Drone, Photobooth...)</h1>
+                    <p className="text-gray-500 text-sm">Gérez vos prestations et forfaits.</p>
+                </div>
+                <div className="flex gap-3">
+                    <Button
+                        icon={<UnorderedListOutlined />}
+                        onClick={() => navigate('/services/characteristics')}
+                        className="bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100"
+                    >
+                        Gérer les Points Forts
+                    </Button>
+                    <Button
+                        icon={<UnorderedListOutlined />}
+                        onClick={() => navigate('/services/categories')}
+                    >
+                        Gérer les Catégories
+                    </Button>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+                        setEditingOffer(null);
+                        form.resetFields();
+                        setIsModalOpen(true);
+                    }}>Nouvelle Offre</Button>
+                </div>
             </div>
 
             <Table dataSource={offers} columns={columns} rowKey="id" loading={loading} />
@@ -180,6 +214,12 @@ export default function ServiceOffersPage() {
                             placeholder="Sélectionner une catégorie"
                             options={categories.map((c: Category) => ({ label: c.name, value: c.id }))}
                             allowClear
+                            onChange={(value: string) => {
+                                const selectedCat = categories.find((c: Category) => c.id === value);
+                                if (selectedCat?.defaultFeatures && !form.getFieldValue('features')?.length) {
+                                    form.setFieldsValue({ features: selectedCat.defaultFeatures });
+                                }
+                            }}
                         />
                     </Form.Item>
                     <Form.Item name="badge" label="Badge Marketing (ex: Populaire, Promo)">

@@ -8,6 +8,7 @@ export interface Category {
     icon?: string;
     color?: string;
     parentId?: string;
+    defaultFeatures?: string[];
     children?: Category[];
     _count?: {
         serviceOffers?: number;

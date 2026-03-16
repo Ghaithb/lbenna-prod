@@ -11,7 +11,7 @@ export class PortfolioItemsService {
         private storageService: StorageService
     ) { }
 
-    async create(createDto: CreatePortfolioItemDto, file?: Express.Multer.File) {
+    async create(createDto: CreatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[]) {
         const { categoryId, ...data } = createDto;
 
         let coverUrl = data.coverUrl;
@@ -21,10 +21,19 @@ export class PortfolioItemsService {
             coverUrl = await this.storageService.uploadFile(file, 'portfolio');
         }
 
+        let galleryUrls = Array.isArray(data.galleryUrls) ? data.galleryUrls : [];
+        if (galleryFiles && galleryFiles.length > 0) {
+            const uploadedGallery = await Promise.all(
+                galleryFiles.map(f => this.storageService.uploadFile(f, 'portfolio/gallery'))
+            );
+            galleryUrls = [...galleryUrls, ...uploadedGallery];
+        }
+
         return this.prisma.portfolioItem.create({
             data: {
                 ...data,
                 coverUrl: coverUrl || '', // Ensure we have a string if no file/URL provided
+                galleryUrls,
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });
@@ -48,7 +57,7 @@ export class PortfolioItemsService {
         return item;
     }
 
-    async update(id: string, updateDto: UpdatePortfolioItemDto, file?: Express.Multer.File) {
+    async update(id: string, updateDto: UpdatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[]) {
         const { categoryId, ...data } = updateDto;
 
         let coverUrl = data.coverUrl;
@@ -57,11 +66,21 @@ export class PortfolioItemsService {
             coverUrl = await this.storageService.uploadFile(file, 'portfolio');
         }
 
+        let galleryUrls = data.galleryUrls;
+        if (galleryFiles && galleryFiles.length > 0) {
+            const uploadedGallery = await Promise.all(
+                galleryFiles.map(f => this.storageService.uploadFile(f, 'portfolio/gallery'))
+            );
+            const existingUrls = Array.isArray(data.galleryUrls) ? data.galleryUrls : [];
+            galleryUrls = [...existingUrls, ...uploadedGallery];
+        }
+
         return this.prisma.portfolioItem.update({
             where: { id },
             data: {
                 ...data,
                 ...(coverUrl && { coverUrl }),
+                ...(galleryUrls && { galleryUrls }),
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });

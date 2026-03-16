@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { PortfolioItemsService } from './portfolio-items.service';
 import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
 import { UpdatePortfolioItemDto } from './dto/update-portfolio-item.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
 @ApiTags('portfolio-items')
@@ -32,12 +32,15 @@ export class PortfolioItemsController {
         },
     })
     @ApiOperation({ summary: 'Create portfolio item (Admin) with direct upload' })
-    @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'file', maxCount: 1 },
+        { name: 'gallery', maxCount: 20 },
+    ], { storage: memoryStorage() }))
     create(
         @Body() createDto: CreatePortfolioItemDto,
-        @UploadedFile() file?: Express.Multer.File
+        @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[] }
     ) {
-        return this.portfolioItemsService.create(createDto, file);
+        return this.portfolioItemsService.create(createDto, files?.file?.[0], files?.gallery);
     }
 
     @Get()
@@ -55,13 +58,16 @@ export class PortfolioItemsController {
     @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiOperation({ summary: 'Update portfolio item (Admin) with direct upload' })
-    @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'file', maxCount: 1 },
+        { name: 'gallery', maxCount: 20 },
+    ], { storage: memoryStorage() }))
     update(
         @Param('id') id: string,
         @Body() updateDto: UpdatePortfolioItemDto,
-        @UploadedFile() file?: Express.Multer.File
+        @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[] }
     ) {
-        return this.portfolioItemsService.update(id, updateDto, file);
+        return this.portfolioItemsService.update(id, updateDto, files?.file?.[0], files?.gallery);
     }
 
     @Delete(':id')

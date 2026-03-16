@@ -189,13 +189,22 @@ export default function CategoriesPage() {
                     </Form.Item>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <Form.Item name="icon" label="Emoji / Icône">
-                            <Input placeholder="Ex: 📸, 🚁" />
+                        <Form.Item name="icon" label="Icône (ex: 📸, 🚁)">
+                            <Input placeholder="Icône ou Emoji" />
                         </Form.Item>
-                        <Form.Item name="color" label="Couleur (Code Hex)">
-                            <Input placeholder="Ex: #1890ff" />
+                        <Form.Item name="color" label="Couleur (ex: #1890ff)">
+                            <Input placeholder="Code Hex" />
                         </Form.Item>
                     </div>
+
+                    <Form.Item name="defaultFeatures" label="Points Forts / Caractéristiques par défaut">
+                        <Select
+                            mode="tags"
+                            style={{ width: '100%' }}
+                            placeholder="Points forts suggérés pour les offres de cette catégorie"
+                            tokenSeparators={[',', ';']}
+                        />
+                    </Form.Item>
                 </Form>
             </Modal>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Switch, DatePicker, Tag, Upload } from 'antd';
+import type { UploadFile } from 'antd';
 import { portfolioService, PortfolioItem } from '../../services/portfolio';
 import { EditOutlined, DeleteOutlined, PlusOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -13,7 +14,8 @@ export default function PortfolioPage() {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [fileList, setFileList] = useState<any[]>([]);
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [galleryFileList, setGalleryFileList] = useState<UploadFile[]>([]);
     const [form] = Form.useForm();
 
     const handleBulkSuccess = (urls: string[]) => {
@@ -66,7 +68,16 @@ export default function PortfolioPage() {
 
             // Add the file if selected
             if (fileList.length > 0) {
-                formData.append('file', fileList[0].originFileObj);
+                formData.append('file', fileList[0].originFileObj as Blob);
+            }
+
+            // Add gallery files if selected
+            if (galleryFileList.length > 0) {
+                galleryFileList.forEach((file: UploadFile) => {
+                    if (file.originFileObj) {
+                        formData.append('gallery', file.originFileObj as Blob);
+                    }
+                });
             }
 
             if (editingItem) {
@@ -79,6 +90,7 @@ export default function PortfolioPage() {
             setIsModalOpen(false);
             setEditingItem(null);
             setFileList([]);
+            setGalleryFileList([]);
             form.resetFields();
             fetchItems();
         } catch (error) {
@@ -150,6 +162,7 @@ export default function PortfolioPage() {
                         onClick={() => {
                             setEditingItem(record);
                             setFileList([]); // Clear file list when editing
+                            setGalleryFileList([]); // Clear gallery file list when editing
                             form.setFieldsValue({
                                 ...record,
                                 eventDate: record.eventDate ? dayjs(record.eventDate) : undefined,
@@ -184,6 +197,7 @@ export default function PortfolioPage() {
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => {
                         setEditingItem(null);
                         setFileList([]);
+                        setGalleryFileList([]);
                         form.resetFields();
                         setIsModalOpen(true);
                     }} className="bg-gray-950 hover:bg-primary-600 rounded-xl px-6 font-bold uppercase tracking-widest text-[10px]">
@@ -232,7 +246,7 @@ export default function PortfolioPage() {
                                 listType="picture"
                                 maxCount={1}
                                 fileList={fileList}
-                                onChange={({ fileList }) => setFileList(fileList)}
+                                onChange={({ fileList }: any) => setFileList(fileList)}
                                 beforeUpload={() => false}
                             >
                                 <Button icon={<CloudUploadOutlined />}>Sélectionner un fichier depuis mon bureau</Button>
@@ -240,8 +254,25 @@ export default function PortfolioPage() {
                         </div>
                     </Form.Item>
 
-                    <Form.Item name="galleryUrls" label="Lien Galerie (un par ligne)">
-                        <Input.TextArea rows={4} placeholder="https://...\nhttps://..." />
+                    <Form.Item label="Galerie Photos">
+                        <div className="flex flex-col gap-2">
+                            <Form.Item name="galleryUrls" noStyle>
+                                <Input.TextArea rows={4} placeholder="URLs des images (un par ligne)" />
+                            </Form.Item>
+                            <div className="text-center text-gray-400 my-1">- OU AJOUTER DEPUIS MON BUREAU -</div>
+                            <Upload
+                                listType="picture-card"
+                                multiple
+                                fileList={galleryFileList}
+                                onChange={({ fileList }: any) => setGalleryFileList(fileList)}
+                                beforeUpload={() => false}
+                            >
+                                <div className="flex flex-col items-center">
+                                    <PlusOutlined />
+                                    <div className="mt-2 text-xs">Upload</div>
+                                </div>
+                            </Upload>
+                        </div>
                     </Form.Item>
                     <Form.Item name="videoUrl" label="URL Vidéo (Youtube/Vimeo)">
                         <Input placeholder="https://..." />
