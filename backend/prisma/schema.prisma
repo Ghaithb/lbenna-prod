@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "windows"]
 }
 
@@ -10,29 +10,28 @@ datasource db {
 }
 
 model User {
-  id                   String                 @id @default(cuid())
-  email                String                 @unique
-  passwordHash         String
-  firstName            String?
-  lastName             String?
-  name                 String?
-  phone                String?
-  role                 UserRole               @default(CLIENT)
-  isB2B                Boolean                @default(false)
-  isActive             Boolean                @default(true)
-  emailVerified        Boolean                @default(false)
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  
-  addresses            Address[]
-  auditLogs            AuditLog[]
-  bookings             Booking[]
-  company              Company?
-  employeeProfile      Employee?
-  passwordResetTokens  PasswordResetToken[]
-  performanceReviews   PerformanceReview[]    @relation("Reviewer")
-  projects             Project[]
-  
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  passwordHash        String
+  firstName           String?
+  lastName            String?
+  phone               String?
+  role                UserRole             @default(CLIENT)
+  isB2B               Boolean              @default(false)
+  emailVerified       Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  isActive            Boolean              @default(true)
+  name                String?
+  addresses           Address[]
+  auditLogs           AuditLog[]
+  bookings            Booking[]
+  company             Company?
+  employeeProfile     Employee?
+  passwordResetTokens PasswordResetToken[]
+  performanceReviews  PerformanceReview[]  @relation("Reviewer")
+  projects            Project[]
+
   @@index([email])
   @@map("users")
 }
@@ -153,24 +152,24 @@ model Category {
 }
 
 model ServiceOffer {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  price       Float?
-  duration    Int?
-  imageUrl    String?
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  price          Float?
+  duration       Int?
+  imageUrl       String?
   isActive       Boolean   @default(true)
-  isPack         Boolean   @default(false)
-  isPromo        Boolean   @default(false)
-  promoPrice     Float?
-  promoExpiresAt DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  categoryId  String?
-  badge       String?
-  features    String[]
-  bookings    Booking[]
-  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId     String?
+  badge          String?
+  features       String[]
+  isPack         Boolean   @default(false)
+  isPromo        Boolean   @default(false)
+  promoExpiresAt DateTime?
+  promoPrice     Float?
+  bookings       Booking[]
+  category       Category? @relation(fields: [categoryId], references: [id])
 
   @@map("service_offers")
 }
@@ -202,7 +201,6 @@ model Booking {
 model PortfolioItem {
   id             String    @id @default(cuid())
   title          String
-  description    String?
   category       String?
   coverUrl       String
   galleryUrls    String[]
@@ -212,6 +210,7 @@ model PortfolioItem {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   categoryId     String?
+  description    String?
   categoryObject Category? @relation("CategoryPortfolio", fields: [categoryId], references: [id])
 
   @@map("portfolio_items")
