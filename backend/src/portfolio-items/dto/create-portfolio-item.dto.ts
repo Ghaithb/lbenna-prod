@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsArray, IsUrl, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsArray, IsDateString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreatePortfolioItemDto {
     @IsString()
@@ -22,13 +23,17 @@ export class CreatePortfolioItemDto {
     coverUrl?: string;
 
     @IsArray()
-    @IsUrl({}, { each: true })
+    @IsString({ each: true })
     @IsOptional()
+    @Transform(({ value }) => {
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        return [value];
+    })
     galleryUrls?: string[];
 
     @IsString()
     @IsOptional()
-    @IsUrl()
     videoUrl?: string;
 
     @IsDateString()
@@ -37,5 +42,10 @@ export class CreatePortfolioItemDto {
 
     @IsBoolean()
     @IsOptional()
+    @Transform(({ value }) => {
+        if (value === 'true' || value === true) return true;
+        if (value === 'false' || value === false) return false;
+        return value;
+    })
     isActive?: boolean;
 }
