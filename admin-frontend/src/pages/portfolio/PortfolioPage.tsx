@@ -55,16 +55,18 @@ export default function PortfolioPage() {
         try {
             const formData = new FormData();
             
-            // Add all form values to FormData
-            Object.keys(values).forEach(key => {
-                if (key === 'eventDate' && values[key]) {
-                    formData.append(key, values[key].toISOString());
-                } else if (key === 'galleryUrls' && values[key]) {
-                    const urls = values[key].split('\n').filter((u: string) => u.trim());
+            // Only send fields that exist in the backend DTO (forbidNonWhitelisted: true is active)
+            const allowedFields = ['title', 'description', 'category', 'categoryId', 'coverUrl', 'galleryUrls', 'videoUrl', 'eventDate', 'isActive'];
+            
+            allowedFields.forEach(key => {
+                const val = values[key];
+                if (key === 'eventDate' && val) {
+                    formData.append(key, val.toISOString());
+                } else if (key === 'galleryUrls' && val) {
+                    const urls = (val as string).split('\n').filter((u: string) => u.trim());
                     urls.forEach((url: string) => formData.append('galleryUrls', url));
-                } else if (values[key] !== undefined && values[key] !== null && values[key] !== '') {
-                    // Only append if not an empty string (to avoid 400 errors on optional fields like videoUrl or galleryUrls)
-                    formData.append(key, String(values[key]));
+                } else if (val !== undefined && val !== null && val !== '') {
+                    formData.append(key, String(val));
                 }
             });
 
