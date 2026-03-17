@@ -14,25 +14,46 @@ export class PortfolioItemsService {
     async create(createDto: CreatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[], videoFile?: Express.Multer.File) {
         const { categoryId, ...data } = createDto;
 
+        console.log(`[SERVICE CREATE] Processing project: ${data.title}`);
+        console.log(`[SERVICE CREATE] File present: ${!!file}, Gallery: ${galleryFiles?.length || 0}, Video: ${!!videoFile}`);
+
         let coverUrl = data.coverUrl;
         if (file) {
-            coverUrl = await this.storageService.uploadFile(file, 'portfolio');
+            try {
+                coverUrl = await this.storageService.uploadFile(file, 'portfolio');
+                console.log(`[SERVICE CREATE] Cover uploaded: ${coverUrl}`);
+            } catch (err) {
+                console.error(`[SERVICE CREATE] Cover upload failed: ${err.message}`);
+                throw err;
+            }
         }
 
         let galleryUrls = Array.isArray(data.galleryUrls) ? data.galleryUrls : [];
         if (galleryFiles && galleryFiles.length > 0) {
-            const uploadedGallery = await Promise.all(
-                galleryFiles.map(f => this.storageService.uploadFile(f, 'portfolio/gallery'))
-            );
-            galleryUrls = [...galleryUrls, ...uploadedGallery];
+            try {
+                const uploadedGallery = await Promise.all(
+                    galleryFiles.map(f => this.storageService.uploadFile(f, 'portfolio/gallery'))
+                );
+                galleryUrls = [...galleryUrls, ...uploadedGallery];
+                console.log(`[SERVICE CREATE] ${uploadedGallery.length} gallery items uploaded`);
+            } catch (err) {
+                console.error(`[SERVICE CREATE] Gallery upload failed: ${err.message}`);
+                throw err;
+            }
         }
 
         let videoUrl = data.videoUrl;
         if (videoFile) {
-            videoUrl = await this.storageService.uploadFile(videoFile, 'portfolio/videos');
+            try {
+                videoUrl = await this.storageService.uploadFile(videoFile, 'portfolio/videos');
+                console.log(`[SERVICE CREATE] Video uploaded: ${videoUrl}`);
+            } catch (err) {
+                console.error(`[SERVICE CREATE] Video upload failed: ${err.message}`);
+                throw err;
+            }
         }
 
-        return this.prisma.portfolioItem.create({
+        const project = await this.prisma.portfolioItem.create({
             data: {
                 ...data,
                 coverUrl: coverUrl || '',
@@ -41,6 +62,9 @@ export class PortfolioItemsService {
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });
+        
+        console.log(`[SERVICE CREATE] Project ${project.id} saved in DB`);
+        return project;
     }
 
     async findAll() {

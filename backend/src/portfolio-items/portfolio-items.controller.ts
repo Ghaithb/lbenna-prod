@@ -42,7 +42,16 @@ export class PortfolioItemsController {
         @Body() createDto: CreatePortfolioItemDto,
         @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[], video?: Express.Multer.File[] }
     ) {
-        return this.portfolioItemsService.create(createDto, files?.file?.[0], files?.gallery, files?.video?.[0]);
+        console.log('[CONTROLLER CREATE] Data:', JSON.stringify(createDto));
+        console.log('[CONTROLLER CREATE] Files Received:', Object.keys(files || {}));
+        if (files?.file) console.log('[CONTROLLER CREATE] Cover File:', files.file[0].originalname);
+
+        try {
+            return this.portfolioItemsService.create(createDto, files?.file?.[0], files?.gallery, files?.video?.[0]);
+        } catch (error) {
+            console.error('[CONTROLLER CREATE] Error:', error.message);
+            throw error;
+        }
     }
 
     @Get()
