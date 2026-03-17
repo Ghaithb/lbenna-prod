@@ -130,15 +130,20 @@ export default function PortfolioPage() {
             dataIndex: 'coverUrl',
             key: 'cover',
             width: 100,
-            render: (url: string) => (
-                <div className="w-[80px] h-[60px] overflow-hidden rounded-lg shadow-sm border border-gray-100">
-                    <img
-                        src={url?.startsWith('http') ? url : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${url}`}
-                        alt="cover"
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-            )
+            render: (url: string) => {
+                const finalUrl = url?.startsWith('http') ? url : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${url}`;
+                if (!url) return <div className="w-[80px] h-[60px] bg-gray-100 flex items-center justify-center text-[10px] text-gray-400">PAS D'IMAGE</div>;
+                console.log('[PORTFOLIO IMAGE URL]', finalUrl);
+                return (
+                    <div className="w-[80px] h-[60px] overflow-hidden rounded-lg shadow-sm border border-gray-100">
+                        <img
+                            src={finalUrl}
+                            alt="cover"
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                );
+            }
         },
         {
             title: 'Titre',
