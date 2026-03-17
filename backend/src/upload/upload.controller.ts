@@ -69,50 +69,6 @@ export class UploadController {
     };
   }
 
-  @Post('single')
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Upload a file (Image or PDF) - for admin-frontend compatibility' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB
-      },
-      fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
-          return cb(new BadRequestException('Only image and PDF files are allowed!'), false);
-        }
-        cb(null, true);
-      },
-    }),
-  )
-  async uploadSingleFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('File is required');
-    }
-    const publicUrl = await this.storageService.uploadFile(file, 'general');
-    
-    return {
-      url: publicUrl,
-      filename: file.originalname,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    };
-  }
 
   @Post('bulk')
   @UseGuards(JwtAuthGuard, AdminGuard)

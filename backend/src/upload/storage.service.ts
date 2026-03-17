@@ -37,8 +37,8 @@ export class StorageService {
                 });
 
             if (error) {
-                this.logger.error(`Error uploading to Supabase: ${error.message}`);
-                throw new Error(`Failed to upload file to Supabase: ${error.message}`);
+                this.logger.error(`Supabase Upload Error: [${error.name}] ${error.message} (Bucket: ${this.bucket}, Filename: ${filename})`);
+                throw new Error(`Failed to upload to Supabase: ${error.message}`);
             }
 
             // Get public URL
