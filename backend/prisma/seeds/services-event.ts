@@ -13,7 +13,6 @@ export async function seedEventServices() {
             name: 'Production Vidéo & Photo',
             slug: 'production',
             description: 'Services de production professionnelle pour événements',
-            icon: 'Video'
         }
     });
 
@@ -24,7 +23,6 @@ export async function seedEventServices() {
             name: 'Location Photobooth',
             slug: 'photobooth',
             description: 'Bornes photo interactives pour vos événements',
-            icon: 'Camera'
         }
     });
 
@@ -36,7 +34,6 @@ export async function seedEventServices() {
             price: 1200,
             duration: 480,
             badge: 'Essentiel',
-            features: ['1 Photographe', '1 Vidéaste', 'Montage 5min', 'Photos retouchées'],
             categoryId: productionCat.id
         },
         {
@@ -45,7 +42,6 @@ export async function seedEventServices() {
             price: 2500,
             duration: 720,
             badge: 'Populaire',
-            features: ['2 Photographes', '2 Vidéastes', 'Drone inclus', 'Livre d\'art', 'Teaser 1min'],
             categoryId: productionCat.id
         },
         {
@@ -54,7 +50,6 @@ export async function seedEventServices() {
             price: 800,
             duration: 240,
             badge: 'B2B',
-            features: ['Couverture multi-angle', 'Livraison express', 'Cession de droits', 'Interview client'],
             categoryId: productionCat.id
         }
     ];
@@ -78,7 +73,6 @@ export async function seedEventServices() {
             price: 450,
             duration: 180,
             badge: 'Best-Seller',
-            features: ['3 Heures', 'Impressions illimitées', 'Accessoires fun', 'Galerie web'],
             categoryId: photoboothCat.id
         },
         {
@@ -87,7 +81,6 @@ export async function seedEventServices() {
             price: 750,
             duration: 360,
             badge: 'Premium',
-            features: ['Soirée complète', 'Livre d\'or', 'Cadre personnalisé', 'Assistant dédié'],
             categoryId: photoboothCat.id
         },
         {
@@ -96,7 +89,6 @@ export async function seedEventServices() {
             price: null, // Sur devis
             duration: 360,
             badge: 'Innovation',
-            features: ['IA Face Swapping', 'Data Catching', 'Branding 360°', 'Statistiques'],
             categoryId: photoboothCat.id
         }
     ];

@@ -157,7 +157,6 @@ model ServiceOffer {
   updatedAt      DateTime  @updatedAt
   categoryId     String?
   badge          String?
-  features       String[]
   isPack         Boolean   @default(false)
   isPromo        Boolean   @default(false)
   promoExpiresAt DateTime?

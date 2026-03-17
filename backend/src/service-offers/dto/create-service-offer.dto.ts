@@ -28,9 +28,6 @@ export class CreateServiceOfferDto {
     @IsString()
     categoryId?: string;
 
-    @IsOptional()
-    @IsString({ each: true })
-    features?: string[];
 
     @IsOptional()
     @IsString()

@@ -221,13 +221,11 @@ export function ProductionPage() {
                                                 {pack.price > 0 ? `${pack.price} TND` : 'Sur Devis'}
                                             </span>
                                         </div>
-                                        <ul className="space-y-3 relative z-10 mb-8">
-                                            {pack.features.map((f: string, i: number) => (
-                                                <li key={i} className="flex items-center gap-3 text-gray-500 font-bold text-sm">
-                                                    <Check size={16} className="text-green-500" /> {f}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        <div className="mb-8 min-h-[80px] flex items-center justify-center border border-dashed border-gray-200 rounded-2xl">
+                                            <p className="text-xs font-bold text-gray-400 italic text-center px-4">
+                                                Prestation Pro Lab El Benna
+                                            </p>
+                                        </div>
                                         <div className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] text-center transition-all relative z-10 ${watchPack === pack.id ? 'bg-primary-600 text-white' : 'bg-gray-950 text-white'}`}>
                                             {watchPack === pack.id ? 'Sélectionné' : 'Choisir ce pack'}
                                         </div>

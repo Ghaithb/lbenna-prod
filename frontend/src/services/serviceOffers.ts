@@ -9,7 +9,6 @@ export interface ServiceOffer {
     price?: number;
     duration?: number;
     imageUrl?: string;
-    features?: string[];
     badge?: string;
     isActive: boolean;
     isPromo: boolean;

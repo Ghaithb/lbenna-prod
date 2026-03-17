@@ -60,9 +60,10 @@ export default function PortfolioPage() {
                     formData.append(key, values[key].toISOString());
                 } else if (key === 'galleryUrls' && values[key]) {
                     const urls = values[key].split('\n').filter((u: string) => u.trim());
-                    urls.forEach((url: string) => formData.append('galleryUrls[]', url));
-                } else if (values[key] !== undefined && values[key] !== null) {
-                    formData.append(key, values[key]);
+                    urls.forEach((url: string) => formData.append('galleryUrls', url));
+                } else if (values[key] !== undefined && values[key] !== null && values[key] !== '') {
+                    // Only append if not an empty string (to avoid 400 errors on optional fields like videoUrl or galleryUrls)
+                    formData.append(key, String(values[key]));
                 }
             });
 
@@ -237,11 +238,13 @@ export default function PortfolioPage() {
                     </Form.Item>
                     
                     <Form.Item label="Image de Couverture">
-                        <div className="flex flex-col gap-2">
-                            <Form.Item name="coverUrl" noStyle>
-                                <Input placeholder="URL de l'image (https://...)" disabled={fileList.length > 0} />
-                            </Form.Item>
-                            <div className="text-center text-gray-400 my-1">- OU -</div>
+                        <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
+                            <div className="flex-1">
+                                <Form.Item name="coverUrl" noStyle>
+                                    <Input placeholder="URL de l'image (https://...)" disabled={fileList.length > 0} prefix={<CloudUploadOutlined className="text-gray-400" />} />
+                                </Form.Item>
+                            </div>
+                            <div className="text-gray-400 font-bold text-xs">OU</div>
                             <Upload
                                 listType="picture"
                                 maxCount={1}
@@ -249,27 +252,32 @@ export default function PortfolioPage() {
                                 onChange={({ fileList }: any) => setFileList(fileList)}
                                 beforeUpload={() => false}
                             >
-                                <Button icon={<CloudUploadOutlined />}>Sélectionner un fichier depuis mon bureau</Button>
+                                <Button icon={<PlusOutlined />} className="rounded-xl">Parcourir</Button>
                             </Upload>
                         </div>
                     </Form.Item>
 
                     <Form.Item label="Galerie Photos">
-                        <div className="flex flex-col gap-2">
-                            <Form.Item name="galleryUrls" noStyle>
-                                <Input.TextArea rows={4} placeholder="URLs des images (un par ligne)" />
+                        <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100">
+                            <Form.Item name="galleryUrls" label={<span className="text-[10px] font-black uppercase tracking-widest text-gray-400">URLs des images (un par ligne)</span>}>
+                                <Input.TextArea rows={3} placeholder="https://..." className="rounded-xl border-none shadow-sm" />
                             </Form.Item>
-                            <div className="text-center text-gray-400 my-1">- OU AJOUTER DEPUIS MON BUREAU -</div>
+                            <div className="flex items-center gap-4 my-4">
+                                <div className="h-[1px] flex-1 bg-gray-200"></div>
+                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">OU AJOUTER DEPUIS MON BUREAU</span>
+                                <div className="h-[1px] flex-1 bg-gray-200"></div>
+                            </div>
                             <Upload
                                 listType="picture-card"
                                 multiple
                                 fileList={galleryFileList}
                                 onChange={({ fileList }: any) => setGalleryFileList(fileList)}
                                 beforeUpload={() => false}
+                                className="gallery-upload"
                             >
                                 <div className="flex flex-col items-center">
-                                    <PlusOutlined />
-                                    <div className="mt-2 text-xs">Upload</div>
+                                    <PlusOutlined className="text-primary-500" />
+                                    <div className="mt-2 text-[10px] font-black uppercase text-gray-400">Ajouter</div>
                                 </div>
                             </Upload>
                         </div>

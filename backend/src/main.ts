@@ -40,6 +40,9 @@ async function bootstrap() {
         whitelist: true,
         forbidNonWhitelisted: true,
         transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
         exceptionFactory: (errors) => {
           console.error('[VALIDATION ERROR]', JSON.stringify(errors, null, 2));
           return new BadRequestException(errors);

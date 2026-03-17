@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
     Camera, Check, ChevronRight,
-    ShieldCheck, Zap, Sparkles, Loader2
+    ShieldCheck, Zap, Sparkles, Loader2, Star
 } from 'lucide-react';
 import { SectionHeader } from '../components/SectionHeader';
 import { useForm } from 'react-hook-form';
@@ -135,13 +135,10 @@ export function PhotoboothPage() {
                                             </span>
                                         </div>
                                         <h4 className="text-xl font-black text-gray-950 mb-4">{offer.title}</h4>
-                                        <ul className="grid grid-cols-2 gap-y-2 gap-x-4">
-                                            {offer.features?.map((f: string, i: number) => (
-                                                <li key={i} className="flex items-center gap-2 text-xs font-medium text-gray-500">
-                                                    <div className="w-1 h-1 rounded-full bg-blue-400" /> {f}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        <div className="mt-4 py-2 border-t border-gray-50 flex items-center gap-2">
+                                            <Star size={14} className="text-blue-400" />
+                                            <span className="text-xs font-bold text-gray-400 italic">Animation tout inclus</span>
+                                        </div>
                                     </div>
                                 </button>
                                 {selectedPack?.id === offer.id && (

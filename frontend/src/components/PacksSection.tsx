@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { serviceOffersService, ServiceOffer } from '../services/serviceOffers';
-import { Check, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function PacksSection() {
@@ -71,25 +70,11 @@ export default function PacksSection() {
                                     )}
                                 </div>
 
-                                <ul className="space-y-4 mb-10">
-                                    {pack.features && pack.features.length > 0 ? (
-                                        pack.features.map((feature, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm font-bold text-gray-600">
-                                                <div className="mt-0.5 w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
-                                                    <Check size={12} strokeWidth={4} />
-                                                </div>
-                                                {feature}
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="flex items-start gap-3 text-sm font-bold text-gray-400 italic">
-                                            <div className="mt-0.5 w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center shrink-0">
-                                                <Star size={12} />
-                                            </div>
-                                            Pack complet tout inclus
-                                        </li>
-                                    )}
-                                </ul>
+                                <div className="mb-10 min-h-[100px] flex items-center justify-center border border-dashed border-gray-200 rounded-2xl">
+                                    <p className="text-sm font-bold text-gray-400 italic text-center px-4">
+                                        Pack complet tout inclus
+                                    </p>
+                                </div>
 
                                 <Link
                                     to="/contact"

@@ -43,8 +43,10 @@ export default function ServiceOffersPage() {
 
     const handleSave = async (values: any) => {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { features, ...rest } = values;
             const formattedValues = {
-                ...values,
+                ...rest,
                 promoExpiresAt: values.promoExpiresAt ? values.promoExpiresAt.toISOString() : undefined
             };
 
@@ -110,20 +112,6 @@ export default function ServiceOffersPage() {
             key: 'duration',
         },
         {
-            title: 'Points Forts',
-            dataIndex: 'features',
-            key: 'features',
-            width: 200,
-            render: (features: string[]) => (
-                <div className="flex flex-wrap gap-1">
-                    {features?.slice(0, 3).map((f, i) => (
-                        <Tag key={i} color="blue" className="text-[10px]">{f}</Tag>
-                    ))}
-                    {features?.length > 3 && <Tag className="text-[10px]">+{features.length - 3}</Tag>}
-                </div>
-            )
-        },
-        {
             title: 'Actif',
             dataIndex: 'isActive',
             key: 'isActive',
@@ -140,7 +128,6 @@ export default function ServiceOffersPage() {
                             setEditingOffer(record);
                             form.setFieldsValue({
                                 ...record,
-                                features: record.features || [],
                                 promoExpiresAt: record.promoExpiresAt ? dayjs(record.promoExpiresAt) : null
                             });
                             setIsModalOpen(true);
@@ -236,14 +223,6 @@ export default function ServiceOffersPage() {
                                 </>
                             ) : null
                         }
-                    </Form.Item>
-                    <Form.Item name="features" label="Points Forts / Caractéristiques">
-                        <Select 
-                            mode="tags" 
-                            style={{ width: '100%' }} 
-                            placeholder="Tapez un texte et appuyez sur 'Entrée' pour ajouter" 
-                            tokenSeparators={[',', ';']}
-                        />
                     </Form.Item>
                 </Form>
 

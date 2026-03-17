@@ -7,7 +7,6 @@ export interface ServiceOffer {
     price?: number;
     duration?: number;
     imageUrl?: string;
-    features?: string[];
     badge?: string;
     categoryId?: string;
     isActive: boolean;
@@ -24,7 +23,6 @@ export interface CreateServiceOfferDto {
     price?: number;
     duration?: number;
     imageUrl?: string;
-    features?: string[];
     badge?: string;
     categoryId?: string;
     isActive?: boolean;
