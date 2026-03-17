@@ -238,49 +238,46 @@ export default function PortfolioPage() {
                     </Form.Item>
                     
                     <Form.Item label="Image de Couverture">
-                        <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                            <div className="flex-1">
-                                <Form.Item name="coverUrl" noStyle>
-                                    <Input placeholder="URL de l'image (https://...)" disabled={fileList.length > 0} prefix={<CloudUploadOutlined className="text-gray-400" />} />
-                                </Form.Item>
-                            </div>
-                            <div className="text-gray-400 font-bold text-xs">OU</div>
-                            <Upload
-                                listType="picture"
-                                maxCount={1}
-                                fileList={fileList}
-                                onChange={({ fileList }: any) => setFileList(fileList)}
-                                beforeUpload={() => false}
-                            >
-                                <Button icon={<PlusOutlined />} className="rounded-xl">Parcourir</Button>
-                            </Upload>
-                        </div>
+                        <Form.Item name="coverUrl" noStyle>
+                            <Input
+                                placeholder="URL de l'image (https://...)"
+                                disabled={fileList.length > 0}
+                                style={{ marginBottom: 8 }}
+                            />
+                        </Form.Item>
+                        <Upload
+                            listType="picture"
+                            maxCount={1}
+                            fileList={fileList}
+                            onChange={({ fileList }: any) => setFileList(fileList)}
+                            beforeUpload={() => false}
+                        >
+                            {fileList.length === 0 && (
+                                <Button icon={<CloudUploadOutlined />}>Choisir depuis mon bureau</Button>
+                            )}
+                        </Upload>
                     </Form.Item>
 
                     <Form.Item label="Galerie Photos">
-                        <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100">
-                            <Form.Item name="galleryUrls" label={<span className="text-[10px] font-black uppercase tracking-widest text-gray-400">URLs des images (un par ligne)</span>}>
-                                <Input.TextArea rows={3} placeholder="https://..." className="rounded-xl border-none shadow-sm" />
-                            </Form.Item>
-                            <div className="flex items-center gap-4 my-4">
-                                <div className="h-[1px] flex-1 bg-gray-200"></div>
-                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">OU AJOUTER DEPUIS MON BUREAU</span>
-                                <div className="h-[1px] flex-1 bg-gray-200"></div>
+                        <Form.Item name="galleryUrls" noStyle>
+                            <Input.TextArea
+                                rows={3}
+                                placeholder="URLs des images (un par ligne, ex: https://...)"
+                                style={{ marginBottom: 8 }}
+                            />
+                        </Form.Item>
+                        <Upload
+                            listType="picture-card"
+                            multiple
+                            fileList={galleryFileList}
+                            onChange={({ fileList }: any) => setGalleryFileList(fileList)}
+                            beforeUpload={() => false}
+                        >
+                            <div className="flex flex-col items-center">
+                                <PlusOutlined />
+                                <div style={{ marginTop: 4, fontSize: 11 }}>Ajouter</div>
                             </div>
-                            <Upload
-                                listType="picture-card"
-                                multiple
-                                fileList={galleryFileList}
-                                onChange={({ fileList }: any) => setGalleryFileList(fileList)}
-                                beforeUpload={() => false}
-                                className="gallery-upload"
-                            >
-                                <div className="flex flex-col items-center">
-                                    <PlusOutlined className="text-primary-500" />
-                                    <div className="mt-2 text-[10px] font-black uppercase text-gray-400">Ajouter</div>
-                                </div>
-                            </Upload>
-                        </div>
+                        </Upload>
                     </Form.Item>
                     <Form.Item name="videoUrl" label="URL Vidéo (Youtube/Vimeo)">
                         <Input placeholder="https://..." />
