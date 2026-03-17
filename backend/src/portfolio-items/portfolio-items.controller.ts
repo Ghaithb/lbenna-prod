@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFiles, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PortfolioItemsService } from './portfolio-items.service';
 import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
 import { UpdatePortfolioItemDto } from './dto/update-portfolio-item.dto';
@@ -32,6 +32,7 @@ export class PortfolioItemsController {
         },
     })
     @ApiOperation({ summary: 'Create portfolio item (Admin) with direct upload' })
+    @UsePipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }))
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'file', maxCount: 1 },
         { name: 'gallery', maxCount: 20 },
@@ -59,6 +60,7 @@ export class PortfolioItemsController {
     @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiOperation({ summary: 'Update portfolio item (Admin) with direct upload' })
+    @UsePipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }))
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'file', maxCount: 1 },
         { name: 'gallery', maxCount: 20 },
