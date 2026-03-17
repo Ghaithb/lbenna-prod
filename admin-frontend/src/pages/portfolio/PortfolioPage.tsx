@@ -103,8 +103,11 @@ export default function PortfolioPage() {
             setVideoFileList([]);
             form.resetFields();
             fetchItems();
-        } catch (error) {
-            message.error('Erreur sauvegarde');
+        } catch (error: any) {
+            const detail = error?.response?.data?.message;
+            const msg = Array.isArray(detail) ? detail.join(' | ') : (detail || error.message || 'Erreur inconnue');
+            console.error('[PORTFOLIO 400 DETAIL]', error?.response?.data);
+            message.error(`Erreur: ${msg}`, 6);
         }
     };
 
