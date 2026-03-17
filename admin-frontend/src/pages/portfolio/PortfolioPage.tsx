@@ -104,10 +104,13 @@ export default function PortfolioPage() {
             form.resetFields();
             fetchItems();
         } catch (error: any) {
-            const detail = error?.response?.data?.message;
-            const msg = Array.isArray(detail) ? detail.join(' | ') : (detail || error.message || 'Erreur inconnue');
-            console.error('[PORTFOLIO 400 DETAIL]', error?.response?.data);
-            message.error(`Erreur: ${msg}`, 6);
+            const data = error?.response?.data;
+            console.error('[PORTFOLIO 400 FULL]', JSON.stringify(data, null, 2));
+            const detail = data?.message;
+            const msg = Array.isArray(detail)
+                ? detail.map((e: any) => `${e.property}: ${Object.values(e.constraints || {}).join(', ')}`).join(' | ')
+                : (detail || error.message || 'Erreur inconnue');
+            message.error(`Erreur: ${msg}`, 10);
         }
     };
 

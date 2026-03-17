@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsArray, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreatePortfolioItemDto {
@@ -6,46 +6,43 @@ export class CreatePortfolioItemDto {
     @IsNotEmpty()
     title: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     description?: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     category?: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     categoryId?: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     coverUrl?: string;
 
-    @IsArray()
-    @IsString({ each: true })
     @IsOptional()
     @Transform(({ value }) => {
-        if (!value) return [];
+        if (value === undefined || value === null || value === '') return [];
         if (Array.isArray(value)) return value;
-        return [value];
+        return [value]; // single string from multipart → array
     })
     galleryUrls?: string[];
 
-    @IsString()
     @IsOptional()
+    @IsString()
     videoUrl?: string;
 
-    @IsDateString()
     @IsOptional()
+    @IsString() // Accept as string, service will handle date parsing
     eventDate?: string;
 
-    @IsBoolean()
     @IsOptional()
     @Transform(({ value }) => {
-        if (value === 'true' || value === true) return true;
-        if (value === 'false' || value === false) return false;
-        return value;
+        if (value === true || value === 'true') return true;
+        if (value === false || value === 'false') return false;
+        return true; // default to true
     })
     isActive?: boolean;
 }
