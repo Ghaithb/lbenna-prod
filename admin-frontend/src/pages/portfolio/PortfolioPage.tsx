@@ -16,6 +16,7 @@ export default function PortfolioPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [galleryFileList, setGalleryFileList] = useState<UploadFile[]>([]);
+    const [videoFileList, setVideoFileList] = useState<UploadFile[]>([]);
     const [form] = Form.useForm();
 
     const handleBulkSuccess = (urls: string[]) => {
@@ -81,6 +82,11 @@ export default function PortfolioPage() {
                 });
             }
 
+            // Add video file if selected
+            if (videoFileList.length > 0 && videoFileList[0].originFileObj) {
+                formData.append('video', videoFileList[0].originFileObj as Blob);
+            }
+
             if (editingItem) {
                 await portfolioService.update(editingItem.id, formData as any);
                 message.success('Projet mis à jour');
@@ -92,6 +98,7 @@ export default function PortfolioPage() {
             setEditingItem(null);
             setFileList([]);
             setGalleryFileList([]);
+            setVideoFileList([]);
             form.resetFields();
             fetchItems();
         } catch (error) {
@@ -258,29 +265,46 @@ export default function PortfolioPage() {
                         </Upload>
                     </Form.Item>
 
-                    <Form.Item label="Galerie Photos">
+                    <Form.Item label="Médias (Photos & Vidéo)">
                         <Form.Item name="galleryUrls" noStyle>
                             <Input.TextArea
-                                rows={3}
-                                placeholder="URLs des images (un par ligne, ex: https://...)"
+                                rows={2}
+                                placeholder="URLs des photos (un par ligne, ex: https://...)"
                                 style={{ marginBottom: 8 }}
                             />
                         </Form.Item>
                         <Upload
                             listType="picture-card"
                             multiple
+                            accept="image/*"
                             fileList={galleryFileList}
                             onChange={({ fileList }: any) => setGalleryFileList(fileList)}
                             beforeUpload={() => false}
                         >
                             <div className="flex flex-col items-center">
                                 <PlusOutlined />
-                                <div style={{ marginTop: 4, fontSize: 11 }}>Ajouter</div>
+                                <div style={{ marginTop: 4, fontSize: 11 }}>Photo</div>
                             </div>
                         </Upload>
-                    </Form.Item>
-                    <Form.Item name="videoUrl" label="URL Vidéo (Youtube/Vimeo)">
-                        <Input placeholder="https://..." />
+                        <div style={{ marginTop: 12, marginBottom: 4, fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 2 }}>— Vidéo —</div>
+                        <Form.Item name="videoUrl" noStyle>
+                            <Input
+                                placeholder="URL Vidéo (YouTube/Vimeo — laisser vide si upload)"
+                                disabled={videoFileList.length > 0}
+                                style={{ marginBottom: 8 }}
+                            />
+                        </Form.Item>
+                        <Upload
+                            accept="video/*"
+                            maxCount={1}
+                            fileList={videoFileList}
+                            onChange={({ fileList }: any) => setVideoFileList(fileList)}
+                            beforeUpload={() => false}
+                        >
+                            {videoFileList.length === 0 && (
+                                <Button icon={<CloudUploadOutlined />}>Uploader une vidéo depuis mon bureau</Button>
+                            )}
+                        </Upload>
                     </Form.Item>
                     <Form.Item name="eventDate" label="Date de l'événement">
                         <DatePicker style={{ width: '100%' }} />

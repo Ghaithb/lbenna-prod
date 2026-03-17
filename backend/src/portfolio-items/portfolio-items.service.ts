@@ -11,12 +11,10 @@ export class PortfolioItemsService {
         private storageService: StorageService
     ) { }
 
-    async create(createDto: CreatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[]) {
+    async create(createDto: CreatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[], videoFile?: Express.Multer.File) {
         const { categoryId, ...data } = createDto;
 
         let coverUrl = data.coverUrl;
-
-        // If a file is uploaded, it takes precedence over the provided URL
         if (file) {
             coverUrl = await this.storageService.uploadFile(file, 'portfolio');
         }
@@ -29,11 +27,17 @@ export class PortfolioItemsService {
             galleryUrls = [...galleryUrls, ...uploadedGallery];
         }
 
+        let videoUrl = data.videoUrl;
+        if (videoFile) {
+            videoUrl = await this.storageService.uploadFile(videoFile, 'portfolio/videos');
+        }
+
         return this.prisma.portfolioItem.create({
             data: {
                 ...data,
-                coverUrl: coverUrl || '', // Ensure we have a string if no file/URL provided
+                coverUrl: coverUrl || '',
                 galleryUrls,
+                videoUrl,
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });
@@ -57,11 +61,10 @@ export class PortfolioItemsService {
         return item;
     }
 
-    async update(id: string, updateDto: UpdatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[]) {
+    async update(id: string, updateDto: UpdatePortfolioItemDto, file?: Express.Multer.File, galleryFiles?: Express.Multer.File[], videoFile?: Express.Multer.File) {
         const { categoryId, ...data } = updateDto;
 
         let coverUrl = data.coverUrl;
-
         if (file) {
             coverUrl = await this.storageService.uploadFile(file, 'portfolio');
         }
@@ -75,12 +78,18 @@ export class PortfolioItemsService {
             galleryUrls = [...existingUrls, ...uploadedGallery];
         }
 
+        let videoUrl = data.videoUrl;
+        if (videoFile) {
+            videoUrl = await this.storageService.uploadFile(videoFile, 'portfolio/videos');
+        }
+
         return this.prisma.portfolioItem.update({
             where: { id },
             data: {
                 ...data,
                 ...(coverUrl && { coverUrl }),
                 ...(galleryUrls && { galleryUrls }),
+                ...(videoUrl !== undefined && { videoUrl }),
                 ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
             },
         });

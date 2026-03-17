@@ -35,12 +35,13 @@ export class PortfolioItemsController {
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'file', maxCount: 1 },
         { name: 'gallery', maxCount: 20 },
+        { name: 'video', maxCount: 1 },
     ], { storage: memoryStorage() }))
     create(
         @Body() createDto: CreatePortfolioItemDto,
-        @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[] }
+        @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[], video?: Express.Multer.File[] }
     ) {
-        return this.portfolioItemsService.create(createDto, files?.file?.[0], files?.gallery);
+        return this.portfolioItemsService.create(createDto, files?.file?.[0], files?.gallery, files?.video?.[0]);
     }
 
     @Get()
@@ -61,13 +62,14 @@ export class PortfolioItemsController {
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'file', maxCount: 1 },
         { name: 'gallery', maxCount: 20 },
+        { name: 'video', maxCount: 1 },
     ], { storage: memoryStorage() }))
     update(
         @Param('id') id: string,
         @Body() updateDto: UpdatePortfolioItemDto,
-        @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[] }
+        @UploadedFiles() files: { file?: Express.Multer.File[], gallery?: Express.Multer.File[], video?: Express.Multer.File[] }
     ) {
-        return this.portfolioItemsService.update(id, updateDto, files?.file?.[0], files?.gallery);
+        return this.portfolioItemsService.update(id, updateDto, files?.file?.[0], files?.gallery, files?.video?.[0]);
     }
 
     @Delete(':id')
