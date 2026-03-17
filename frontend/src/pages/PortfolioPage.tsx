@@ -95,11 +95,17 @@ export function PortfolioPage() {
                             onClick={() => setSelectedItem(item)}
                         >
                             {/* Image */}
-                            <img
-                                src={item.coverUrl?.startsWith('http') ? item.coverUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${item.coverUrl}`}
-                                alt={item.title}
-                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                            />
+                            {(() => {
+                                const finalUrl = item.coverUrl?.startsWith('http') ? item.coverUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${item.coverUrl}`;
+                                if (item.coverUrl) console.log('[CLIENT PORTFOLIO URL]', finalUrl);
+                                return (
+                                    <img
+                                        src={finalUrl}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                    />
+                                );
+                            })()}
 
                             {/* Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-gray-950/20 to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
