@@ -100,6 +100,10 @@ async function main() {
   // Seed Pages (Home, About)
   const { seedPages } = await import('./seeds/pages');
   await seedPages();
+
+  // Seed Announcements
+  const { seedAnnouncements } = await import('./seeds/announcements');
+  await seedAnnouncements();
 }
 
 main()
