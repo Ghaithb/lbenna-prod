@@ -124,10 +124,11 @@ export default function AdminLayout() {
         }}
       >
         <div className="flex items-center justify-center p-4 border-b border-gray-100">
-          <div className={`font-bold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-opacity duration-300 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
-            L'BENNA PRODUCTION
-          </div>
-          {collapsed && <div className="font-bold text-xl text-blue-600 px-2">LB</div>}
+          <img 
+            src="/logo-horizontal.png" 
+            alt="L Benna Production" 
+            className={`transition-all duration-300 ${collapsed ? 'h-8' : 'h-10'} object-contain`}
+          />
         </div>
 
         <Menu
