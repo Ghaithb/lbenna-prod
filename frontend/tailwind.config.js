@@ -8,16 +8,16 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316', // Orange principal
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
+          50: '#fff5f5',
+          100: '#ffe3e3',
+          200: '#ffcdcd',
+          300: '#ffaaaa',
+          400: '#ff7e7e',
+          500: '#ef2b2b', // Nouveau Rouge principal (L Benna)
+          600: '#d81e1e',
+          700: '#b51616',
+          800: '#941414',
+          900: '#7a1515',
         },
         secondary: {
           50: '#fef2f2',
@@ -89,8 +89,8 @@ export default {
           '50%': { transform: 'translateY(-20px)' },
         },
         glow: {
-          '0%': { boxShadow: '0 0 5px #f97316, 0 0 10px #f97316' },
-          '100%': { boxShadow: '0 0 20px #f97316, 0 0 30px #ef4444' },
+          '0%': { boxShadow: '0 0 5px #ef2b2b, 0 0 10px #ef2b2b' },
+          '100%': { boxShadow: '0 0 20px #ef2b2b, 0 0 30px #ef4444' },
         },
         gradient: {
           '0%, 100%': { backgroundPosition: '0% 50%' },
@@ -105,7 +105,7 @@ export default {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'gradient-fire': 'linear-gradient(135deg, #ff033c 0%, #d14545 100%)',
-        'gradient-sunset': 'linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #ef4444 100%)',
+        'gradient-sunset': 'linear-gradient(135deg, #fbbf24 0%, #ef2b2b 50%, #d14545 100%)',
       },
     },
   },
