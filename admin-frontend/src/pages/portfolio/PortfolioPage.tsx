@@ -3,27 +3,18 @@ import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Switch,
 import type { UploadFile } from 'antd';
 import { portfolioService, PortfolioItem } from '../../services/portfolio';
 import { EditOutlined, DeleteOutlined, PlusOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { Play } from 'lucide-react';
 import dayjs from 'dayjs';
 import { categoryService, Category } from '../../services/categories';
-import BulkUploadModal from '../../components/common/BulkUploadModal';
 
 export default function PortfolioPage() {
     const [items, setItems] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [galleryFileList, setGalleryFileList] = useState<UploadFile[]>([]);
-    const [videoFileList, setVideoFileList] = useState<UploadFile[]>([]);
     const [form] = Form.useForm();
-
-    const handleBulkSuccess = (urls: string[]) => {
-        const currentUrls = form.getFieldValue('galleryUrls') || '';
-        const newUrls = currentUrls + (currentUrls ? '\n' : '') + urls.join('\n');
-        form.setFieldsValue({ galleryUrls: newUrls });
-    };
 
     const fetchItems = async () => {
         setLoading(true);
@@ -55,38 +46,25 @@ export default function PortfolioPage() {
         try {
             const formData = new FormData();
             
-            // Only send fields that exist in the backend DTO (forbidNonWhitelisted: true is active)
-            const allowedFields = ['title', 'description', 'category', 'categoryId', 'coverUrl', 'galleryUrls', 'videoUrl', 'eventDate', 'isActive'];
-            
-            allowedFields.forEach(key => {
+            // Basic fields
+            const fields = ['title', 'description', 'categoryId', 'category', 'eventDate', 'isActive'];
+            fields.forEach(key => {
                 const val = values[key];
                 if (key === 'eventDate' && val) {
                     formData.append(key, val.toISOString());
-                } else if (key === 'galleryUrls' && val) {
-                    const urls = (val as string).split('\n').filter((u: string) => u.trim());
-                    urls.forEach((url: string) => formData.append('galleryUrls', url));
                 } else if (val !== undefined && val !== null && val !== '') {
                     formData.append(key, String(val));
                 }
             });
 
-            // Add the file if selected
-            if (fileList.length > 0) {
-                formData.append('file', fileList[0].originFileObj as Blob);
-            }
-
-            // Add gallery files if selected
-            if (galleryFileList.length > 0) {
-                galleryFileList.forEach((file: UploadFile) => {
-                    if (file.originFileObj) {
-                        formData.append('gallery', file.originFileObj as Blob);
-                    }
-                });
-            }
-
-            // Add video file if selected
-            if (videoFileList.length > 0 && videoFileList[0].originFileObj) {
-                formData.append('video', videoFileList[0].originFileObj as Blob);
+            // Handle single file (image or video)
+            if (fileList.length > 0 && fileList[0].originFileObj) {
+                const file = fileList[0].originFileObj;
+                if (file.type.startsWith('video/')) {
+                    formData.append('video', file);
+                } else {
+                    formData.append('file', file);
+                }
             }
 
             if (editingItem) {
@@ -99,18 +77,12 @@ export default function PortfolioPage() {
             setIsModalOpen(false);
             setEditingItem(null);
             setFileList([]);
-            setGalleryFileList([]);
-            setVideoFileList([]);
             form.resetFields();
             fetchItems();
         } catch (error: any) {
             const data = error?.response?.data;
-            console.error('[PORTFOLIO 400 FULL]', JSON.stringify(data, null, 2));
-            const detail = data?.message;
-            const msg = Array.isArray(detail)
-                ? detail.map((e: any) => `${e.property}: ${Object.values(e.constraints || {}).join(', ')}`).join(' | ')
-                : (detail || error.message || 'Erreur inconnue');
-            message.error(`Erreur: ${msg}`, 10);
+            console.error('[PORTFOLIO ERROR]', data);
+            message.error(data?.message || 'Erreur lors de l\'enregistrement');
         }
     };
 
@@ -130,10 +102,15 @@ export default function PortfolioPage() {
             dataIndex: 'coverUrl',
             key: 'cover',
             width: 100,
-            render: (url: string) => {
+            render: (url: string, record: PortfolioItem) => {
                 const finalUrl = url?.startsWith('http') ? url : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${url}`;
-                if (!url) return <div className="w-[80px] h-[60px] bg-gray-100 flex items-center justify-center text-[10px] text-gray-400">PAS D'IMAGE</div>;
-                console.log('[PORTFOLIO IMAGE URL]', finalUrl);
+                
+                if (record.videoUrl && !url) {
+                    return <div className="w-[80px] h-[60px] bg-blue-50 flex items-center justify-center rounded-lg border border-blue-100"><Play size={20} className="text-blue-500" /></div>;
+                }
+
+                if (!url) return <div className="w-[80px] h-[60px] bg-gray-100 flex items-center justify-center text-[10px] text-gray-400 rounded-lg">VIDE</div>;
+                
                 return (
                     <div className="w-[80px] h-[60px] overflow-hidden rounded-lg shadow-sm border border-gray-100">
                         <img
@@ -168,10 +145,11 @@ export default function PortfolioPage() {
             render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : '-'
         },
         {
-            title: 'Actif',
-            dataIndex: 'isActive',
-            key: 'isActive',
-            render: (active: boolean) => active ? 'Oui' : 'Non',
+            title: 'Fichier',
+            key: 'type',
+            render: (_: any, record: PortfolioItem) => (
+                record.videoUrl ? <Tag color="blue">VIDÉO</Tag> : <Tag color="green">PHOTO</Tag>
+            )
         },
         {
             title: 'Actions',
@@ -182,12 +160,10 @@ export default function PortfolioPage() {
                         icon={<EditOutlined />}
                         onClick={() => {
                             setEditingItem(record);
-                            setFileList([]); // Clear file list when editing
-                            setGalleryFileList([]); // Clear gallery file list when editing
+                            setFileList([]); 
                             form.setFieldsValue({
                                 ...record,
                                 eventDate: record.eventDate ? dayjs(record.eventDate) : undefined,
-                                galleryUrls: record.galleryUrls ? record.galleryUrls.join('\n') : '',
                             });
                             setIsModalOpen(true);
                         }}
@@ -204,127 +180,73 @@ export default function PortfolioPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Gestion Portfolio</h1>
-                    <p className="text-gray-500 text-sm">Créez et organisez vos réalisations.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Portfolio</h1>
+                    <p className="text-gray-500 text-sm">Gérez vos photos et vidéos simplement.</p>
                 </div>
-                <div className="flex gap-4">
-                    <Button
-                        icon={<CloudUploadOutlined />}
-                        onClick={() => setIsBulkModalOpen(true)}
-                        className="rounded-xl font-bold"
-                    >
-                        Import en Masse
-                    </Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => {
-                        setEditingItem(null);
-                        setFileList([]);
-                        setGalleryFileList([]);
-                        form.resetFields();
-                        setIsModalOpen(true);
-                    }} className="bg-gray-950 hover:bg-primary-600 rounded-xl px-6 font-bold uppercase tracking-widest text-[10px]">
-                        Nouveau Projet
-                    </Button>
-                </div>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+                    setEditingItem(null);
+                    setFileList([]);
+                    form.resetFields();
+                    setIsModalOpen(true);
+                }} className="bg-gray-950 hover:bg-gray-800 rounded-xl px-6 font-bold uppercase tracking-widest text-[10px] h-11 border-none">
+                    Ajouter un média
+                </Button>
             </div>
 
-            <Table dataSource={items} columns={columns} rowKey="id" loading={loading} />
-
-            <BulkUploadModal
-                open={isBulkModalOpen}
-                onClose={() => setIsBulkModalOpen(false)}
-                onUploadSuccess={handleBulkSuccess}
-                title="Ajouter à la Galerie"
-            />
+            <Table dataSource={items} columns={columns} rowKey="id" loading={loading} className="border border-gray-100 rounded-2xl overflow-hidden" />
 
             <Modal
-                title={editingItem ? "Modifier le Projet" : "Nouveau Projet"}
+                title={<span className="text-lg font-black uppercase tracking-tight">{editingItem ? "Modifier le Projet" : "Nouveau Projet"}</span>}
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 onOk={() => form.submit()}
-                width={800}
+                width={500}
+                centered
+                okText="Enregistrer"
+                cancelText="Annuler"
+                okButtonProps={{ className: "bg-gray-950 hover:bg-gray-800 rounded-xl px-6 font-bold uppercase tracking-widest text-[10px] h-10 border-none" }}
+                cancelButtonProps={{ className: "rounded-xl px-6 font-bold uppercase tracking-widest text-[10px] h-10 border-gray-200" }}
             >
-                <Form form={form} layout="vertical" onFinish={handleSave}>
-                    <Form.Item name="title" label="Titre" rules={[{ required: true }]}>
-                        <Input />
+                <Form form={form} layout="vertical" onFinish={handleSave} className="mt-6">
+                    <Form.Item name="title" label={<span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Titre du Projet</span>} rules={[{ required: true }]}>
+                        <Input placeholder="Nom du projet..." className="rounded-xl h-12 border-gray-100" />
                     </Form.Item>
-                    <Form.Item name="categoryId" label="Catégorie CMS" rules={[{ required: true }]}>
-                        <Select options={categories.map((c: Category) => ({ label: c.name, value: c.id }))} />
+
+                    <Form.Item name="categoryId" label={<span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Catégorie</span>} rules={[{ required: true }]}>
+                        <Select 
+                            options={categories.map((c: Category) => ({ label: c.name, value: c.id }))} 
+                            placeholder="Choisir une catégorie..."
+                            className="rounded-xl h-12 border-gray-100"
+                        />
                     </Form.Item>
-                    <Form.Item name="category" label="Tag Legacy (Texte)">
-                        <Input placeholder="ex: WEDDING" />
-                    </Form.Item>
-                    <Form.Item name="description" label="Description">
-                        <Input.TextArea rows={4} />
-                    </Form.Item>
-                    
-                    <Form.Item label="Image de Couverture">
-                        <Form.Item name="coverUrl" noStyle>
-                            <Input
-                                placeholder="URL de l'image (https://...)"
-                                disabled={fileList.length > 0}
-                                style={{ marginBottom: 8 }}
-                            />
-                        </Form.Item>
+
+                    <Form.Item label={<span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fichier (Photo ou Vidéo)</span>}>
                         <Upload
                             listType="picture"
                             maxCount={1}
                             fileList={fileList}
+                            accept="image/*,video/*"
                             onChange={({ fileList }: any) => setFileList(fileList)}
                             beforeUpload={() => false}
+                            className="w-full"
                         >
                             {fileList.length === 0 && (
-                                <Button icon={<CloudUploadOutlined />}>Choisir depuis mon bureau</Button>
+                                <div className="border-2 border-dashed border-gray-100 rounded-2xl p-8 flex flex-col items-center justify-center hover:border-gray-300 transition-colors w-full bg-gray-50/50 cursor-pointer">
+                                    <CloudUploadOutlined className="text-3xl text-gray-300 mb-2" />
+                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Cliquez ici pour sélectionner<br/>une photo ou une vidéo</span>
+                                </div>
                             )}
                         </Upload>
                     </Form.Item>
 
-                    <Form.Item label="Médias (Photos & Vidéo)">
-                        <Form.Item name="galleryUrls" noStyle>
-                            <Input.TextArea
-                                rows={2}
-                                placeholder="URLs des photos (un par ligne, ex: https://...)"
-                                style={{ marginBottom: 8 }}
-                            />
+                    <div className="grid grid-cols-2 gap-4">
+                        <Form.Item name="eventDate" label={<span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</span>}>
+                            <DatePicker style={{ width: '100%' }} className="rounded-xl h-12 border-gray-100" />
                         </Form.Item>
-                        <Upload
-                            listType="picture-card"
-                            multiple
-                            accept="image/*"
-                            fileList={galleryFileList}
-                            onChange={({ fileList }: any) => setGalleryFileList(fileList)}
-                            beforeUpload={() => false}
-                        >
-                            <div className="flex flex-col items-center">
-                                <PlusOutlined />
-                                <div style={{ marginTop: 4, fontSize: 11 }}>Photo</div>
-                            </div>
-                        </Upload>
-                        <div style={{ marginTop: 12, marginBottom: 4, fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 2 }}>— Vidéo —</div>
-                        <Form.Item name="videoUrl" noStyle>
-                            <Input
-                                placeholder="URL Vidéo (YouTube/Vimeo — laisser vide si upload)"
-                                disabled={videoFileList.length > 0}
-                                style={{ marginBottom: 8 }}
-                            />
+                        <Form.Item name="isActive" label={<span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Visible</span>} valuePropName="checked" initialValue={true}>
+                            <Switch className="scale-110" />
                         </Form.Item>
-                        <Upload
-                            accept="video/*"
-                            maxCount={1}
-                            fileList={videoFileList}
-                            onChange={({ fileList }: any) => setVideoFileList(fileList)}
-                            beforeUpload={() => false}
-                        >
-                            {videoFileList.length === 0 && (
-                                <Button icon={<CloudUploadOutlined />}>Uploader une vidéo depuis mon bureau</Button>
-                            )}
-                        </Upload>
-                    </Form.Item>
-                    <Form.Item name="eventDate" label="Date de l'événement">
-                        <DatePicker style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="isActive" label="Actif" valuePropName="checked" initialValue={true}>
-                        <Switch />
-                    </Form.Item>
+                    </div>
                 </Form>
             </Modal>
         </div>
