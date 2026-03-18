@@ -51,7 +51,7 @@ export default function VisualShowcase() {
                     <div className="relative order-2 lg:order-1">
                         <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
                             <img
-                                src="https://images.unsplash.com/photo-1511285560982-1351cdeb9821?q=80&w=1000&auto=format&fit=crop"
+                                src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000&auto=format&fit=crop"
                                 alt="Production Événementielle Mariage"
                                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                             />

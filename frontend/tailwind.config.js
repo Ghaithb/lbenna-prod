@@ -104,7 +104,7 @@ export default {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'gradient-fire': 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
+        'gradient-fire': 'linear-gradient(135deg, #ff033c 0%, #d14545 100%)',
         'gradient-sunset': 'linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #ef4444 100%)',
       },
     },

@@ -10,7 +10,7 @@
 
 @layer utilities {
   .bg-gradient-fire {
-    background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+    background: linear-gradient(135deg, #ff033c 0%, #d14545 100%);
   }
 
   .glass-effect {

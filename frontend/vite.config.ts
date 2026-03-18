@@ -23,11 +23,8 @@ export default defineConfig({
         lang: 'fr',
         scope: '/',
         icons: [
-          // Les PNG seront générés à partir de icon.svg par le plugin d’assets si présent,
-          // sinon fournissez des PNG dans /public
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' }
         ],
       },
       workbox: {

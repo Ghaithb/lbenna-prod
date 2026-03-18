@@ -96,6 +96,10 @@ async function main() {
   // Seed Event Services (Photobooth, Production)
   const { seedEventServices } = await import('./seeds/services-event');
   await seedEventServices();
+
+  // Seed Pages (Home, About)
+  const { seedPages } = await import('./seeds/pages');
+  await seedPages();
 }
 
 main()
