@@ -94,7 +94,7 @@ export function AboutPage() {
                     <div className="grid md:grid-cols-3 gap-12 text-center">
                         {(content.values || [
                             { title: "Équipe Dédiée", text: "Chaque projet est unique. Notre équipe s'immerge dans votre univers pour un résultat qui vous ressemble.", icon_name: "Users" },
-                            { title: "Qualité Sans Compromis", text: "De la prise de vue au tirage final, nous ne faisons aucune concession sur la qualité technique et artistique.", icon_name: "ShieldCheck" },
+                            { title: "Qualité Sans Compromis", text: "De la prise de vue au rendu final, nous ne faisons aucune concession sur la qualité technique et artistique.", icon_name: "ShieldCheck" },
                             { title: "Matériel de Pointe", text: "Nous investissons constamment dans le meilleur matériel pour garantir des images d'une netteté exceptionnelle.", icon_name: "Camera" }
                         ]).map((val: any, idx: number) => (
                             <ValueItem key={idx} icon={<DynamicIcon name={val.icon_name} size={40} />} title={val.title} text={val.text} />

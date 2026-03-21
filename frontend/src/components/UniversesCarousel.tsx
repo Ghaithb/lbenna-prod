@@ -15,20 +15,32 @@ export default function UniversesCarousel() {
         const loadCategories = async () => {
             try {
                 const data = await categoriesService.getAll();
-                // Filter top-level categories or those intended for carousel
-                const mapped = data.map((c: Category) => ({
+                let mapped = data.map((c: Category) => ({
                     id: c.id,
                     title: c.name,
                     subtitle: c.description || 'Service professionnel',
                     icon: Star,
                     color: c.color || 'bg-primary-500',
                     gradient: 'from-gray-950/90 via-gray-900/40',
-                    image: FALLBACK_IMAGE, // Ideally, Category model should have an image field, but we use a default
+                    image: FALLBACK_IMAGE,
                     link: c.name.toLowerCase().includes('production') ? '/production' : '/services'
                 }));
+
+                // Fallback for empty DB
+                if (mapped.length === 0) {
+                    mapped = [
+                        { id: 'def-1', title: 'Production Studio', subtitle: 'Shooting & Captation 4K', icon: Star, color: 'bg-primary-500', gradient: 'from-gray-950/90 via-gray-900/40', image: FALLBACK_IMAGE, link: '/production' },
+                        { id: 'def-2', title: 'Reportage Mariage', subtitle: 'L\'excellence depuis 1988', icon: Star, color: 'bg-primary-600', gradient: 'from-gray-950/90 via-gray-900/40', image: FALLBACK_IMAGE, link: '/services' },
+                        { id: 'def-3', title: 'Borne Photobooth', subtitle: 'Location d\'animations fun', icon: Star, color: 'bg-secondary-500', gradient: 'from-gray-950/90 via-gray-900/40', image: FALLBACK_IMAGE, link: '/photobooth' }
+                    ];
+                }
                 setUniverses(mapped);
             } catch (err) {
                 console.error('Failed to load universes', err);
+                // Hardcoded fallback on error
+                setUniverses([
+                    { id: 'error-1', title: 'Production Studio', subtitle: 'Shooting & Captation 4K', icon: Star, color: 'bg-primary-500', gradient: 'from-gray-950/90 via-gray-900/40', image: FALLBACK_IMAGE, link: '/production' }
+                ]);
             } finally {
                 setLoading(false);
             }

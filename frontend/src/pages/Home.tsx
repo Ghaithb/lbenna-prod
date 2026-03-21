@@ -3,18 +3,21 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Camera, Shield, Zap, Check, ArrowRight,
-  Briefcase, Heart, Users, Award, Sparkles, ShieldCheck
+  Briefcase, Heart, Users, Award, Sparkles, ShieldCheck,
+  CalendarDays, ExternalLink, Image
 } from 'lucide-react';
 import AnimatedLogo from '../components/AnimatedLogo';
 import ServicesCarousel from '../components/ServicesCarousel';
 import ProjectsCarousel from '../components/ProjectsCarousel';
-import { ReviewSection } from '../components/ReviewSection';
+import ReviewSection from '../components/ReviewSection';
+import { categoriesService, Category } from '../services/categories';
 
 import UniversesCarousel from '../components/UniversesCarousel';
 import VisualShowcase from '../components/VisualShowcase';
 import { TypewriterTitle } from '../components/TypewriterTitle';
 import PromoCarousel from '../components/PromoCarousel';
 import { pagesService, Page } from '../services/pages';
+import { portfolioService, PortfolioItem } from '../services/portfolio';
 
 const IconMap: any = {
   Camera, Shield, Zap, Check, Briefcase, Heart, Users, Award, Sparkles, ShieldCheck
@@ -27,9 +30,15 @@ function DynamicIcon({ name, className }: { name: string, className?: string }) 
 
 export default function Home() {
   const [page, setPage] = useState<Page | null>(null);
+  const [universesCount, setUniversesCount] = useState(0);
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
 
   useEffect(() => {
     pagesService.getBySlug('home').then(setPage).catch(console.error);
+    categoriesService.getAll().then((cats: Category[]) => setUniversesCount(cats.length)).catch(console.error);
+    portfolioService.getAll()
+      .then(items => setPortfolioItems(items.filter(i => i.isActive).slice(0, 8)))
+      .catch(console.error);
   }, []);
 
   const content = page?.content || {};
@@ -74,11 +83,31 @@ export default function Home() {
                 <>Depuis 1988, <strong>L Benna Production</strong> écrit votre histoire par l'image. <br className="hidden md:block" /> Mariages d'exception, films corporate et studio de création.</>
               )}
             </p>
+
+            {/* CTA Hero Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+              <Link
+                to="/production"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-primary-500/40 transform hover:scale-105 transition-all duration-300"
+              >
+                <CalendarDays size={22} />
+                Réserver un Projet
+              </Link>
+              <Link
+                to="/services"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white border-2 border-gray-200 hover:border-primary-400 text-gray-800 hover:text-primary-600 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                Catalogue Services
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
 
-          <div className="relative z-20 mt-12 backdrop-blur-sm bg-white/30 p-2 rounded-[3.5rem] border border-white/50 shadow-2xl">
-            <UniversesCarousel />
-          </div>
+          {universesCount > 0 && (
+            <div className="relative z-20 mt-12 backdrop-blur-sm bg-white/30 p-2 rounded-[3.5rem] border border-white/50 shadow-2xl">
+              <UniversesCarousel />
+            </div>
+          )}
         </div>
       </section>
 
@@ -98,7 +127,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Vous êtes ? (Personas) */}
+      {/* 3. Services Overview avec CTA Réserver + Voir tous les services */}
+      <section className="py-24 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
+          <span className="text-blue-600 font-bold tracking-wider uppercase text-sm">Expertise Studio & Terrain</span>
+          <h2 className="text-3xl font-bold mb-4 mt-2">Choisissez votre Expérience</h2>
+          <p className="text-gray-500">Des prestations haut de gamme, adaptées à votre vision.</p>
+        </div>
+        <ServicesCarousel />
+
+        {/* Boutons d'action */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 px-4">
+          <Link
+            to="/services"
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white rounded-2xl font-bold text-base shadow-sm hover:shadow-lg transition-all duration-300"
+          >
+            <ExternalLink size={20} />
+            Voir d'autres services
+          </Link>
+          <Link
+            to="/production"
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl font-bold text-base shadow-xl hover:shadow-primary-500/40 transform hover:scale-105 transition-all duration-300"
+          >
+            <CalendarDays size={20} />
+            Réserver maintenant
+          </Link>
+        </div>
+      </section>
+
+      {/* 4. Galerie Photo Portfolio */}
+      {portfolioItems.length > 0 && (
+        <section className="py-24 bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-baseline mb-12 gap-4">
+              <div>
+                <span className="text-primary-500 font-bold tracking-wider uppercase text-sm">Portfolio</span>
+                <h2 className="text-3xl md:text-5xl font-black text-gray-900 mt-2 tracking-tighter">Nos Réalisations</h2>
+                <p className="text-gray-500 mt-2">Chaque image raconte une histoire unique</p>
+              </div>
+              <Link
+                to="/portfolio"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-primary-600 transition-all duration-300 shadow-md hover:shadow-lg"
+              >
+                <Image size={18} />
+                Voir toute la galerie
+              </Link>
+            </div>
+
+            {/* Photo Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {portfolioItems.map((item, idx) => (
+                <Link
+                  key={item.id}
+                  to={`/portfolio`}
+                  className={`group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${
+                    idx === 0 ? 'md:col-span-2 md:row-span-2' : ''
+                  }`}
+                  style={{ aspectRatio: idx === 0 ? '1/1' : '4/3' }}
+                >
+                  {item.coverUrl ? (
+                    <img
+                      src={item.coverUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                      <Camera size={40} className="text-gray-400" />
+                    </div>
+                  )}
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <div>
+                      <p className="text-white font-bold text-sm leading-tight">{item.title}</p>
+                      {item.categoryObject && (
+                        <span className="text-white/70 text-xs">{item.categoryObject.name}</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
+              <Link
+                to="/portfolio"
+                className="inline-flex items-center gap-3 px-10 py-4 bg-gray-900 hover:bg-primary-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-primary-500/40 transform hover:scale-105 transition-all duration-300"
+              >
+                Explorer tout le portfolio <ArrowRight size={22} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 5. Vous êtes ? (Personas) */}
       <section className="py-24 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -138,20 +261,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Services Overview */}
-      <section className="py-24 bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
-          <span className="text-blue-600 font-bold tracking-wider uppercase text-sm">Expertise Studio & Terrain</span>
-          <h2 className="text-3xl font-bold mb-4 mt-2">Choisissez votre Expérience</h2>
-          <p className="text-gray-500">Des prestations haut de gamme, adaptées à votre vision.</p>
-        </div>
-        <ServicesCarousel />
-      </section>
-
-      {/* 5. Showcase Visuel */}
+      {/* 6. Showcase Visuel */}
       <VisualShowcase />
 
-      {/* 6. Pourquoi L Benna Production ? */}
+      {/* 7. Pourquoi L Benna Production ? */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -175,12 +288,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Avis clients */}
+      {/* 8. Avis clients */}
       <section className="py-24 bg-gray-50">
         <ReviewSection />
       </section>
 
-      {/* 8. CTA final */}
+      {/* 9. CTA final */}
       <section className="py-24 bg-gradient-to-r from-blue-600 to-indigo-700 text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 p-20 opacity-10">
           <Camera size={400} />
@@ -195,15 +308,17 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link
               to="/production"
-              className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:shadow-xl transition transform hover:scale-105"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:shadow-xl transition transform hover:scale-105"
             >
+              <CalendarDays size={22} />
               Démarrer un projet
             </Link>
             <Link
-              to="/contact"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition"
+              to="/services"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition"
             >
-              Nous contacter
+              Catalogue Services
+              <ArrowRight size={20} />
             </Link>
           </div>
         </div>

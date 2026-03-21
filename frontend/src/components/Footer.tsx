@@ -53,7 +53,7 @@ export function Footer() {
               <CompactLogo />
             </div>
             <p className="text-sm mb-4">
-              Votre partenaire pour le tirage photo professionnel, la formation en photographie et la production événementielle.
+              Votre partenaire d'exception pour la production audiovisuelle et événementielle depuis 1988.
             </p>
             <div className="flex gap-3">
               {settings?.social_facebook && (

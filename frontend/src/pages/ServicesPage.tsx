@@ -176,21 +176,14 @@ export function ServicesPage() {
                           <span className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                             <Clock size={12} className="text-purple-500" /> {offer.duration || 60} min
                           </span>
-                          {offer.title.toLowerCase().includes('tirage') ? (
-                            <Link
-                              to="/catalog?category=tirage-impression"
-                              className="bg-purple-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-lg shadow-purple-100 ring-2 ring-purple-100 ring-offset-2"
-                            >
-                              Commander
-                            </Link>
-                          ) : offer.title.toLowerCase().includes('photobooth') ? (
+                          {offer.title.toLowerCase().includes('photobooth') ? (
                             <Link
                               to="/photobooth"
                               className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 ring-2 ring-blue-100 ring-offset-2"
                             >
                               Louer / Réserver
                             </Link>
-                          ) : (offer.title.toLowerCase().includes('mariage') || offer.title.toLowerCase().includes('vidéo') || offer.title.toLowerCase().includes('film') || offer.title.toLowerCase().includes('corporate') || offer.title.toLowerCase().includes('drone')) ? (
+                          ) : (offer.title.toLowerCase().includes('mariage') || offer.title.toLowerCase().includes('vidéo') || offer.title.toLowerCase().includes('film') || offer.title.toLowerCase().includes('corporate') || offer.title.toLowerCase().includes('drone') || offer.title.toLowerCase().includes('studio')) ? (
                             <Link
                               to="/production"
                               className="bg-primary-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition-all shadow-lg shadow-primary-100 ring-2 ring-primary-100 ring-offset-2"
@@ -231,10 +224,10 @@ export function ServicesPage() {
           />
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { step: '01', title: 'Consultation', text: 'On définit vos besoins ensemble.' },
-              { step: '02', title: 'Planification', text: 'On organise la logistique et le studio.' },
-              { step: '03', title: 'Production', text: 'Phase de capture ou d\'impression.' },
-              { step: '04', title: 'Livraison', text: 'Retrait en boutique ou livraison sécurisée.' },
+              { step: '01', title: 'Consultation', text: 'Définition de vos objectifs et du brief créatif.' },
+              { step: '02', title: 'Planification', text: 'Repérages, logistique et préparation technique.' },
+              { step: '03', title: 'Production', text: 'Phase de capture, tournage ou shooting studio.' },
+              { step: '04', title: 'Post-Prod', text: 'Montage, étalonnage et livraison numérique.' },
             ].map((s, i) => (
               <div key={i} className="bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all">
                 <span className="text-5xl font-black text-purple-500/10 block mb-4">{s.step}</span>
