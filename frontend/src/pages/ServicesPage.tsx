@@ -264,7 +264,7 @@ export function ServicesPage() {
                 <div className="text-center py-8 space-y-6">
                   <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-100/50"><Check size={40} strokeWidth={4} /></div>
                   <h4 className="text-3xl font-black text-gray-950">Confirmé !</h4>
-                  <p className="text-gray-500 font-medium max-w-sm mx-auto">Votre demande de réservation a été enregistrée. L'équipe Lab El Benna vous contactera sous peu.</p>
+                  <p className="text-gray-500 font-medium max-w-sm mx-auto">Votre demande de réservation a été enregistrée. L'équipe L Benna Production vous contactera sous peu.</p>
                   <button onClick={closeModal} className="w-full py-4 bg-gray-900 text-white rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all">Fermer</button>
                 </div>
               ) : (

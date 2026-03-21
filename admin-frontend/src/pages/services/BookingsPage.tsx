@@ -3,13 +3,14 @@ import { Table, Tag, Button, Popconfirm, message, Space, Modal, Input, Form } fr
 import { Link } from 'react-router-dom';
 import { bookingsService, Booking, BookingStatus } from '../../services/bookings';
 import { format } from 'date-fns';
-import { CheckCircleOutlined, CloseCircleOutlined, DeleteOutlined, CloudUploadOutlined, LinkOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, DeleteOutlined, CloudUploadOutlined, LinkOutlined, EyeOutlined } from '@ant-design/icons';
 
 export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(false);
     const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [form] = Form.useForm();
 
     const fetchBookings = async () => {
@@ -102,6 +103,18 @@ export default function BookingsPage() {
             render: (date: string) => format(new Date(date), 'dd/MM/yyyy HH:mm'),
         },
         {
+            title: 'Type / Lieu',
+            key: 'type_location',
+            render: (_: any, record: Booking) => (
+                <Space direction="vertical" size={0}>
+                    <Tag color="cyan">{record.eventType || 'N/A'}</Tag>
+                    <div className="text-[10px] text-gray-500 font-bold uppercase truncate max-w-[150px]">
+                        {record.location || 'Non précisé'}
+                    </div>
+                </Space>
+            )
+        },
+        {
             title: 'Statut',
             dataIndex: 'status',
             key: 'status',
@@ -132,6 +145,14 @@ export default function BookingsPage() {
             key: 'actions',
             render: (_: any, record: Booking) => (
                 <Space>
+                    <Button 
+                        size="small" 
+                        icon={<EyeOutlined />} 
+                        onClick={() => {
+                            setSelectedBooking(record);
+                            setIsDetailsModalOpen(true);
+                        }}
+                    />
                     {record.status === BookingStatus.PENDING && (
                         <>
                             <Popconfirm
@@ -221,6 +242,65 @@ export default function BookingsPage() {
                         </Button>
                     </div>
                 </Form>
+            </Modal>
+            <Modal
+                title="Détails de la Réservation"
+                open={isDetailsModalOpen}
+                onCancel={() => setIsDetailsModalOpen(false)}
+                footer={[
+                    <Button key="close" onClick={() => setIsDetailsModalOpen(false)}>Fermer</Button>
+                ]}
+                width={600}
+            >
+                {selectedBooking && (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Type d'événement</p>
+                                <p className="font-bold text-gray-900">{selectedBooking.eventType || 'N/A'}</p>
+                            </div>
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Durée prévue</p>
+                                <p className="font-bold text-gray-900">{selectedBooking.duration || 'N/A'}</p>
+                            </div>
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Lieu / Adresse</p>
+                                <p className="font-bold text-gray-900">{selectedBooking.location || 'N/A'}</p>
+                            </div>
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Budget estimé</p>
+                                <p className="font-bold text-gray-950 text-lg">{selectedBooking.budget || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="border border-gray-100 p-3 rounded-lg">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Nombre d'invités</p>
+                                <p className="font-bold text-gray-900">{selectedBooking.guests || 'N/A'}</p>
+                            </div>
+                            <div className="border border-gray-100 p-3 rounded-lg">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Entreprise</p>
+                                <p className="font-bold text-gray-900">{selectedBooking.companyName || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        {selectedBooking.notes && (
+                            <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                                <p className="text-[10px] text-amber-600 font-black uppercase tracking-widest mb-1">Notes client</p>
+                                <p className="text-sm text-amber-900">{selectedBooking.notes}</p>
+                            </div>
+                        )}
+
+                        {selectedBooking.dynamicDetails && (
+                            <div>
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2 px-1">Options suppléméntaires</p>
+                                <pre className="bg-gray-900 text-green-400 p-4 rounded-xl text-xs overflow-auto max-h-40">
+                                    {JSON.stringify(selectedBooking.dynamicDetails, null, 2)}
+                                </pre>
+                            </div>
+                        )}
+                    </div>
+                )}
             </Modal>
         </div>
     );

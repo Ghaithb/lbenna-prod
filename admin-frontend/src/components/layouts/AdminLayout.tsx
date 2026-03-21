@@ -7,7 +7,7 @@ import {
   BellOutlined, UserOutlined, MessageOutlined,
   SecurityScanOutlined,
   PictureOutlined, ProjectOutlined,
-  UnorderedListOutlined
+  UnorderedListOutlined, StarOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -67,6 +67,7 @@ export default function AdminLayout() {
         { key: '/content/pages', icon: <FileTextOutlined />, label: 'Gestion Pages', onClick: () => navigate('/content/pages') },
         { key: '/marketing/faqs', icon: <FileTextOutlined />, label: 'FAQs', onClick: () => navigate('/marketing/faqs') },
         { key: '/marketing/announcements', icon: <BellOutlined />, label: 'Annonces / Promo', onClick: () => navigate('/marketing/announcements') },
+        { key: '/marketing/reviews', icon: <StarOutlined />, label: 'Avis Clients', onClick: () => navigate('/marketing/reviews') },
         { key: '/settings', icon: <SettingOutlined />, label: 'Paramètres', onClick: () => navigate('/settings') },
         { key: '/system/audit', icon: <SecurityScanOutlined />, label: 'Audit Logs', onClick: () => navigate('/system/audit') },
       ]

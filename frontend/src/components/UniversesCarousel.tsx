@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ArrowRight, Loader2, Star } from 'lucide-react';
 import { categoriesService, Category } from '../services/categories';
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e';
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop';
 
 export default function UniversesCarousel() {
     const [universes, setUniverses] = useState<any[]>([]);

@@ -101,10 +101,10 @@ export function Header() {
                 </div>
               ) : (
                 <Link
-                  to="/register"
+                  to="/login"
                   className="hidden md:inline-flex items-center px-4 py-2 bg-gradient-fire text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all"
                 >
-                  Créer un compte
+                  Se connecter
                 </Link>
               )}
 
@@ -175,11 +175,11 @@ export function Header() {
                 </div>
               ) : (
                 <Link
-                  to="/register"
+                  to="/login"
                   onClick={() => setIsMenuOpen(false)}
                   className="block px-4 py-3 bg-gradient-fire text-white rounded-lg font-semibold text-center hover:shadow-lg transition-all"
                 >
-                  Créer un compte
+                  Se connecter
                 </Link>
               )}
             </div>

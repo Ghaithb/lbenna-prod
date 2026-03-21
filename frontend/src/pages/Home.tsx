@@ -151,7 +151,7 @@ export default function Home() {
       {/* 5. Showcase Visuel */}
       <VisualShowcase />
 
-      {/* 6. Pourquoi Lab El Benna ? */}
+      {/* 6. Pourquoi L Benna Production ? */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">

@@ -181,6 +181,13 @@ model Booking {
   paidAmount     Float?
   paymentMethod  PaymentMethod @default(CASH)
   transferToken  String?       @unique
+  eventType      String?
+  duration       String?
+  location       String?
+  budget         String?
+  guests         String?
+  companyName    String?
+  dynamicDetails Json?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   serviceOffer   ServiceOffer  @relation(fields: [serviceOfferId], references: [id])
@@ -429,4 +436,18 @@ enum AnnouncementType {
   WARNING
   SUCCESS
   ERROR
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  user      String
+  rating    Int
+  comment   String
+  date      DateTime @default(now())
+  verified  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
 }

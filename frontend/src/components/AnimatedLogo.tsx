@@ -25,7 +25,7 @@ export function CompactLogo() {
       <img 
         src="/logo-horizontal.png" 
         alt="L Benna Production" 
-        className="h-10 md:h-12 object-contain group-hover:scale-105 transition-transform"
+        className="h-14 md:h-16 object-contain group-hover:scale-105 transition-transform"
       />
     </div>
   );

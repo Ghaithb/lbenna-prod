@@ -67,7 +67,7 @@ export function ContactPage() {
                     <MapPin size={24} />
                   </div>
                   <div className="pt-2">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Studio Lab El Benna</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Studio L Benna Production</p>
                     <p className="text-lg font-bold text-gray-900 leading-tight">123 Avenue de la Liberté, Tunis, Tunisie</p>
                   </div>
                 </div>

@@ -17,6 +17,13 @@ export interface Booking {
     customerEmail: string;
     customerPhone: string;
     notes?: string;
+    eventType?: string;
+    duration?: string;
+    location?: string;
+    budget?: string;
+    guests?: string;
+    companyName?: string;
+    dynamicDetails?: any;
     status: BookingStatus;
     adminNotes?: string;
     deliveryUrl?: string;

@@ -28,6 +28,13 @@ export interface CreateBookingDto {
     customerEmail: string;
     customerPhone: string;
     notes?: string;
+    eventType?: string;
+    duration?: string;
+    location?: string;
+    budget?: string;
+    guests?: string;
+    companyName?: string;
+    dynamicDetails?: any;
 }
 
 export const bookingsService = {

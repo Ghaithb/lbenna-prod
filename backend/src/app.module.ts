@@ -29,6 +29,7 @@ import { MarketingModule } from './marketing/marketing.module';
 import { FaqModule } from './faq/faq.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProjectsModule } from './projects/projects.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { ProjectsModule } from './projects/projects.module';
     MarketingModule,
     // SuppliersModule,
     CategoriesModule,
+    ReviewsModule,
   ],
   providers: [
     {

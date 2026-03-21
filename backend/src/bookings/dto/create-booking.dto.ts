@@ -28,4 +28,31 @@ export class CreateBookingDto {
     @IsOptional()
     @IsString()
     notes?: string;
+
+    @IsOptional()
+    @IsString()
+    eventType?: string;
+
+    @IsOptional()
+    @IsString()
+    duration?: string;
+
+    @IsOptional()
+    @IsString()
+    location?: string;
+
+    @IsOptional()
+    @IsString()
+    budget?: string;
+
+    @IsOptional()
+    @IsString()
+    guests?: string;
+
+    @IsOptional()
+    @IsString()
+    companyName?: string;
+
+    @IsOptional()
+    dynamicDetails?: any;
 }

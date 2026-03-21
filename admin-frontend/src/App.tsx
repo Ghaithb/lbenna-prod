@@ -22,6 +22,7 @@ import PagesManagement from './pages/content/PagesManagement';
 import PageEditor from './pages/content/PageEditor';
 
 import AnnouncementsPage from './pages/marketing/AnnouncementsPage';
+import ReviewsPage from './pages/marketing/ReviewsPage';
 import FAQsPage from './pages/marketing/FAQsPage';
 import MessagesPage from './pages/marketing/MessagesPage';
 import AuditPage from './pages/system/AuditPage';
@@ -63,6 +64,7 @@ function App() {
 
           {/* Marketing Routes */}
           <Route path="/marketing/announcements" element={<AnnouncementsPage />} />
+          <Route path="/marketing/reviews" element={<ReviewsPage />} />
           <Route path="/marketing/faqs" element={<FAQsPage />} />
           <Route path="/marketing/messages" element={<MessagesPage />} />
 
