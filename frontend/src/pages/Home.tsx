@@ -47,12 +47,35 @@ export default function Home() {
 
       {/* ── 1. HERO : Identité + Univers ── */}
       <section className="relative min-h-[85vh] flex flex-col justify-center overflow-hidden bg-white border-b border-gray-100">
-        {/* Background décoratif */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] opacity-25">
-            <div className="absolute top-0 -left-24 w-[40rem] h-[40rem] bg-indigo-100 rounded-full mix-blend-multiply filter blur-[120px] animate-blob"></div>
-            <div className="absolute top-0 -right-24 w-[35rem] h-[35rem] bg-blue-100 rounded-full mix-blend-multiply filter blur-[120px] animate-blob" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute -bottom-32 left-20 w-[45rem] h-[45rem] bg-primary-100 rounded-full mix-blend-multiply filter blur-[120px] animate-blob" style={{ animationDelay: '4s' }}></div>
+        {/* Background photographique pro et attrayant */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Overlay dégradé pour garder le texte ultra lisible */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/95 z-10 backdrop-blur-[2px]"></div>
+          
+          {/* Photos de fond */}
+          <div className="absolute inset-0 opacity-40 z-0">
+            {/* Top Left */}
+            <div className="absolute -top-[10%] -left-[5%] w-[30rem] h-[25rem] rounded-[3rem] overflow-hidden -rotate-12 transform scale-95 opacity-80 blur-[2px]">
+              <img src={portfolioItems[0]?.coverUrl || "https://images.unsplash.com/photo-1603574670812-d2456088add4?q=80&w=1200&auto=format&fit=crop"} alt="Production" className="w-full h-full object-cover" />
+            </div>
+            {/* Top Right */}
+            <div className="absolute top-[5%] -right-[15%] w-[35rem] h-[22rem] rounded-[3rem] overflow-hidden rotate-12 transform scale-110 opacity-70 blur-[1px]">
+              <img src={portfolioItems[1]?.coverUrl || "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200&auto=format&fit=crop"} alt="Studio" className="w-full h-full object-cover" />
+            </div>
+            {/* Bottom Left */}
+            <div className="absolute -bottom-[20%] left-[5%] w-[40rem] h-[28rem] rounded-[3rem] overflow-hidden rotate-6 transform scale-105 opacity-60 blur-[3px]">
+              <img src={portfolioItems[2]?.coverUrl || "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200&auto=format&fit=crop"} alt="Event" className="w-full h-full object-cover" />
+            </div>
+            {/* Center Right */}
+            <div className="absolute bottom-[20%] -right-[5%] w-[25rem] h-[25rem] rounded-[3rem] overflow-hidden -rotate-6 transform scale-90 opacity-80 blur-[1px]">
+              <img src={portfolioItems[3]?.coverUrl || "https://images.unsplash.com/photo-1554046949-b0037a3fb9bf?q=80&w=1200&auto=format&fit=crop"} alt="Stage" className="w-full h-full object-cover" />
+            </div>
+          </div>
+          
+          {/* Effet d'éclairage subtil (en remplacement des anciens blobs) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-30 z-0">
+             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-100 rounded-full mix-blend-multiply filter blur-[100px] animate-blob"></div>
+             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-[100px] animate-blob" style={{ animationDelay: '2s' }}></div>
           </div>
         </div>
 
