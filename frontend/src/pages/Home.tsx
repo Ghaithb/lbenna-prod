@@ -298,39 +298,65 @@ function ClientLogos() {
 
   const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
 
-  if (loading) return <div className="py-16 bg-white border-b border-gray-100 min-h-[200px]"></div>;
+  if (loading) return <div className="py-12 bg-white border-b border-gray-100 min-h-[140px]"></div>;
   if (partners.length === 0) return null;
 
+  // Duplicate logos for seamless marquee loop
+  const logoList = [...partners, ...partners];
+
+  const renderLogo = (partner: Partner, key: string) => {
+    const logoSrc = partner.logoUrl?.startsWith('http')
+      ? partner.logoUrl
+      : `${BASE_URL}${partner.logoUrl}`;
+    return (
+      <div key={key} className="flex-shrink-0 flex items-center justify-center px-10">
+        {partner.logoUrl ? (
+          <img
+            src={logoSrc}
+            alt={partner.name}
+            className="h-[3cm] w-auto max-w-[220px] object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+        ) : (
+          <span className="text-2xl font-black font-serif text-gray-400 whitespace-nowrap hover:text-gray-800 transition-colors">
+            {partner.name}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="py-16 bg-white border-b border-gray-100 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 text-center mb-10">
+    <div className="py-12 bg-white border-b border-gray-100 overflow-hidden">
+      <div className="text-center mb-8">
         <p className="text-xs font-black text-gray-300 uppercase tracking-[0.2em]">Ils nous confient leur image</p>
       </div>
-      <div className="flex justify-center flex-wrap gap-x-16 gap-y-10 md:gap-x-24 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500 px-6">
-        {partners.map(partner => {
-          const logoSrc = partner.logoUrl?.startsWith('http')
-            ? partner.logoUrl
-            : `${BASE_URL}${partner.logoUrl}`;
-          return (
-            <div key={partner.id} className="flex items-center justify-center" title={partner.name}>
-              {partner.logoUrl ? (
-                <img
-                  src={logoSrc}
-                  alt={partner.name}
-                  className="h-[2cm] w-auto max-w-[200px] object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <span className="text-2xl md:text-3xl font-black font-serif tracking-tight text-gray-800">{partner.name}</span>
-              )}
-            </div>
-          );
-        })}
+
+      {/* Marquee container */}
+      <div className="relative w-full overflow-hidden">
+        {/* Fade gradients left & right */}
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+        <div
+          className="flex items-center"
+          style={{
+            animation: 'marquee 30s linear infinite',
+            willChange: 'transform',
+          }}
+        >
+          {logoList.map((partner, idx) => renderLogo(partner, `${partner.id}-${idx}`))}
+        </div>
       </div>
+
+      <style>{`
+        @keyframes marquee {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
     </div>
-  )
+  );
 }
 
 function PhotoboothBanner() {
