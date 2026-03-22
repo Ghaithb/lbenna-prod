@@ -82,21 +82,21 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link
+              <Link
                 to="/production"
                 className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-primary-500/40 transform hover:scale-105 transition-all duration-300 w-full sm:w-auto"
-                >
+              >
                 <CalendarDays size={24} />
                 Réserver un Projet
-                </Link>
-                {/* ── SHOWREEL CTA ── */}
-                <Link
+              </Link>
+              {/* ── SHOWREEL CTA ── */}
+              <Link
                 to="/portfolio"
                 className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-gray-900/40 transition-all duration-300 w-full sm:w-auto"
-                >
+              >
                 <PlayCircle size={24} />
                 Voir la Bande Démo
-                </Link>
+              </Link>
             </div>
           </div>
 
@@ -303,32 +303,32 @@ function ClientLogos() {
 
   return (
     <div className="py-16 bg-white border-b border-gray-100 overflow-hidden">
-       <div className="max-w-7xl mx-auto px-4 text-center mb-10">
-          <p className="text-xs font-black text-gray-300 uppercase tracking-[0.2em]">Ils nous confient leur image</p>
-       </div>
-       <div className="flex justify-center flex-wrap gap-x-16 gap-y-10 md:gap-x-24 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500 px-6">
-          {partners.map(partner => {
-            const logoSrc = partner.logoUrl?.startsWith('http')
-              ? partner.logoUrl
-              : `${BASE_URL}${partner.logoUrl}`;
-            return (
-              <div key={partner.id} className="flex items-center justify-center" title={partner.name}>
-                  {partner.logoUrl ? (
-                      <img
-                        src={logoSrc}
-                        alt={partner.name}
-                        className="h-16 md:h-20 w-auto max-w-[180px] object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                  ) : (
-                      <span className="text-2xl md:text-3xl font-black font-serif tracking-tight text-gray-800">{partner.name}</span>
-                  )}
-              </div>
-            );
-          })}
-       </div>
+      <div className="max-w-7xl mx-auto px-4 text-center mb-10">
+        <p className="text-xs font-black text-gray-300 uppercase tracking-[0.2em]">Ils nous confient leur image</p>
+      </div>
+      <div className="flex justify-center flex-wrap gap-x-16 gap-y-10 md:gap-x-24 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500 px-6">
+        {partners.map(partner => {
+          const logoSrc = partner.logoUrl?.startsWith('http')
+            ? partner.logoUrl
+            : `${BASE_URL}${partner.logoUrl}`;
+          return (
+            <div key={partner.id} className="flex items-center justify-center" title={partner.name}>
+              {partner.logoUrl ? (
+                <img
+                  src={logoSrc}
+                  alt={partner.name}
+                  className="h-20 md:h-24 w-auto max-w-[250px] object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <span className="text-2xl md:text-3xl font-black font-serif tracking-tight text-gray-800">{partner.name}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   )
 }
@@ -336,30 +336,30 @@ function ClientLogos() {
 function PhotoboothBanner() {
   return (
     <section className="py-20 bg-primary-600 text-white relative overflow-hidden">
-       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516280440502-863a1523bb8e?q=80&w=2000&auto=format&fit=crop')] opacity-10 bg-cover bg-center mix-blend-overlay pointer-events-none"></div>
-       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-       
-       <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-           <div className="max-w-xl text-center md:text-left">
-               <span className="text-primary-200 font-bold uppercase tracking-[0.2em] text-sm mb-3 block">Animation Événementielle</span>
-               <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">Mettez du fun dans votre événement !</h2>
-               <p className="text-lg text-primary-100 mb-8 leading-relaxed">
-                   Découvrez notre solution <strong>Photobooth</strong> : tirage immédiat, qualité studio, et souvenirs inoubliables pour vos mariages ou soirées d'entreprise.
-               </p>
-               <Link to="/photobooth" className="inline-flex items-center justify-center gap-3 bg-white text-primary-600 px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
-                   Découvrir le Photobooth <ArrowRight size={20} />
-               </Link>
-           </div>
-           
-           <div className="relative flex-shrink-0 animate-float hidden md:flex">
-               <div className="w-56 h-56 md:w-72 md:h-72 bg-gradient-to-br from-white/20 to-white/5 rounded-full border-2 border-white/20 flex items-center justify-center backdrop-blur-md shadow-2xl relative">
-                   <Camera size={90} className="text-white drop-shadow-lg" />
-                   <div className="absolute -bottom-6 -right-4 bg-white text-primary-600 font-black px-6 py-3 rounded-xl shadow-2xl rotate-[-10deg] transform hover:rotate-0 transition-transform duration-300">
-                       Tirage Pro 10s !
-                   </div>
-               </div>
-           </div>
-       </div>
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516280440502-863a1523bb8e?q=80&w=2000&auto=format&fit=crop')] opacity-10 bg-cover bg-center mix-blend-overlay pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+
+      <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="max-w-xl text-center md:text-left">
+          <span className="text-primary-200 font-bold uppercase tracking-[0.2em] text-sm mb-3 block">Animation Événementielle</span>
+          <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">Mettez du fun dans votre événement !</h2>
+          <p className="text-lg text-primary-100 mb-8 leading-relaxed">
+            Découvrez notre solution <strong>Photobooth</strong> : tirage immédiat, qualité studio, et souvenirs inoubliables pour vos mariages ou soirées d'entreprise.
+          </p>
+          <Link to="/photobooth" className="inline-flex items-center justify-center gap-3 bg-white text-primary-600 px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+            Découvrir le Photobooth <ArrowRight size={20} />
+          </Link>
+        </div>
+
+        <div className="relative flex-shrink-0 animate-float hidden md:flex">
+          <div className="w-56 h-56 md:w-72 md:h-72 bg-gradient-to-br from-white/20 to-white/5 rounded-full border-2 border-white/20 flex items-center justify-center backdrop-blur-md shadow-2xl relative">
+            <Camera size={90} className="text-white drop-shadow-lg" />
+            <div className="absolute -bottom-6 -right-4 bg-white text-primary-600 font-black px-6 py-3 rounded-xl shadow-2xl rotate-[-10deg] transform hover:rotate-0 transition-transform duration-300">
+              Tirage Pro 10s !
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
@@ -367,55 +367,55 @@ function PhotoboothBanner() {
 function AboutTeaser() {
   return (
     <section className="py-24 bg-gray-50 border-t border-gray-100 overflow-hidden">
-       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="grid md:grid-cols-2 gap-16 items-center">
-               <div className="relative order-2 md:order-1">
-                   <div className="aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
-                       <img src="https://images.unsplash.com/photo-1621600411688-4be93cd68504?q=80&w=1000&auto=format&fit=crop" alt="Equipe de production" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                   </div>
-                   <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 -z-10 animate-blob"></div>
-                   <div className="absolute top-8 -left-8 bg-white p-6 rounded-2xl shadow-xl z-20 hidden sm:block">
-                       <div className="flex items-center gap-4">
-                           <div className="flex -space-x-3">
-                               <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white"></div>
-                               <div className="w-10 h-10 rounded-full bg-gray-300 border-2 border-white"></div>
-                               <div className="w-10 h-10 rounded-full bg-gray-400 border-2 border-white flex justify-center items-center text-xs font-bold text-white">+5</div>
-                           </div>
-                           <div>
-                               <p className="text-xs text-gray-500 font-bold uppercase">Créatifs</p>
-                               <p className="text-sm font-black text-gray-900">Passionnés</p>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-               <div className="order-1 md:order-2">
-                   <span className="text-primary-500 font-bold uppercase tracking-[0.2em] text-sm mb-2 block">Côté Coulisses</span>
-                   <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tighter leading-tight">
-                       L'humain au cœur de <br/><span className="text-primary-500">votre image.</span>
-                   </h2>
-                   <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                       Derrière chaque réalisation d'exception se cache une équipe technique et créative dévouée. Vidéastes, photographes, télépilotes de drone, directeurs artistiques : unis pour sublimer votre histoire.
-                   </p>
-                   <ul className="space-y-4 mb-10">
-                       <li className="flex items-center gap-3 text-gray-700 font-semibold text-lg hover:text-primary-600 transition-colors">
-                           <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-500"><Check size={14} strokeWidth={3} /></div> 
-                           Plus de 35 ans de savoir-faire (depuis 1988)
-                       </li>
-                       <li className="flex items-center gap-3 text-gray-700 font-semibold text-lg hover:text-primary-600 transition-colors">
-                           <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-500"><Check size={14} strokeWidth={3} /></div> 
-                           Matériel Cinéma dernière génération
-                       </li>
-                       <li className="flex items-center gap-3 text-gray-700 font-semibold text-lg hover:text-primary-600 transition-colors">
-                           <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-500"><Check size={14} strokeWidth={3} /></div> 
-                           Accompagnement artistique sur-mesure
-                       </li>
-                   </ul>
-                   <Link to="/about" className="group inline-flex items-center gap-2 text-primary-600 font-black text-lg border-b-2 border-primary-600/30 pb-1 hover:border-primary-600 transition-all">
-                       Découvrir notre équipe <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                   </Link>
-               </div>
-           </div>
-       </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="relative order-2 md:order-1">
+            <div className="aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
+              <img src="https://images.unsplash.com/photo-1621600411688-4be93cd68504?q=80&w=1000&auto=format&fit=crop" alt="Equipe de production" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+            </div>
+            <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 -z-10 animate-blob"></div>
+            <div className="absolute top-8 -left-8 bg-white p-6 rounded-2xl shadow-xl z-20 hidden sm:block">
+              <div className="flex items-center gap-4">
+                <div className="flex -space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-gray-300 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-gray-400 border-2 border-white flex justify-center items-center text-xs font-bold text-white">+5</div>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase">Créatifs</p>
+                  <p className="text-sm font-black text-gray-900">Passionnés</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="order-1 md:order-2">
+            <span className="text-primary-500 font-bold uppercase tracking-[0.2em] text-sm mb-2 block">Côté Coulisses</span>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tighter leading-tight">
+              L'humain au cœur de <br /><span className="text-primary-500">votre image.</span>
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              Derrière chaque réalisation d'exception se cache une équipe technique et créative dévouée. Vidéastes, photographes, télépilotes de drone, directeurs artistiques : unis pour sublimer votre histoire.
+            </p>
+            <ul className="space-y-4 mb-10">
+              <li className="flex items-center gap-3 text-gray-700 font-semibold text-lg hover:text-primary-600 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-500"><Check size={14} strokeWidth={3} /></div>
+                Plus de 35 ans de savoir-faire (depuis 1988)
+              </li>
+              <li className="flex items-center gap-3 text-gray-700 font-semibold text-lg hover:text-primary-600 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-500"><Check size={14} strokeWidth={3} /></div>
+                Matériel Cinéma dernière génération
+              </li>
+              <li className="flex items-center gap-3 text-gray-700 font-semibold text-lg hover:text-primary-600 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-500"><Check size={14} strokeWidth={3} /></div>
+                Accompagnement artistique sur-mesure
+              </li>
+            </ul>
+            <Link to="/about" className="group inline-flex items-center gap-2 text-primary-600 font-black text-lg border-b-2 border-primary-600/30 pb-1 hover:border-primary-600 transition-all">
+              Découvrir notre équipe <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
