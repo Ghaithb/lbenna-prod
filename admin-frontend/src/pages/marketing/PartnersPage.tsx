@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, message, Space, Modal, Form, Input, Switch, InputNumber } from 'antd';
+import { Table, Button, Popconfirm, message, Space, Modal, Form, Input, Switch, InputNumber, Upload } from 'antd';
 import { partnersService, Partner } from '../../services/partners';
-import { DeleteOutlined, EditOutlined, PlusOutlined, PictureOutlined } from '@ant-design/icons';
+import { mediaService } from '../../services/media';
+import { DeleteOutlined, EditOutlined, PlusOutlined, PictureOutlined, UploadOutlined } from '@ant-design/icons';
 
 export default function PartnersPage() {
     const [partners, setPartners] = useState<Partner[]>([]);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
+    const [fileList, setFileList] = useState<any[]>([]);
+    const [uploading, setUploading] = useState(false);
     const [form] = Form.useForm();
 
     const fetchPartners = async () => {
@@ -48,17 +51,40 @@ export default function PartnersPage() {
 
     const handleSubmit = async (values: any) => {
         try {
+            setUploading(true);
+            let finalLogoUrl = values.logoUrl;
+
+            // Handle new file upload if available
+            if (fileList.length > 0 && fileList[0].originFileObj) {
+                const uploadedFile = await mediaService.uploadSingle(fileList[0].originFileObj);
+                finalLogoUrl = uploadedFile.url;
+            }
+
+            if (!finalLogoUrl && !editingPartner?.logoUrl) {
+                message.error('Veuillez uploader un logo ou fournir une URL');
+                setUploading(false);
+                return;
+            }
+
+            const payload = {
+                ...values,
+                logoUrl: finalLogoUrl
+            };
+
             if (editingPartner) {
-                await partnersService.update(editingPartner.id, values);
+                await partnersService.update(editingPartner.id, payload);
                 message.success('Partenaire mis à jour');
             } else {
-                await partnersService.create(values);
+                await partnersService.create(payload);
                 message.success('Partenaire créé');
             }
+            
             setIsModalOpen(false);
             fetchPartners();
-        } catch (error) {
-            message.error('Erreur lors de l\'enregistrement');
+        } catch (error: any) {
+            message.error(error.message || 'Erreur lors de l\'enregistrement');
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -67,9 +93,12 @@ export default function PartnersPage() {
             title: 'Logo',
             dataIndex: 'logoUrl',
             key: 'logoUrl',
-            render: (url: string) => url ? (
-                 <img src={url} alt="Logo" className="h-10 object-contain" />
+            render: (url: string) => {
+                const finalUrl = url && url.startsWith('http') ? url : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${url}`;
+                return url ? (
+                 <img src={finalUrl} alt="Logo" className="h-10 object-contain" />
             ) : <PictureOutlined className="text-gray-400 text-2xl" />
+            }
         },
         {
             title: 'Nom de la Société',
@@ -105,6 +134,7 @@ export default function PartnersPage() {
                         icon={<EditOutlined />} 
                         onClick={() => {
                             setEditingPartner(record);
+                            setFileList([]); // Clear pending files
                             form.setFieldsValue(record);
                             setIsModalOpen(true);
                         }}
@@ -135,6 +165,7 @@ export default function PartnersPage() {
                     icon={<PlusOutlined />} 
                     onClick={() => {
                         setEditingPartner(null);
+                        setFileList([]); // Clear file list on new
                         form.resetFields();
                         form.setFieldsValue({ isActive: true, displayOrder: 0 });
                         setIsModalOpen(true);
@@ -158,6 +189,7 @@ export default function PartnersPage() {
                 onOk={() => form.submit()}
                 okText="Enregistrer"
                 cancelText="Annuler"
+                confirmLoading={uploading}
             >
                 <Form
                     form={form}
@@ -172,11 +204,28 @@ export default function PartnersPage() {
                         <Input placeholder="Ex: Sony" />
                     </Form.Item>
 
+                    <Form.Item label="Fichier Logo (Depuis votre PC)">
+                        <Upload
+                            listType="picture"
+                            maxCount={1}
+                            fileList={fileList}
+                            accept="image/*"
+                            onChange={({ fileList }: any) => setFileList(fileList)}
+                            beforeUpload={() => false} // Prevent auto upload
+                            className="w-full"
+                        >
+                            {fileList.length === 0 && (
+                                <Button icon={<UploadOutlined />} className="w-full">
+                                    Sélectionner une image (PNG/SVG)
+                                </Button>
+                            )}
+                        </Upload>
+                    </Form.Item>
+
                     <Form.Item
                         name="logoUrl"
-                        label="URL du Logo"
-                        rules={[{ required: true, message: 'Requis' }]}
-                        help="URL absolue de l'image (SVG ou PNG horizontal recommandé)"
+                        label="Ou URL du Logo (existant ou web)"
+                        help="Laissez vide si vous avez importé un fichier depuis votre PC."
                     >
                         <Input placeholder="https://..." />
                     </Form.Item>
