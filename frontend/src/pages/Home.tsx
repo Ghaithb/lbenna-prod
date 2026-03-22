@@ -317,7 +317,7 @@ function ClientLogos() {
                 <img
                   src={logoSrc}
                   alt={partner.name}
-                  className="h-20 md:h-24 w-auto max-w-[250px] object-contain"
+                  className="h-[2cm] w-auto max-w-[200px] object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
