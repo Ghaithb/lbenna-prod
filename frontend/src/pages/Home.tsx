@@ -296,24 +296,38 @@ function ClientLogos() {
       });
   }, []);
 
-  if (loading) return <div className="py-12 bg-white border-b border-gray-100 min-h-[160px]"></div>;
-  if (partners.length === 0) return null; // Ne rien afficher s'il n'y a pas de partenaires
+  const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+
+  if (loading) return <div className="py-16 bg-white border-b border-gray-100 min-h-[200px]"></div>;
+  if (partners.length === 0) return null;
 
   return (
-    <div className="py-12 bg-white border-b border-gray-100 overflow-hidden">
-       <div className="max-w-7xl mx-auto px-4 text-center mb-8">
+    <div className="py-16 bg-white border-b border-gray-100 overflow-hidden">
+       <div className="max-w-7xl mx-auto px-4 text-center mb-10">
           <p className="text-xs font-black text-gray-300 uppercase tracking-[0.2em]">Ils nous confient leur image</p>
        </div>
-       <div className="flex justify-center flex-wrap gap-x-12 gap-y-8 md:gap-x-20 items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 px-4">
-          {partners.map(partner => (
-            <div key={partner.id} className="flex items-center justify-center" title={partner.name}>
-                {partner.logoUrl && partner.logoUrl.trim() !== '' && partner.logoUrl.startsWith('http') ? (
-                    <img src={partner.logoUrl} alt={partner.name} className="h-10 md:h-12 object-contain" />
-                ) : (
-                    <span className="text-xl md:text-2xl font-black font-serif tracking-tight text-gray-800">{partner.name}</span>
-                )}
-            </div>
-          ))}
+       <div className="flex justify-center flex-wrap gap-x-16 gap-y-10 md:gap-x-24 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500 px-6">
+          {partners.map(partner => {
+            const logoSrc = partner.logoUrl?.startsWith('http')
+              ? partner.logoUrl
+              : `${BASE_URL}${partner.logoUrl}`;
+            return (
+              <div key={partner.id} className="flex items-center justify-center" title={partner.name}>
+                  {partner.logoUrl ? (
+                      <img
+                        src={logoSrc}
+                        alt={partner.name}
+                        className="h-16 md:h-20 w-auto max-w-[180px] object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                  ) : (
+                      <span className="text-2xl md:text-3xl font-black font-serif tracking-tight text-gray-800">{partner.name}</span>
+                  )}
+              </div>
+            );
+          })}
        </div>
     </div>
   )
