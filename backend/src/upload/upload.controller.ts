@@ -24,7 +24,6 @@ export class UploadController {
   constructor(private readonly storageService: StorageService) { }
 
   @Post()
-  @Post('single')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Upload a file (Image or PDF)' })

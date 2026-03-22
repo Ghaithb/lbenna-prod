@@ -11,7 +11,7 @@ export const mediaService = {
   async uploadSingle(file: File) {
     const form = new FormData();
     form.append('file', file);
-    const res = await api.post<UploadedFile>('/upload/single', form, {
+    const res = await api.post<UploadedFile>('/upload', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     if (res.status >= 400) throw new Error((res.data as any)?.message || 'Erreur upload');
