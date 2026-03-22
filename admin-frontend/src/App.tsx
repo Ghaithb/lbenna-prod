@@ -24,6 +24,7 @@ import PageEditor from './pages/content/PageEditor';
 import AnnouncementsPage from './pages/marketing/AnnouncementsPage';
 import ReviewsPage from './pages/marketing/ReviewsPage';
 import FAQsPage from './pages/marketing/FAQsPage';
+import PartnersPage from './pages/marketing/PartnersPage';
 import MessagesPage from './pages/marketing/MessagesPage';
 import AuditPage from './pages/system/AuditPage';
 import SystemStatusPage from './pages/system/SystemStatusPage';
@@ -63,6 +64,7 @@ function App() {
           <Route path="/content/pages/:id/edit" element={<PageEditor />} />
 
           {/* Marketing Routes */}
+          <Route path="/marketing/partners" element={<PartnersPage />} />
           <Route path="/marketing/announcements" element={<AnnouncementsPage />} />
           <Route path="/marketing/reviews" element={<ReviewsPage />} />
           <Route path="/marketing/faqs" element={<FAQsPage />} />

@@ -30,6 +30,7 @@ import { FaqModule } from './faq/faq.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { PartnersModule } from './partners/partners.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     // SuppliersModule,
     CategoriesModule,
     ReviewsModule,
+    PartnersModule,
   ],
   providers: [
     {

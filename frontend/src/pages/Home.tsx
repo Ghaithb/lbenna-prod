@@ -15,6 +15,7 @@ import { TypewriterTitle } from '../components/TypewriterTitle';
 import PromoCarousel from '../components/PromoCarousel';
 import { pagesService, Page } from '../services/pages';
 import { portfolioService, PortfolioItem } from '../services/portfolio';
+import { partnersService, Partner } from '../services/partners';
 
 const IconMap: any = {
   Camera, Shield, Zap, Check, Briefcase, Heart, Users, Award, Sparkles, ShieldCheck
@@ -280,18 +281,39 @@ export default function Home() {
 // ── COMPOSANTS INTERNES UTILITAIRES ──
 
 function ClientLogos() {
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    partnersService.getAll()
+      .then(data => {
+        setPartners(data.filter(p => p.isActive));
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load partners', err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="py-12 bg-white border-b border-gray-100 min-h-[160px]"></div>;
+  if (partners.length === 0) return null; // Ne rien afficher s'il n'y a pas de partenaires
+
   return (
     <div className="py-12 bg-white border-b border-gray-100 overflow-hidden">
        <div className="max-w-7xl mx-auto px-4 text-center mb-8">
           <p className="text-xs font-black text-gray-300 uppercase tracking-[0.2em]">Ils nous confient leur image</p>
        </div>
        <div className="flex justify-center flex-wrap gap-x-12 gap-y-8 md:gap-x-20 items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 px-4">
-          <div className="text-xl md:text-2xl font-black font-serif tracking-tight text-gray-800">LUXURY</div>
-          <div className="text-xl md:text-2xl font-black tracking-widest text-gray-800">TECHCORP</div>
-          <div className="text-xl md:text-2xl font-bold italic text-gray-800">Events&Co</div>
-          <div className="text-xl md:text-2xl font-black font-mono text-gray-800">FINANCE</div>
-          <div className="text-2xl font-extrabold text-gray-800">StartupM</div>
-          <div className="text-xl md:text-2xl font-bold tracking-tighter text-gray-800">GLOBAL</div>
+          {partners.map(partner => (
+            <div key={partner.id} className="flex items-center justify-center" title={partner.name}>
+                {partner.logoUrl && partner.logoUrl.trim() !== '' && partner.logoUrl.startsWith('http') ? (
+                    <img src={partner.logoUrl} alt={partner.name} className="h-10 md:h-12 object-contain" />
+                ) : (
+                    <span className="text-xl md:text-2xl font-black font-serif tracking-tight text-gray-800">{partner.name}</span>
+                )}
+            </div>
+          ))}
        </div>
     </div>
   )

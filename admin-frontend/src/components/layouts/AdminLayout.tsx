@@ -66,6 +66,7 @@ export default function AdminLayout() {
       children: [
         { key: '/content/pages', icon: <FileTextOutlined />, label: 'Gestion Pages', onClick: () => navigate('/content/pages') },
         { key: '/marketing/faqs', icon: <FileTextOutlined />, label: 'FAQs', onClick: () => navigate('/marketing/faqs') },
+        { key: '/marketing/partners', icon: <FileTextOutlined />, label: 'Partenaires/Logos', onClick: () => navigate('/marketing/partners') },
         { key: '/marketing/announcements', icon: <BellOutlined />, label: 'Annonces / Promo', onClick: () => navigate('/marketing/announcements') },
         { key: '/marketing/reviews', icon: <StarOutlined />, label: 'Avis Clients', onClick: () => navigate('/marketing/reviews') },
         { key: '/settings', icon: <SettingOutlined />, label: 'Paramètres', onClick: () => navigate('/settings') },
