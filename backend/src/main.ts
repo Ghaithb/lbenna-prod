@@ -30,8 +30,7 @@ async function bootstrap() {
         process.env.FRONTEND_URL || 'http://localhost:5173',
         process.env.ADMIN_URL || 'http://localhost:5174',
         'http://localhost:5175',
-        'http://localhost:5176',
-        'http://localhost:5177',
+        'https://lbenna-prod-1n5x-git-main-ghaithelbenna2-gmailcoms-projects.vercel.app',
       ],
       credentials: true,
     });
