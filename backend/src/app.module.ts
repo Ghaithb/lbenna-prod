@@ -49,10 +49,14 @@ import { PartnersModule } from './partners/partners.module';
       inject: [ConfigService],
     }),
     */
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads',
-    }),
+    ...(process.env.VERCEL
+      ? []
+      : [
+          ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '..', 'uploads'),
+            serveRoot: '/uploads',
+          }),
+        ]),
     PrismaModule,
     NotificationsModule,
     AuthModule,

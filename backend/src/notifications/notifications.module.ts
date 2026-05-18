@@ -1,12 +1,19 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, Provider } from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationService } from './notifications.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
+const providers: Provider[] = [NotificationService];
+
+// WebSockets are not supported on Vercel serverless
+if (!process.env.VERCEL) {
+  providers.push(NotificationsGateway);
+}
+
 @Global()
 @Module({
   imports: [PrismaModule],
-  providers: [NotificationsGateway, NotificationService],
-  exports: [NotificationsGateway, NotificationService],
+  providers,
+  exports: providers,
 })
-export class NotificationsModule { }
+export class NotificationsModule {}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npx prisma generate && npm run build",
+  "buildCommand": "npm run vercel-build",
   "installCommand": "npm install",
   "functions": {
     "api/index.ts": {
@@ -8,6 +8,10 @@
     }
   },
   "rewrites": [
+    {
+      "source": "/api/health/live",
+      "destination": "/api/health-live"
+    },
     {
       "source": "/(.*)",
       "destination": "/api"
