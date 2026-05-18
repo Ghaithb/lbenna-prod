@@ -5,9 +5,8 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "handle": "filesystem" },
+    { "source": "/favicon.ico", "destination": "/icon.svg" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

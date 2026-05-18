@@ -10,7 +10,7 @@ export default function AnimatedLogo() {
   return (
     <div className={`relative transition-all duration-1000 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
       <img
-        src="/logo.png"
+        src="/logo-horizontal.svg"
         alt="L Benna Production"
         className="h-42 md:h-56 object-contain drop-shadow-2xl"
       />
@@ -23,7 +23,7 @@ export function CompactLogo() {
   return (
     <div className="flex items-center gap-2 group cursor-pointer">
       <img
-        src="/logo.png"
+        src="/logo-horizontal.svg"
         alt="L Benna Production"
         className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform"
       />
