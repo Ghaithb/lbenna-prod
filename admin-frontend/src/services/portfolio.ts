@@ -4,10 +4,11 @@ export interface PortfolioItem {
     id: string;
     title: string;
     description?: string;
-    category?: {
+    category?: string;
+    categoryObject?: {
         id: string;
         name: string;
-    } | string;
+    };
     categoryId: string | null;
     coverUrl: string;
     galleryUrls: string[];

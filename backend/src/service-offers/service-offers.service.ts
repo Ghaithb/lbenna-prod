@@ -41,11 +41,8 @@ export class ServiceOffersService {
   }
 
   async remove(id: string) {
-    // Soft delete or hard delete? Let's check if it has bookings.
-    // implementing basic delete for now, or soft delete by setting isActive=false
-    return this.prisma.serviceOffer.update({
+    return this.prisma.serviceOffer.delete({
       where: { id },
-      data: { isActive: false },
     });
   }
 }

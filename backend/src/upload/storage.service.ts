@@ -33,10 +33,10 @@ export class StorageService {
             throw new Error('File buffer is empty or missing');
         }
 
-        try {
-            const randomName = Array(32).fill(null).map(() => Math.round(Math.random() * 16).toString(16)).join('');
-            const filename = `${folder}/${Date.now()}-${randomName}${extname(file.originalname)}`;
+        const randomName = Array(32).fill(null).map(() => Math.round(Math.random() * 16).toString(16)).join('');
+        const filename = `${folder}/${Date.now()}-${randomName}${extname(file.originalname)}`;
 
+        try {
             this.logger.log(`Attempting upload to Supabase: ${filename} (${file.size} bytes)`);
 
             const { data, error } = await this.supabase.storage
@@ -47,24 +47,41 @@ export class StorageService {
                 });
 
             if (error) {
-                const errorDetail = `Supabase Upload Error: [${error.name}] ${error.message} (Bucket: ${this.bucket}, Filename: ${filename})`;
-                this.logger.error(errorDetail);
-                throw new Error(errorDetail);
+                throw new Error(error.message);
             }
 
-            // Get public URL
             const { data: publicUrlData } = this.supabase.storage
                 .from(this.bucket)
                 .getPublicUrl(filename);
 
             if (!publicUrlData || !publicUrlData.publicUrl) {
-                throw new Error(`Failed to generate public URL for ${filename}`);
+                throw new Error(`No public URL returned`);
             }
 
             return publicUrlData.publicUrl;
         } catch (error) {
-            this.logger.error(`Upload error: ${error.message}`);
-            throw error;
+            this.logger.warn(`Supabase Upload failed (${error.message}). Falling back to local storage.`);
+            try {
+                // Fallback to local storage
+                const fs = require('fs');
+                const path = require('path');
+                const uploadDir = path.join(process.cwd(), 'uploads', folder);
+                
+                if (!fs.existsSync(uploadDir)) {
+                    fs.mkdirSync(uploadDir, { recursive: true });
+                }
+                
+                const localFilename = `${Date.now()}-${randomName}${extname(file.originalname)}`;
+                const localPath = path.join(uploadDir, localFilename);
+                
+                fs.writeFileSync(localPath, file.buffer);
+                this.logger.log(`Saved file locally to ${localPath}`);
+                
+                return `/uploads/${folder}/${localFilename}`;
+            } catch (localError) {
+                this.logger.error(`Local upload fallback also failed: ${localError.message}`);
+                throw new Error(`Both Supabase and Local Uploads failed.`);
+            }
         }
     }
 

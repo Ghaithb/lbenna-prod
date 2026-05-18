@@ -53,14 +53,20 @@ export class PortfolioItemsService {
             }
         }
 
+        const payload: any = {
+            title: data.title,
+            coverUrl: coverUrl || '',
+            galleryUrls,
+            isActive: data.isActive !== undefined ? data.isActive : true,
+        };
+        if (data.category) payload.category = data.category;
+        if (videoUrl !== undefined) payload.videoUrl = videoUrl;
+        else if (data.videoUrl !== undefined) payload.videoUrl = data.videoUrl;
+        if (data.eventDate) payload.eventDate = new Date(data.eventDate);
+        if (categoryId) payload.categoryObject = { connect: { id: categoryId } };
+
         const project = await this.prisma.portfolioItem.create({
-            data: {
-                ...data,
-                coverUrl: coverUrl || '',
-                galleryUrls,
-                videoUrl,
-                ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
-            },
+            data: payload,
         });
         
         console.log(`[SERVICE CREATE] Project ${project.id} saved in DB`);
@@ -107,15 +113,20 @@ export class PortfolioItemsService {
             videoUrl = await this.storageService.uploadFile(videoFile, 'portfolio/videos');
         }
 
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.category !== undefined) payload.category = data.category;
+        if (data.isActive !== undefined) payload.isActive = data.isActive;
+        if (coverUrl !== undefined) payload.coverUrl = coverUrl;
+        if (galleryUrls !== undefined) payload.galleryUrls = galleryUrls;
+        if (videoUrl !== undefined) payload.videoUrl = videoUrl;
+        else if (data.videoUrl !== undefined) payload.videoUrl = data.videoUrl;
+        if (data.eventDate !== undefined) payload.eventDate = new Date(data.eventDate);
+        if (categoryId) payload.categoryObject = { connect: { id: categoryId } };
+
         return this.prisma.portfolioItem.update({
             where: { id },
-            data: {
-                ...data,
-                ...(coverUrl && { coverUrl }),
-                ...(galleryUrls && { galleryUrls }),
-                ...(videoUrl !== undefined && { videoUrl }),
-                ...(categoryId && { categoryObject: { connect: { id: categoryId } } }),
-            },
+            data: payload,
         });
     }
 

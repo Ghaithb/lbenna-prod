@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import { api } from '../lib/api';
 
 export interface Review {
     id: string;
@@ -16,35 +14,27 @@ export interface Review {
 
 export const reviewsService = {
     async getAll() {
-        const response = await axios.get<Review[]>(`${API_URL}/reviews/admin`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await api.get<Review[]>('/reviews/admin');
         return response.data;
     },
 
     async getPublic() {
-        const response = await axios.get<Review[]>(`${API_URL}/reviews`);
+        const response = await api.get<Review[]>('/reviews');
         return response.data;
     },
 
     async create(data: Partial<Review>) {
-        const response = await axios.post<Review>(`${API_URL}/reviews`, data, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await api.post<Review>('/reviews', data);
         return response.data;
     },
 
     async update(id: string, data: Partial<Review>) {
-        const response = await axios.patch<Review>(`${API_URL}/reviews/${id}`, data, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await api.patch<Review>(`/reviews/${id}`, data);
         return response.data;
     },
 
     async delete(id: string) {
-        const response = await axios.delete(`${API_URL}/reviews/${id}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await api.delete(`/reviews/${id}`);
         return response.data;
     }
 };

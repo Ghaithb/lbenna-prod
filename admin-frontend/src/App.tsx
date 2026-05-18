@@ -4,9 +4,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { DashboardPage } from './pages/DashboardPage';
 import ClientsPage from './pages/ClientsPage';
 import UserDetailPage from './pages/UserDetailPage';
-import { ProjectsPage } from './pages/ProjectsPage';
-import ProjectsCreatePage from './pages/ProjectsCreatePage';
-import ProjectsEditPage from './pages/ProjectsEditPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import Settings from './pages/Settings';
@@ -17,9 +14,6 @@ import BookingsPage from './pages/services/BookingsPage';
 import BookingsCalendarPage from './pages/services/BookingsCalendarPage';
 import ServiceOffersPage from './pages/services/ServiceOffersPage';
 import CategoriesPage from './pages/services/CategoriesPage';
-
-import PagesManagement from './pages/content/PagesManagement';
-import PageEditor from './pages/content/PageEditor';
 
 import AnnouncementsPage from './pages/marketing/AnnouncementsPage';
 import ReviewsPage from './pages/marketing/ReviewsPage';
@@ -50,18 +44,13 @@ function App() {
           <Route path="/services/portfolio" element={<PortfolioPage />} />
 
           {/* Other Routes */}
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/projects/new" element={<ProjectsCreatePage />} />
-          <Route path="/projects/:id/edit" element={<ProjectsEditPage />} />
           <Route path="/users" element={<ClientsPage />} />
           <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="/planner" element={<PlannerPage />} />
           <Route path="/settings" element={<Settings />} />
 
-          {/* Content Routes */}
-          <Route path="/content/pages" element={<PagesManagement />} />
-          <Route path="/content/pages/new" element={<PageEditor />} />
-          <Route path="/content/pages/:id/edit" element={<PageEditor />} />
+          {/* Content Routes Removed */}
+
 
           {/* Marketing Routes */}
           <Route path="/marketing/partners" element={<PartnersPage />} />

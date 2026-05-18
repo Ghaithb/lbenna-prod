@@ -95,3 +95,10 @@ Thumbs.db
 *.tmp
 *.temp
 .cache
+
+# Crash reports & diagnostics
+crash_report.txt
+docker_info.txt
+
+# Dev notes
+todo.txt

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Camera, Shield, Zap, Check, ArrowRight,
   Briefcase, Heart, Users, Award, Sparkles, ShieldCheck,
-  CalendarDays, Image, PlayCircle
+  CalendarDays, Image, PlayCircle, MessageCircle, Phone
 } from 'lucide-react';
 import AnimatedLogo from '../components/AnimatedLogo';
 import ServicesCarousel from '../components/ServicesCarousel';
@@ -14,12 +14,17 @@ import VisualShowcase from '../components/VisualShowcase';
 import { TypewriterTitle } from '../components/TypewriterTitle';
 import PromoCarousel from '../components/PromoCarousel';
 import { pagesService, Page } from '../services/pages';
-import { portfolioService, PortfolioItem } from '../services/portfolio';
+import { portfolioService } from '../services/portfolio';
 import { partnersService, Partner } from '../services/partners';
+import PacksSection from '../components/PacksSection';
+import { useSettings } from '../hooks/useSettings';
 
 const IconMap: any = {
   Camera, Shield, Zap, Check, Briefcase, Heart, Users, Award, Sparkles, ShieldCheck
 };
+
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+const imgSrc = (url?: string) => (!url ? '' : url.startsWith('http') ? url : `${API}${url}`);
 
 function DynamicIcon({ name, className }: { name: string, className?: string }) {
   const Icon = IconMap[name] || Camera;
@@ -29,13 +34,24 @@ function DynamicIcon({ name, className }: { name: string, className?: string }) 
 export default function Home() {
   const [page, setPage] = useState<Page | null>(null);
   const [universesCount, setUniversesCount] = useState(0);
-  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+  const [randomPhotos, setRandomPhotos] = useState<{url: string, key: string}[]>([]);
 
   useEffect(() => {
     pagesService.getBySlug('home').then(setPage).catch(console.error);
     categoriesService.getAll().then((cats: Category[]) => setUniversesCount(cats.length)).catch(console.error);
     portfolioService.getAll()
-      .then(items => setPortfolioItems(items.filter(i => i.isActive).slice(0, 8)))
+      .then(items => {
+        const active = items.filter(i => i.isActive);
+        
+        const allPhotos: {url: string, key: string}[] = [];
+        active.forEach(item => {
+          if (item.coverUrl) allPhotos.push({ url: item.coverUrl, key: `${item.id}-c` });
+          item.galleryUrls?.filter(Boolean).forEach((u, i) => allPhotos.push({ url: u, key: `${item.id}-g${i}` }));
+        });
+        
+        const shuffled = [...allPhotos].sort(() => Math.random() - 0.5).slice(0, 15);
+        setRandomPhotos(shuffled);
+      })
       .catch(console.error);
   }, []);
 
@@ -141,10 +157,10 @@ export default function Home() {
       {/* ── 4. BANNIÈRE PHOTOBOOTH ── */}
       <PhotoboothBanner />
 
-      {/* ── 5. PORTFOLIO : Une galerie unifiée ── */}
-      <section className="py-24 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-baseline mb-12 gap-4">
+      {/* ── 5. PORTFOLIO : Une galerie unifiée (Mosaïque sur l'accueil) ── */}
+      <section className="py-24 bg-gray-900 text-white select-none">
+        <div className="max-w-[90rem] mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-baseline mb-12 gap-4 px-2">
             <div>
               <span className="text-primary-400 font-bold tracking-wider uppercase text-sm">Portfolio</span>
               <h2 className="text-4xl md:text-6xl font-black mb-3 tracking-tighter mt-1">Nos Réalisations</h2>
@@ -158,33 +174,13 @@ export default function Home() {
             </Link>
           </div>
 
-          {portfolioItems.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {portfolioItems.map((item, idx) => (
-                <Link
-                  key={item.id}
-                  to="/portfolio"
-                  className={`group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
-                  style={{ aspectRatio: idx === 0 ? '1/1' : '4/3' }}
-                >
-                  {item.coverUrl ? (
-                    <img
-                      src={item.coverUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                      <Camera size={36} className="text-gray-600" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <div>
-                      <p className="text-white font-bold text-sm">{item.title}</p>
-                      {item.categoryObject && <span className="text-white/60 text-xs">{item.categoryObject.name}</span>}
-                    </div>
-                  </div>
-                </Link>
+          {randomPhotos.length > 0 ? (
+            <div
+              style={{ columnCount: 4, columnGap: '3px', padding: '3px' }}
+              className="sm:[column-count:3] md:[column-count:4] lg:[column-count:5]"
+            >
+              {randomPhotos.map(({ url, key }, idx) => (
+                <ProtectedHomePhoto key={key} url={url} idx={idx} />
               ))}
             </div>
           ) : (
@@ -200,6 +196,9 @@ export default function Home() {
       <div className="border-b border-gray-100">
         <VisualShowcase />
       </div>
+
+      {/* ── 6.5 NOS PACKS : Animated Pricing / Packages ── */}
+      <PacksSection />
 
       {/* ── 7. L'ÉQUIPE (About Teaser) ── */}
       <AboutTeaser />
@@ -253,7 +252,10 @@ export default function Home() {
         <ReviewSection />
       </section>
 
-      {/* ── 11. CTA FINAL ── */}
+      {/* ── 11. WHATSAPP CTA ── */}
+      <WhatsAppCTA />
+
+      {/* ── 12. CTA FINAL ── */}
       <section className="py-28 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 opacity-5 p-12 pointer-events-none">
           <Camera size={500} />
@@ -397,7 +399,7 @@ function AboutTeaser() {
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div className="relative order-2 md:order-1">
             <div className="aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
-              <img src="https://images.unsplash.com/photo-1621600411688-4be93cd68504?q=80&w=1000&auto=format&fit=crop" alt="Equipe de production" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+              <img src="/about-hero.jpg" alt="Equipe de production" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
             </div>
             <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 -z-10 animate-blob"></div>
             <div className="absolute top-8 -left-8 bg-white p-6 rounded-2xl shadow-xl z-20 hidden sm:block">
@@ -469,5 +471,102 @@ function FeatureCard({ icon, title, description }: any) {
       <h3 className="text-lg font-bold mb-2 text-gray-900">{title}</h3>
       <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
     </div>
+  );
+}
+
+function ProtectedHomePhoto({ url, idx }: { url: string; idx: number }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div
+      style={{
+        breakInside: 'avoid',
+        marginBottom: '3px',
+        position: 'relative',
+        display: 'block',
+        pointerEvents: 'none',
+        opacity: loaded ? 1 : 0,
+        transform: loaded ? 'translateY(0)' : 'translateY(10px)',
+        transition: `opacity 0.6s ease-out ${idx * 0.05}s, transform 0.6s ease-out ${idx * 0.05}s`,
+      }}
+    >
+      <img
+        src={imgSrc(url)}
+        alt=""
+        draggable={false}
+        onLoad={() => setLoaded(true)}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: 'auto',
+          pointerEvents: 'none',
+          WebkitUserDrag: 'none',
+        } as React.CSSProperties}
+      />
+
+      {/* Transparent overlay — blocks all interaction */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'all',
+          cursor: 'default',
+          background: 'transparent',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        } as React.CSSProperties}
+        onContextMenu={e => e.preventDefault()}
+        onMouseDown={e => e.preventDefault()}
+        onDragStart={e => e.preventDefault()}
+      />
+    </div>
+  );
+}
+
+function WhatsAppCTA() {
+  const { settings } = useSettings();
+  const rawPhone = settings?.contact_phone || '+216 71 000 000';
+  const wa = rawPhone.replace(/[\s\-\+]/g, '');
+  const msg = encodeURIComponent("Bonjour L'Benna Production ! Je voudrais un devis gratuit.");
+  const waLink = `https://wa.me/${wa}?text=${msg}`;
+
+  return (
+    <section className="py-20 bg-gradient-to-br from-green-50 to-emerald-50 border-y border-green-100 overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-80 h-80 bg-green-200/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-200/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+      <div className="max-w-5xl mx-auto px-4 relative z-10">
+        <div className="flex flex-col md:flex-row items-center gap-12 bg-white/80 backdrop-blur-sm rounded-[3rem] shadow-xl border border-green-100 p-10 md:p-14">
+          <div className="flex-shrink-0">
+            <div className="w-28 h-28 bg-green-500 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-green-200">
+              <svg viewBox="0 0 24 24" className="w-16 h-16 fill-white">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <span className="text-green-600 font-bold uppercase tracking-[0.2em] text-sm mb-2 block">Contact Direct</span>
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tighter leading-tight">
+              Parlez-nous sur <span className="text-green-500">WhatsApp</span> !
+            </h2>
+            <p className="text-gray-500 text-lg mb-8 leading-relaxed max-w-lg">
+              Obtenez un <strong>devis gratuit</strong> en quelques minutes. Notre équipe répond rapidement pour donner vie à votre projet.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              <a href={waLink} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all duration-300 text-lg">
+                <MessageCircle size={22} />
+                Écrire sur WhatsApp
+              </a>
+              <a href={`tel:${rawPhone}`}
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white hover:bg-gray-50 text-gray-800 font-black rounded-2xl border-2 border-gray-200 hover:scale-105 transition-all duration-300 text-lg shadow-sm">
+                <Phone size={22} />
+                {rawPhone}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

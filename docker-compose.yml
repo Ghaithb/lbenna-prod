@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Database
   postgres:
@@ -61,6 +59,20 @@ services:
     container_name: lbenna-frontend
     ports:
       - "3000:80"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - app-network
+
+  # Admin Web
+  admin-frontend:
+    build:
+      context: ./admin-frontend
+      dockerfile: Dockerfile
+    container_name: lbenna-admin-frontend
+    ports:
+      - "3002:80"
     depends_on:
       - backend
     restart: always

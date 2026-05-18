@@ -12,6 +12,9 @@ export interface Category {
         serviceOffers: number;
         portfolioItems: number;
     };
+    portfolioItems?: {
+        coverUrl: string;
+    }[];
 }
 
 export const categoriesService = {

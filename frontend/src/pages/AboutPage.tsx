@@ -33,11 +33,11 @@ export function AboutPage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 overflow-hidden bg-gray-950 text-white">
-                <div className="absolute inset-0 grayscale opacity-20 bg-[url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1600')] bg-cover bg-center" />
-                <div className="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-gray-950 to-gray-950" />
+            <section className="relative min-h-[500px] flex flex-col justify-end overflow-hidden bg-gray-950 text-white">
+                <div className="absolute inset-0 grayscale opacity-80 bg-[url('/about-top-hero.jpg')] bg-cover bg-center" />
+                <div className="absolute inset-0 bg-gradient-to-b from-gray-950/20 via-gray-950/30 to-gray-950" />
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pb-12 pt-32">
                     <SectionHeader
                         title={content.hero?.title || "Notre Héritage, Votre Histoire"}
                         subtitle={content.hero?.subtitle || "Depuis 1988, nous transformons vos moments précieux en œuvres d'art intemporelles."}
@@ -78,7 +78,7 @@ export function AboutPage() {
                     </div>
                     <div className="relative">
                         <div className="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl relative z-10">
-                            <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e" className="w-full h-full object-cover" alt="Studio L Benna" />
+                            <img src="/about-passion-hero.jpg" className="w-full h-full object-cover" alt="Studio L Benna" />
                         </div>
                         <div className="absolute inset-0 bg-primary-600/10 rounded-[3rem] -rotate-6 scale-105" />
                     </div>

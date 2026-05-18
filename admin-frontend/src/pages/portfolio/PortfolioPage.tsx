@@ -57,13 +57,19 @@ export default function PortfolioPage() {
                 }
             });
 
-            // Handle single file (image or video)
-            if (fileList.length > 0 && fileList[0].originFileObj) {
-                const file = fileList[0].originFileObj;
-                if (file.type.startsWith('video/')) {
-                    formData.append('video', file);
-                } else {
-                    formData.append('file', file);
+            // Handle multiple files (images and video)
+            const validFiles = fileList.filter(f => f.originFileObj);
+            const imageFiles = validFiles.filter(f => f.originFileObj!.type.startsWith('image/')).map(f => f.originFileObj!);
+            const videoFile = validFiles.find(f => f.originFileObj!.type.startsWith('video/'))?.originFileObj;
+
+            if (videoFile) {
+                formData.append('video', videoFile);
+            }
+
+            if (imageFiles.length > 0) {
+                formData.append('file', imageFiles[0]); // first image is cover
+                for (let i = 1; i < imageFiles.length; i++) {
+                    formData.append('gallery', imageFiles[i]); // remaining images are gallery
                 }
             }
 
@@ -129,13 +135,13 @@ export default function PortfolioPage() {
         },
         {
             title: 'Catégorie',
-            dataIndex: ['category', 'name'],
+            dataIndex: ['categoryObject', 'name'],
             key: 'category',
             render: (_: any, record: PortfolioItem) => {
-                if (typeof record.category === 'object' && record.category?.name) {
-                    return record.category.name;
+                if (record.categoryObject?.name) {
+                    return <Tag color="gold" className="font-bold border-none px-3 py-1 rounded-lg uppercase text-[10px] tracking-widest">{record.categoryObject.name}</Tag>;
                 }
-                return record.category || <Tag>Non classé</Tag>;
+                return record.category ? <Tag>{record.category}</Tag> : <Tag color="default">Non classé</Tag>;
             }
         },
         {
@@ -160,9 +166,9 @@ export default function PortfolioPage() {
                         icon={<EditOutlined />}
                         onClick={() => {
                             setEditingItem(record);
-                            setFileList([]); 
                             form.setFieldsValue({
                                 ...record,
+                                categoryId: record.categoryId || (typeof record.category === 'object' ? (record.category as any).id : undefined),
                                 eventDate: record.eventDate ? dayjs(record.eventDate) : undefined,
                             });
                             setIsModalOpen(true);
@@ -198,6 +204,8 @@ export default function PortfolioPage() {
             <Modal
                 title={<span className="text-lg font-black uppercase tracking-tight">{editingItem ? "Modifier le Projet" : "Nouveau Projet"}</span>}
                 open={isModalOpen}
+                destroyOnHidden
+                forceRender
                 onCancel={() => setIsModalOpen(false)}
                 onOk={() => form.submit()}
                 width={500}
@@ -223,17 +231,18 @@ export default function PortfolioPage() {
                     <Form.Item label={<span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fichier (Photo ou Vidéo)</span>}>
                         <Upload
                             listType="picture"
-                            maxCount={1}
+                            maxCount={20}
+                            multiple={true}
                             fileList={fileList}
                             accept="image/*,video/*"
                             onChange={({ fileList }: any) => setFileList(fileList)}
                             beforeUpload={() => false}
                             className="w-full"
                         >
-                            {fileList.length === 0 && (
+                            {fileList.length < 20 && (
                                 <div className="border-2 border-dashed border-gray-100 rounded-2xl p-8 flex flex-col items-center justify-center hover:border-gray-300 transition-colors w-full bg-gray-50/50 cursor-pointer">
                                     <CloudUploadOutlined className="text-3xl text-gray-300 mb-2" />
-                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Cliquez ici pour sélectionner<br/>une photo ou une vidéo</span>
+                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Cliquez ici pour sélectionner<br/>une ou plusieurs photos (et/ou vidéo)</span>
                                 </div>
                             )}
                         </Upload>

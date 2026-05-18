@@ -9,11 +9,13 @@ export interface ServiceOffer {
     imageUrl?: string;
     badge?: string;
     categoryId?: string;
+    category?: { id: string; name: string };
     isActive: boolean;
     isPromo: boolean;
     promoPrice?: number;
     promoExpiresAt?: string;
     isPack: boolean;
+    features: string[];
     createdAt: string;
 }
 
@@ -30,6 +32,7 @@ export interface CreateServiceOfferDto {
     promoPrice?: number;
     promoExpiresAt?: string;
     isPack?: boolean;
+    features?: string[];
 }
 
 export const serviceOffersService = {

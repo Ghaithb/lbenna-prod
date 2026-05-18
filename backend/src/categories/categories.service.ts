@@ -27,6 +27,12 @@ export class CategoriesService {
                         portfolioItems: true,
                     },
                 },
+                portfolioItems: {
+                    where: { isActive: true },
+                    take: 5,
+                    orderBy: { createdAt: 'desc' },
+                    select: { coverUrl: true }
+                }
             },
             orderBy: { name: 'asc' },
         });

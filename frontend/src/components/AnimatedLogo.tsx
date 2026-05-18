@@ -9,10 +9,10 @@ export default function AnimatedLogo() {
 
   return (
     <div className={`relative transition-all duration-1000 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
-      <img 
-        src="/logo-stacked.png" 
-        alt="L Benna Production" 
-        className="h-32 md:h-48 object-contain drop-shadow-2xl"
+      <img
+        src="/logo.png"
+        alt="L Benna Production"
+        className="h-42 md:h-56 object-contain drop-shadow-2xl"
       />
     </div>
   );
@@ -22,10 +22,10 @@ export default function AnimatedLogo() {
 export function CompactLogo() {
   return (
     <div className="flex items-center gap-2 group cursor-pointer">
-      <img 
-        src="/logo-horizontal.png" 
-        alt="L Benna Production" 
-        className="h-14 md:h-16 object-contain group-hover:scale-105 transition-transform"
+      <img
+        src="/logo.png"
+        alt="L Benna Production"
+        className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform"
       />
     </div>
   );

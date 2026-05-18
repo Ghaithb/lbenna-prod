@@ -153,7 +153,8 @@ export default function FAQsPage() {
                 open={isModalOpen}
                 onCancel={handleCloseModal}
                 footer={null}
-                destroyOnClose
+                destroyOnHidden={true}
+                forceRender={true}
             >
                 <Form
                     form={form}

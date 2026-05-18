@@ -51,7 +51,7 @@ export default function VisualShowcase() {
                     <div className="relative order-2 lg:order-1">
                         <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
                             <img
-                                src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000&auto=format&fit=crop"
+                                src="/showcase-hero.jpg"
                                 alt="Production Événementielle Mariage"
                                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                             />
@@ -128,7 +128,7 @@ export default function VisualShowcase() {
                     <div className="relative">
                         <div className="aspect-[16/10] lg:aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
                             <img
-                                src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4"
+                                src="/studio-hero.jpg"
                                 alt="Studio Shooting Session"
                                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                             />

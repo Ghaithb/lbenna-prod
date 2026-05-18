@@ -5,8 +5,8 @@ import {
   DashboardOutlined, TeamOutlined, CalendarOutlined,
   SettingOutlined, LogoutOutlined, AppstoreOutlined, FileTextOutlined,
   BellOutlined, UserOutlined, MessageOutlined,
-  SecurityScanOutlined,
-  PictureOutlined, ProjectOutlined,
+  AuditOutlined,
+  PictureOutlined,
   UnorderedListOutlined, StarOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,52 +25,38 @@ export default function AdminLayout() {
 
   const menuItems: MenuProps['items'] = [
     {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Tableau de bord',
-      onClick: () => navigate('/dashboard'),
-    },
-    {
       key: 'production',
-      label: 'Gestion Production',
+      label: 'Studio & Production',
       type: 'group',
       children: [
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Tableau de bord', onClick: () => navigate('/dashboard') },
         { key: '/services/bookings', icon: <CalendarOutlined />, label: 'Réservations', onClick: () => navigate('/services/bookings') },
         { key: '/services/calendar', icon: <CalendarOutlined />, label: 'Calendrier', onClick: () => navigate('/services/calendar') },
         { key: '/services/offers', icon: <AppstoreOutlined />, label: 'Offres & Services', onClick: () => navigate('/services/offers') },
-        { key: '/services/categories', icon: <UnorderedListOutlined />, label: 'Configuration Catégories', onClick: () => navigate('/services/categories') },
-      ]
-    },
-    {
-      key: 'galerie',
-      label: 'Galerie & Portfolio',
-      type: 'group',
-      children: [
+        { key: '/services/categories', icon: <UnorderedListOutlined />, label: 'Catégories', onClick: () => navigate('/services/categories') },
         { key: '/services/portfolio', icon: <PictureOutlined />, label: 'Portfolio', onClick: () => navigate('/services/portfolio') },
-        { key: '/projects', icon: <ProjectOutlined />, label: 'Projets (Détails)', onClick: () => navigate('/projects') },
-      ]
-    },
-    {
-      key: 'relations',
-      label: 'Clients & Communication',
-      type: 'group',
-      children: [
-        { key: '/users', icon: <TeamOutlined />, label: 'Clients', onClick: () => navigate('/users') },
-        { key: '/marketing/messages', icon: <MessageOutlined />, label: 'Contacts / Messages', onClick: () => navigate('/marketing/messages') },
       ]
     },
     {
       key: 'system',
-      label: 'Administration',
+      label: 'Configuration',
       type: 'group',
       children: [
-        { key: '/content/pages', icon: <FileTextOutlined />, label: 'Gestion Pages', onClick: () => navigate('/content/pages') },
-        { key: '/marketing/faqs', icon: <FileTextOutlined />, label: 'FAQs', onClick: () => navigate('/marketing/faqs') },
-        { key: '/marketing/partners', icon: <FileTextOutlined />, label: 'Partenaires/Logos', onClick: () => navigate('/marketing/partners') },
-        { key: '/marketing/announcements', icon: <BellOutlined />, label: 'Annonces / Promo', onClick: () => navigate('/marketing/announcements') },
-        { key: '/marketing/reviews', icon: <StarOutlined />, label: 'Avis Clients', onClick: () => navigate('/marketing/reviews') },
         { key: '/settings', icon: <SettingOutlined />, label: 'Paramètres', onClick: () => navigate('/settings') },
-        { key: '/system/audit', icon: <SecurityScanOutlined />, label: 'Audit Logs', onClick: () => navigate('/system/audit') },
+        { key: '/system/audit', icon: <AuditOutlined />, label: 'Audit Logs', onClick: () => navigate('/system/audit') },
+      ]
+    },
+    {
+      key: 'marketing',
+      label: 'Marketing & Com',
+      type: 'group',
+      children: [
+        { key: '/users', icon: <TeamOutlined />, label: 'Clients', onClick: () => navigate('/users') },
+        { key: '/marketing/messages', icon: <MessageOutlined />, label: 'Messages', onClick: () => navigate('/marketing/messages') },
+        { key: '/marketing/reviews', icon: <StarOutlined />, label: 'Avis Clients', onClick: () => navigate('/marketing/reviews') },
+        { key: '/marketing/faqs', icon: <FileTextOutlined />, label: 'FAQs', onClick: () => navigate('/marketing/faqs') },
+        { key: '/marketing/partners', icon: <FileTextOutlined />, label: 'Partenaires', onClick: () => navigate('/marketing/partners') },
+        { key: '/marketing/announcements', icon: <BellOutlined />, label: 'Annonces', onClick: () => navigate('/marketing/announcements') },
       ]
     },
   ];
@@ -115,17 +101,18 @@ export default function AdminLayout() {
         width={250}
         theme="light"
         style={{
-          overflow: 'auto',
           height: '100vh',
           position: 'fixed',
           left: 0,
           top: 0,
           bottom: 0,
           borderRight: '1px solid #f0f0f0',
-          zIndex: 100
+          zIndex: 100,
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
-        <div className="flex items-center justify-center p-4 border-b border-gray-100">
+        <div className="flex items-center justify-center p-4 border-b border-gray-100 shrink-0">
           <img 
             src="/logo-horizontal.png" 
             alt="L Benna Production" 
@@ -133,13 +120,17 @@ export default function AdminLayout() {
           />
         </div>
 
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          defaultOpenKeys={['production', 'galerie', 'relations', 'system']}
-          items={menuItems}
-          style={{ borderRight: 0 }}
-        />
+        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }} className="custom-scrollbar">
+          <div style={{ paddingBottom: '80px' }}>
+            <Menu
+              mode="inline"
+              selectedKeys={[location.pathname]}
+              defaultOpenKeys={['production', 'marketing', 'system']}
+              items={menuItems}
+              style={{ borderRight: 0 }}
+            />
+          </div>
+        </div>
       </Sider>
 
       <Layout style={{ marginLeft: collapsed ? 80 : 250, transition: 'all 0.2s' }}>

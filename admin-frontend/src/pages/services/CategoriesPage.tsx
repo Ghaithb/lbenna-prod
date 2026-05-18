@@ -153,7 +153,8 @@ export default function CategoriesPage() {
                     form.resetFields();
                 }}
                 onOk={() => form.submit()}
-                destroyOnClose
+                destroyOnHidden
+                forceRender
             >
                 <Form form={form} layout="vertical" onFinish={handleSave}>
                     <Form.Item 

@@ -17,7 +17,7 @@ async function bootstrap() {
     (app as any).set('trust proxy', 1);
 
     // Basic rate limiting for security
-    app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
+    app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 2000 }));
 
     // Security Headers
     app.use(helmet({
@@ -30,6 +30,8 @@ async function bootstrap() {
         process.env.FRONTEND_URL || 'http://localhost:5173',
         process.env.ADMIN_URL || 'http://localhost:5174',
         'http://localhost:5175',
+        'http://localhost:5176',
+        'http://localhost:5177',
       ],
       credentials: true,
     });
@@ -67,6 +69,7 @@ async function bootstrap() {
     const root = process.cwd(); // Pointe vers la racine du processus (dossier backend)
     // Serve static assets (HDRIs, models, textures)
     app.use('/assets', express.static(path.join(root, 'backend/assets')));
+    app.use('/uploads', express.static(path.join(root, 'uploads')));
 
     await app.listen(port);
 

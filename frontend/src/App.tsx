@@ -2,12 +2,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from './components/Layout';
 import Home from './pages/Home';
-import { ServicesPage } from './pages/ServicesPage';
+// import { ServicesPage } from './pages/ServicesPage'; // 🔒 Next version
+// import { PhotoboothPage } from './pages/PhotoboothPage'; // 🔒 Next version
+// import { ProductionPage } from './pages/ProductionPage'; // 🔒 Next version
 import { PortfolioPage } from './pages/PortfolioPage';
 import QuoteViewPage from './pages/QuoteViewPage';
-import { PhotoboothPage } from './pages/PhotoboothPage';
-import { ProductionPage } from './pages/ProductionPage';
 import { ContactPage } from './pages/ContactPage';
+import { ComingSoonPage } from './pages/ComingSoonPage'; // 🔒 Reservation blocked until next version
 import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
 import TransferPage from './pages/TransferPage'; // Import TransferPage
@@ -15,6 +16,7 @@ import { AboutPage } from './pages/AboutPage';
 import { FAQPage } from './pages/FAQPage';
 import RequireAuth from './components/RequireAuth';
 import { AuthProvider } from './context';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,9 +37,12 @@ function App() {
               <Route index element={<Home />} />
               <Route path="transfer/:token" element={<TransferPage />} /> {/* Standalone Route */}
 
-              <Route path="photobooth" element={<PhotoboothPage />} />
-              <Route path="production" element={<ProductionPage />} />
-              <Route path="services" element={<ServicesPage />} />
+              {/* 🔒 RESERVATION BLOCKED - next version */}
+              <Route path="photobooth" element={<ComingSoonPage />} />
+              <Route path="production" element={<ComingSoonPage />} />
+              <Route path="services" element={<ComingSoonPage />} />
+              {/* eslint-disable-next-line */}
+              {/* Original pages (PhotoboothPage, ProductionPage, ServicesPage) kept for next version */}
               <Route path="portfolio" element={<PortfolioPage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="faq" element={<FAQPage />} />
@@ -49,6 +54,8 @@ function App() {
               <Route element={<RequireAuth />}>
                 <Route path="dashboard" element={<DashboardPage />} />
               </Route>
+              {/* 404 */}
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

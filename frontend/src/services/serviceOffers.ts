@@ -20,6 +20,7 @@ export interface ServiceOffer {
         name: string;
         slug: string;
     };
+    features: string[];
 }
 
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Phone, Mail, Settings, ChevronDown, Calendar, Zap, Video } from 'lucide-react';
+import { Menu, X, Phone, Mail, Settings, ChevronDown, Calendar, Zap, Video, Lock } from 'lucide-react';
 import { CompactLogo } from './AnimatedLogo';
 import { useAuth } from '../context';
 
@@ -192,9 +192,9 @@ export function Header() {
 
 function EventDropdown({ activeDropdown, setActiveDropdown }: any) {
   const events = [
-    { title: 'Réserver un Projet', desc: 'Accès direct au brief personnalisé', icon: Calendar, link: '/production' },
-    { title: 'Photobooth', desc: 'Location de bornes interactives', icon: Zap, link: '/photobooth' },
-    { title: 'Catalogue Services', desc: 'Liste complète des prestations', icon: Video, link: '/services' },
+    { title: 'Réserver un Projet', desc: 'Accès direct au brief personnalisé', icon: Calendar, link: '/production', locked: true },
+    { title: 'Photobooth', desc: 'Location de bornes interactives', icon: Zap, link: '/photobooth', locked: true },
+    { title: 'Catalogue Services', desc: 'Liste complète des prestations', icon: Video, link: '/services', locked: true },
   ];
 
   return (
@@ -216,15 +216,21 @@ function EventDropdown({ activeDropdown, setActiveDropdown }: any) {
             <Link
               key={idx}
               to={ev.link}
-              className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group/item text-left"
+              className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group/item text-left relative"
             >
               <div className="w-12 h-12 bg-primary-50 text-primary-500 rounded-xl flex items-center justify-center group-hover/item:bg-primary-500 group-hover/item:text-white transition-colors">
                 <ev.icon size={24} />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-black text-gray-950 leading-tight mb-0.5">{ev.title}</p>
                 <p className="text-[10px] text-gray-400 font-medium">{ev.desc}</p>
               </div>
+              {ev.locked && (
+                <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full whitespace-nowrap">
+                  <Lock size={10} />
+                  Bientôt
+                </span>
+              )}
             </Link>
           ))}
         </div>

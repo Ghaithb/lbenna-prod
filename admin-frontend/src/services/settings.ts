@@ -7,6 +7,14 @@ export type AppSettings = {
   marketing_anniversary_automation_enabled: boolean;
   marketing_anniversary_coupon_value: number;
   marketing_anniversary_coupon_validity_days: number;
+  // Contact & Social
+  contact_phone: string;
+  contact_email: string;
+  contact_address: string;
+  social_facebook: string;
+  social_instagram: string;
+  social_youtube: string;
+  social_linkedin: string;
 };
 
 export const settingsService = {

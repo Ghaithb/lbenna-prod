@@ -1,271 +1,200 @@
-
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
+import { Form, Input, Button, Switch, InputNumber, Tabs, message, Space, Divider, Typography } from 'antd';
+import { 
+  GlobalOutlined, 
+  ContactsOutlined, 
+  ShareAltOutlined, 
+  SettingOutlined, 
+  SafetyCertificateOutlined,
+  SaveOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  EnvironmentOutlined,
+  FacebookOutlined,
+  InstagramOutlined,
+  YoutubeOutlined,
+  LinkedinOutlined
+} from '@ant-design/icons';
 import { settingsService, type AppSettings } from '@/services/settings';
 
+const { Title, Text } = Typography;
+
 export default function Settings() {
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
 
+  const fetchSettings = async () => {
+    try {
+      const data = await settingsService.getAll();
+      form.setFieldsValue(data);
+    } catch (error) {
+      message.error('Erreur lors du chargement des paramètres');
+    }
+  };
+
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const s = await settingsService.getAll();
-      if (mounted) setSettings(s);
-    })();
-    return () => { mounted = false; };
+    fetchSettings();
   }, []);
 
-  const handleSave = async () => {
-    if (!settings) return;
+  const onFinish = async (values: AppSettings) => {
     setSaving(true);
     try {
-      const updated = await settingsService.update(settings);
-      setSettings(updated);
+      await settingsService.update(values);
+      message.success('Paramètres enregistrés avec succès');
+    } catch (error) {
+      message.error('Erreur lors de l\'enregistrement');
     } finally {
       setSaving(false);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-900">Paramètres</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Gérez les paramètres de votre application
-        </p>
-      </div>
+  const items = [
+    {
+      key: 'general',
+      label: <span className="flex items-center gap-2"><GlobalOutlined /> Général</span>,
+      children: (
+        <Space direction="vertical" size="large" className="w-full">
+          <Card title="Paiement & Facturation" bordered={false} className="shadow-sm border border-gray-100 rounded-2xl">
+            <Form.Item name="paymentEnabled" label="Activer le paiement en ligne" valuePropName="checked">
+              <Switch checkedChildren="Oui" unCheckedChildren="Non" />
+            </Form.Item>
+            <Text type="secondary" className="text-xs block -mt-4 mb-6">
+              Permet aux clients de payer leurs devis et réservations directement via la plateforme.
+            </Text>
 
-      <div className="grid grid-cols-1 gap-6">
-        <Card className="divide-y divide-gray-200">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Paiement & Facturation
-            </h3>
-            <div className="mt-6 space-y-6">
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="paymentEnabled"
-                    name="paymentEnabled"
-                    type="checkbox"
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-                    checked={!!settings?.paymentEnabled}
-                    onChange={(e) => setSettings((s: AppSettings | null) => s ? { ...s, paymentEnabled: e.target.checked } as AppSettings : s)}
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="paymentEnabled" className="font-medium text-gray-700">
-                    Activer le paiement en ligne
-                  </label>
-                  <p className="text-gray-500">
-                    Permet aux clients de payer leurs devis et réservations en ligne.
-                  </p>
-                </div>
-              </div>
+            <Divider />
 
-              <div>
-                <button
-                  type="button"
-                  disabled={!settings || saving}
-                  onClick={handleSave}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
-                >
-                  {saving ? 'Enregistrement…' : 'Enregistrer'}
-                </button>
-              </div>
+            <Title level={5}>Automatisation Marketing</Title>
+            <Form.Item name="marketing_anniversary_automation_enabled" label="Coupons d'Anniversaire" valuePropName="checked">
+              <Switch checkedChildren="Activé" unCheckedChildren="Désactivé" />
+            </Form.Item>
+            <Text type="secondary" className="text-xs block -mt-4 mb-6">
+              Envoie automatiquement un code promo aux clients lors de l'anniversaire de leur premier projet.
+            </Text>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Form.Item name="marketing_anniversary_coupon_value" label="Valeur du coupon (%)">
+                <InputNumber min={0} max={100} className="w-full rounded-xl" />
+              </Form.Item>
+              <Form.Item name="marketing_anniversary_coupon_validity_days" label="Durée de validité (jours)">
+                <InputNumber min={1} className="w-full rounded-xl" />
+              </Form.Item>
             </div>
-          </div>
-
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Automatisation Marketing
-            </h3>
-            <div className="mt-6 space-y-6">
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="marketingEnabled"
-                    type="checkbox"
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-                    checked={!!settings?.marketing_anniversary_automation_enabled}
-                    onChange={(e) => setSettings((s: any) => s ? { ...s, marketing_anniversary_automation_enabled: e.target.checked } : s)}
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="marketingEnabled" className="font-medium text-gray-700">
-                    Activer les Coupons d'Anniversaire
-                  </label>
-                  <p className="text-gray-500">
-                    Envoie automatiquement un code promo aux clients lors de l'anniversaire de leur premier projet.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Valeur du coupon (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={settings?.marketing_anniversary_coupon_value ?? 15}
-                    onChange={(e) => setSettings((s: any) => s ? { ...s, marketing_anniversary_coupon_value: Number(e.target.value) } : s)}
-                    className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Durée de validité (jours)
-                  </label>
-                  <input
-                    type="number"
-                    value={settings?.marketing_anniversary_coupon_validity_days ?? 30}
-                    onChange={(e) => setSettings((s: any) => s ? { ...s, marketing_anniversary_coupon_validity_days: Number(e.target.value) } : s)}
-                    className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Coordonnées de Contact
-            </h3>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="sm:col-span-1">
-                <label className="block text-sm font-medium text-gray-700">Téléphone</label>
-                <input
-                  type="text"
-                  value={settings?.contact_phone ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, contact_phone: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="sm:col-span-1">
-                <label className="block text-sm font-medium text-gray-700">Email de contact</label>
-                <input
-                  type="email"
-                  value={settings?.contact_email ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, contact_email: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Adresse Physique</label>
-                <input
-                  type="text"
-                  value={settings?.contact_address ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, contact_address: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-
-            <h3 className="text-lg font-medium leading-6 text-gray-900 mt-10">
-              Réseaux Sociaux
-            </h3>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Facebook</label>
-                <input
-                  type="text"
-                  value={settings?.social_facebook ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, social_facebook: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Instagram</label>
-                <input
-                  type="text"
-                  value={settings?.social_instagram ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, social_instagram: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">YouTube</label>
-                <input
-                  type="text"
-                  value={settings?.social_youtube ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, social_youtube: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">LinkedIn</label>
-                <input
-                  type="text"
-                  value={settings?.social_linkedin ?? ''}
-                  onChange={(e) => setSettings((s: any) => s ? { ...s, social_linkedin: e.target.value } : s)}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <button
-                type="button"
-                disabled={!settings || saving}
-                onClick={handleSave}
-                className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
-              >
-                {saving ? 'Enregistrement…' : 'Enregistrer les paramètres de contact'}
-              </button>
-            </div>
-          </div>
-
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Configuration API
-            </h3>
-            <div className="mt-6 grid grid-cols-6 gap-6">
-              <div className="col-span-6 sm:col-span-4">
-                <label
-                  htmlFor="api_key"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Clé API
-                </label>
-                <input
-                  type="text"
-                  name="api_key"
-                  id="api_key"
-                  disabled
-                  value="sk_test_123456789"
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-gray-50"
-                />
-              </div>
-
-              <div className="col-span-6 sm:col-span-4">
-                <button
-                  type="button"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Régénérer la clé API
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Sauvegardes</h3>
-            <div className="mt-2 max-w-xl text-sm text-gray-500">
-              <p>Dernière sauvegarde: 12 mars 2024 à 03:00</p>
-            </div>
-            <div className="mt-5">
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Lancer une sauvegarde manuelle
-              </button>
-            </div>
+          </Card>
+        </Space>
+      )
+    },
+    {
+      key: 'contact',
+      label: <span className="flex items-center gap-2"><ContactsOutlined /> Contacts</span>,
+      children: (
+        <Card title="Coordonnées Publiques" bordered={false} className="shadow-sm border border-gray-100 rounded-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+            <Form.Item name="contact_phone" label="Téléphone" rules={[{ required: true, message: 'Requis' }]}>
+              <Input prefix={<PhoneOutlined className="text-gray-400" />} placeholder="+216 ..." className="rounded-xl h-11" />
+            </Form.Item>
+            <Form.Item name="contact_email" label="Email de contact" rules={[{ required: true, type: 'email', message: 'Email invalide' }]}>
+              <Input prefix={<MailOutlined className="text-gray-400" />} placeholder="contact@..." className="rounded-xl h-11" />
+            </Form.Item>
+            <Form.Item name="contact_address" label="Adresse Physique" className="md:col-span-2">
+              <Input prefix={<EnvironmentOutlined className="text-gray-400" />} placeholder="Rue, Ville, Pays" className="rounded-xl h-11" />
+            </Form.Item>
           </div>
         </Card>
+      )
+    },
+    {
+      key: 'social',
+      label: <span className="flex items-center gap-2"><ShareAltOutlined /> Réseaux Sociaux</span>,
+      children: (
+        <Card title="Liens Sociaux" bordered={false} className="shadow-sm border border-gray-100 rounded-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+            <Form.Item name="social_facebook" label="Facebook">
+              <Input prefix={<FacebookOutlined className="text-[#1877f2]" />} placeholder="https://facebook.com/..." className="rounded-xl h-11" />
+            </Form.Item>
+            <Form.Item name="social_instagram" label="Instagram">
+              <Input prefix={<InstagramOutlined className="text-[#e4405f]" />} placeholder="https://instagram.com/..." className="rounded-xl h-11" />
+            </Form.Item>
+            <Form.Item name="social_youtube" label="YouTube">
+              <Input prefix={<YoutubeOutlined className="text-[#ff0000]" />} placeholder="https://youtube.com/..." className="rounded-xl h-11" />
+            </Form.Item>
+            <Form.Item name="social_linkedin" label="LinkedIn">
+              <Input prefix={<LinkedinOutlined className="text-[#0a66c2]" />} placeholder="https://linkedin.com/in/..." className="rounded-xl h-11" />
+            </Form.Item>
+          </div>
+        </Card>
+      )
+    },
+    {
+      key: 'system',
+      label: <span className="flex items-center gap-2"><SafetyCertificateOutlined /> Système</span>,
+      children: (
+        <Space direction="vertical" className="w-full" size="middle">
+          <Card title="Configuration API" bordered={false} className="shadow-sm border border-gray-100 rounded-2xl">
+            <Form.Item label="Clé API active">
+              <Input.Password value="sk_production_lbenna_82h7v92..." disabled className="rounded-xl h-11 bg-gray-50" />
+            </Form.Item>
+            <Button disabled>Régénérer la clé API</Button>
+          </Card>
+
+          <Card title="Sauvegardes & Maintenance" bordered={false} className="shadow-sm border border-gray-100 rounded-2xl">
+            <div className="flex justify-between items-center">
+              <div>
+                <Text strong>Base de données</Text>
+                <br />
+                <Text type="secondary" className="text-xs">Dernière sauvegarde automatique il y a 4 heures.</Text>
+              </div>
+              <Button icon={<SaveOutlined />}>Lancer Backup</Button>
+            </div>
+          </Card>
+        </Space>
+      )
+    }
+  ];
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <SettingOutlined className="text-blue-600" />
+            Paramètres
+          </h1>
+          <p className="text-gray-500 mt-1">Configurez l'ensemble de votre plateforme L Benna Production.</p>
+        </div>
+        <Button 
+          type="primary" 
+          icon={<SaveOutlined />} 
+          loading={saving}
+          onClick={() => form.submit()}
+          className="bg-gray-950 hover:bg-gray-800 rounded-xl px-8 font-bold uppercase tracking-widest text-[10px] h-12 border-none shadow-xl shadow-gray-200"
+        >
+          Enregistrer tout
+        </Button>
       </div>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        requiredMark={false}
+        className="settings-form"
+      >
+        <Tabs 
+          defaultActiveKey="general" 
+          items={items} 
+          type="card"
+          className="custom-tabs"
+        />
+      </Form>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-tabs .ant-tabs-nav::before { border-bottom: none !important; }
+        .custom-tabs .ant-tabs-tab { border: none !important; background: transparent !important; margin-right: 8px !important; border-radius: 12px !important; padding: 12px 24px !important; font-weight: 600; color: #94a3b8; transition: all 0.3s; }
+        .custom-tabs .ant-tabs-tab-active { background: #f8fafc !important; color: #1e293b !important; }
+        .custom-tabs .ant-tabs-tab:hover { color: #1e293b; }
+      `}} />
     </div>
   );
-}
+}
