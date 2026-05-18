@@ -3,14 +3,15 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { isOriginAllowed } from '../config/cors';
 
 @Injectable()
 @WebSocketGateway({
   cors: {
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:5173',
-      process.env.ADMIN_URL || 'http://localhost:5174',
-    ],
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      callback(null, isOriginAllowed(origin));
+    },
+    credentials: true,
   },
 })
 export class NotificationsGateway {

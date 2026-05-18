@@ -4,6 +4,7 @@ import { AppModule } from '../src/app.module'; // Import root module
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
 import * as path from 'path';
+import { corsOptions } from '../src/config/cors';
 
 // Store the initialized app instance (warm start for Serverless Functions)
 let cachedApp: any;
@@ -21,17 +22,7 @@ async function bootstrap() {
             logger: ['error', 'warn', 'log'], // Reduce logs in prod
         });
 
-        // CORS Setup
-        app.enableCors({
-            origin: [
-                process.env.FRONTEND_URL || 'http://localhost:5173',
-                process.env.ADMIN_URL || 'http://localhost:5174',
-                'https://lbenna-prod-frontend.vercel.app',
-                'https://lbenna-prod-admin.vercel.app',
-                /(.*)\.vercel\.app$/ // Allow any vercel preview app
-            ],
-            credentials: true,
-        });
+        app.enableCors(corsOptions);
 
         // Validation pipes
         app.useGlobalPipes(

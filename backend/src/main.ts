@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import * as path from 'path';
 import * as express from 'express';
+import { corsOptions } from './config/cors';
 
 async function bootstrap() {
   try {
@@ -24,16 +25,7 @@ async function bootstrap() {
       crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow serving static files (images)
     }));
 
-    // CORS
-    app.enableCors({
-      origin: [
-        process.env.FRONTEND_URL || 'http://localhost:5173',
-        process.env.ADMIN_URL || 'http://localhost:5174',
-        'http://localhost:5175',
-        'https://lbenna-prod-1n5x-git-main-ghaithelbenna2-gmailcoms-projects.vercel.app',
-      ],
-      credentials: true,
-    });
+    app.enableCors(corsOptions);
 
     // Global validation pipe
     app.useGlobalPipes(
