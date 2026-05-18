@@ -13,8 +13,23 @@ const STATIC_ORIGINS = [
   'https://lbenna-prod-admin.vercel.app',
 ];
 
-/** Matches any HTTPS Vercel deployment (production + preview). */
-const VERCEL_ORIGIN = /^https:\/\/[\w.-]+\.vercel\.app$/i;
+function isLocalDevOrigin(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
+function isVercelDeploymentOrigin(origin: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(origin);
+    return protocol === 'https:' && hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+}
 
 export function isOriginAllowed(origin: string | undefined): boolean {
   if (!origin) {
@@ -29,7 +44,34 @@ export function isOriginAllowed(origin: string | undefined): boolean {
     return true;
   }
 
-  return VERCEL_ORIGIN.test(origin);
+  if (isLocalDevOrigin(origin) || isVercelDeploymentOrigin(origin)) {
+    return true;
+  }
+
+  return false;
+}
+
+/** Set CORS headers on a Node/Vercel response (e.g. errors before Nest boots). */
+export function applyCorsHeaders(
+  req: { headers?: { origin?: string } },
+  res: {
+    setHeader(name: string, value: string): void;
+  },
+): void {
+  const origin = req.headers?.origin;
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    );
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, Accept, Origin, X-Requested-With',
+    );
+    res.setHeader('Vary', 'Origin');
+  }
 }
 
 export const corsOptions = {

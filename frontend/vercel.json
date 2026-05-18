@@ -4,8 +4,15 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
+  "env": {
+    "VITE_API_URL": "/api"
+  },
   "rewrites": [
     { "handle": "filesystem" },
+    {
+      "source": "/api/:path*",
+      "destination": "https://lbenna-prod.vercel.app/api/:path*"
+    },
     { "source": "/favicon.ico", "destination": "/icon.svg" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
