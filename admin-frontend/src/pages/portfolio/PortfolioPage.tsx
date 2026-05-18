@@ -58,9 +58,11 @@ export default function PortfolioPage() {
             });
 
             // Handle multiple files (images and video)
-            const validFiles = fileList.filter(f => f.originFileObj);
-            const imageFiles = validFiles.filter(f => f.originFileObj!.type.startsWith('image/')).map(f => f.originFileObj!);
-            const videoFile = validFiles.find(f => f.originFileObj!.type.startsWith('video/'))?.originFileObj;
+            const validFiles = fileList.filter((f: UploadFile) => f.originFileObj);
+            const imageFiles = validFiles
+                .filter((f: UploadFile) => f.originFileObj!.type.startsWith('image/'))
+                .map((f: UploadFile) => f.originFileObj!);
+            const videoFile = validFiles.find((f: UploadFile) => f.originFileObj!.type.startsWith('video/'))?.originFileObj;
 
             if (videoFile) {
                 formData.append('video', videoFile);

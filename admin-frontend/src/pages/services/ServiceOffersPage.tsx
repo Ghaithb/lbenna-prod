@@ -4,6 +4,7 @@ import {
     Table, Button, Popconfirm, message, Modal, Form, Input,
     InputNumber, Switch, Tag, Select, DatePicker, Tabs, Divider
 } from 'antd';
+import type { FormListFieldData, FormListOperation } from 'antd/es/form/FormList';
 import { serviceOffersService, ServiceOffer } from '@/services/serviceOffers';
 import { EditOutlined, DeleteOutlined, PlusOutlined, UnorderedListOutlined, GiftOutlined, AppstoreOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { categoryService, Category } from '@/services/categories';
@@ -162,9 +163,9 @@ export default function ServiceOffersPage() {
     ];
 
     const filteredOffers = activeTab === 'packs'
-        ? offers.filter(o => o.isPack)
+        ? offers.filter((o: ServiceOffer) => o.isPack)
         : activeTab === 'services'
-        ? offers.filter(o => !o.isPack)
+        ? offers.filter((o: ServiceOffer) => !o.isPack)
         : offers;
 
     return (
@@ -192,8 +193,8 @@ export default function ServiceOffersPage() {
                 onChange={setActiveTab}
                 items={[
                     { key: 'all', label: `Tout (${offers.length})` },
-                    { key: 'packs', label: `🎁 Packs (${offers.filter(o => o.isPack).length})` },
-                    { key: 'services', label: `🎬 Services (${offers.filter(o => !o.isPack).length})` },
+                    { key: 'packs', label: `🎁 Packs (${offers.filter((o: ServiceOffer) => o.isPack).length})` },
+                    { key: 'services', label: `🎬 Services (${offers.filter((o: ServiceOffer) => !o.isPack).length})` },
                 ]}
             />
 
@@ -202,7 +203,7 @@ export default function ServiceOffersPage() {
                 columns={columns}
                 rowKey="id"
                 loading={loading}
-                rowClassName={(record) => record.isPack ? 'bg-purple-50' : ''}
+                rowClassName={(record: ServiceOffer) => record.isPack ? 'bg-purple-50' : ''}
             />
 
             <Modal
@@ -293,9 +294,9 @@ export default function ServiceOffersPage() {
                     <Divider orientation="left" plain>🎁 Fonctionnalités incluses</Divider>
                     <p className="text-gray-400 text-xs mb-3">Ajoutez les éléments inclus dans l'offre ou le pack (affichés sur le site).</p>
                     <Form.List name="features">
-                        {(fields, { add, remove }) => (
+                        {(fields: FormListFieldData[], { add, remove }: FormListOperation) => (
                             <div className="space-y-2">
-                                {fields.map(({ key, name, ...restField }) => (
+                                {fields.map(({ key, name, ...restField }: FormListFieldData) => (
                                     <div key={key} className="flex gap-2 items-center">
                                         <Form.Item
                                             {...restField}

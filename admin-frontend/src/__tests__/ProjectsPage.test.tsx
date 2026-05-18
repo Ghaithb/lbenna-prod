@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { ProjectsPage } from '../pages/ProjectsPage';
+import PortfolioPage from '../pages/portfolio/PortfolioPage';
 
-test('renders ProjectsPage header', () => {
+test('renders PortfolioPage header', () => {
   render(
     <MemoryRouter>
-      <ProjectsPage />
+      <PortfolioPage />
     </MemoryRouter>
   );
-  expect(screen.getByText(/Projets/i)).toBeInTheDocument();
+  expect(screen.getByText(/Portfolio/i)).toBeInTheDocument();
 });
