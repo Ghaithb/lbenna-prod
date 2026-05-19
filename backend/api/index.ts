@@ -6,6 +6,9 @@ import express from 'express';
 import cors from 'cors';
 import * as path from 'path';
 import { applyCorsHeaders, corsOptions } from '../src/config/cors';
+import { ensureDatabaseEnv } from '../src/config/database-env';
+
+ensureDatabaseEnv();
 
 let cachedApp: express.Express;
 

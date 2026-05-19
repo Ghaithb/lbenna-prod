@@ -7,6 +7,9 @@ import helmet from 'helmet';
 import * as path from 'path';
 import * as express from 'express';
 import { corsOptions } from './config/cors';
+import { ensureDatabaseEnv } from './config/database-env';
+
+ensureDatabaseEnv();
 
 async function bootstrap() {
   try {
