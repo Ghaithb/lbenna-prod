@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { extname } from 'path';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ImageOptimizationService } from './image-optimization.service';
 
 @Injectable()
 export class StorageService implements OnModuleInit {
@@ -19,7 +19,10 @@ export class StorageService implements OnModuleInit {
   private readonly logger = new Logger(StorageService.name);
   private readonly isServerless = Boolean(process.env.VERCEL);
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private readonly imageOptimization: ImageOptimizationService,
+  ) {
     const supabaseUrl = this.configService.get<string>('SUPABASE_URL')?.trim();
     const supabaseKey = this.configService.get<string>('SUPABASE_KEY')?.trim();
     this.bucket =
@@ -112,14 +115,21 @@ export class StorageService implements OnModuleInit {
       .fill(null)
       .map(() => Math.round(Math.random() * 16).toString(16))
       .join('');
-    const filename = `${folder}/${Date.now()}-${randomName}${extname(file.originalname)}`;
 
-    this.logger.log(`Uploading to Supabase ${this.bucket}/${filename} (${file.size} bytes)`);
+    const optimized = await this.imageOptimization.optimize(file);
+    const filename = `${folder}/${Date.now()}-${randomName}${optimized.extension}`;
 
-    const { error } = await this.supabase.storage.from(this.bucket).upload(filename, file.buffer, {
-      contentType: file.mimetype,
-      upsert: false,
-    });
+    this.logger.log(
+      `Uploading to Supabase ${this.bucket}/${filename} (${optimized.optimizedBytes} bytes` +
+        (optimized.wasOptimized ? `, was ${optimized.originalBytes})` : ')'),
+    );
+
+    const { error } = await this.supabase.storage
+      .from(this.bucket)
+      .upload(filename, optimized.buffer, {
+        contentType: optimized.mimetype,
+        upsert: false,
+      });
 
     if (error) {
       const hint = error.message.toLowerCase().includes('bucket not found')
@@ -133,7 +143,7 @@ export class StorageService implements OnModuleInit {
         );
       }
 
-      return this.saveLocalFallback(file, folder, randomName);
+      return this.saveLocalFallback(optimized.buffer, folder, randomName, optimized.extension);
     }
 
     const { data: publicUrlData } = this.supabase.storage
@@ -148,9 +158,10 @@ export class StorageService implements OnModuleInit {
   }
 
   private saveLocalFallback(
-    file: Express.Multer.File,
+    buffer: Buffer,
     folder: string,
     randomName: string,
+    extension: string,
   ): string {
     const baseDir = this.isServerless
       ? path.join('/tmp', 'uploads', folder)
@@ -160,9 +171,9 @@ export class StorageService implements OnModuleInit {
       fs.mkdirSync(baseDir, { recursive: true });
     }
 
-    const localFilename = `${Date.now()}-${randomName}${extname(file.originalname)}`;
+    const localFilename = `${Date.now()}-${randomName}${extension}`;
     const localPath = path.join(baseDir, localFilename);
-    fs.writeFileSync(localPath, file.buffer);
+    fs.writeFileSync(localPath, buffer);
     this.logger.log(`Saved locally: ${localPath}`);
     return `/uploads/${folder}/${localFilename}`;
   }

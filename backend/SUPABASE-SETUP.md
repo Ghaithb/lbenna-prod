@@ -160,6 +160,7 @@ Sur les projets **frontend** et **admin** :
 | `migrate deploy` échoue | Utilise `DIRECT_URL` (port 5432), pas l’URL poolée |
 | 500 sur Vercel | Logs → Functions ; vérifie `DATABASE_URL` + **Redeploy** |
 | Upload images KO / `Bucket not found` | `SUPABASE_KEY` = **service_role**, bucket **`portfolio`** public (créé auto au boot ou manuellement dans Storage) |
+| Images lourdes / 413 Vercel | Limite **~4,5 Mo par requête** HTTP ; le backend compresse ensuite (max 1920px, JPEG qualité 82). Compressez côté client si le fichier brut dépasse 4 Mo. |
 | `SUPABASE_BUCKET` | Doit correspondre au nom exact du bucket (défaut: `portfolio`) |
 
 ---
