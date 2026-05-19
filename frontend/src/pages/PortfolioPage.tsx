@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { portfolioService, PortfolioItem } from '../services/portfolio';
 import { Loader2 } from 'lucide-react';
-import axios from 'axios';
+import { getApiOrigin } from '../lib/api-url';
+import { categoriesService } from '../services/categories';
 
-/* ─── helpers ─────────────────────────────────────────── */
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
-const imgSrc = (url?: string) => (!url ? '' : url.startsWith('http') ? url : `${API}${url}`);
+const imgSrc = (url?: string) => (!url ? '' : url.startsWith('http') ? url : `${getApiOrigin()}${url}`);
 
 export function PortfolioPage() {
   const [items, setItems] = useState<PortfolioItem[]>([]);
@@ -24,7 +23,7 @@ export function PortfolioPage() {
     setLoading(true);
     Promise.all([
       portfolioService.getAll(),
-      axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/categories`).then(r => r.data)
+      categoriesService.getAll(),
     ])
     .then(([portfolioData, cats]) => {
       setItems(portfolioData.filter(i => i.isActive));

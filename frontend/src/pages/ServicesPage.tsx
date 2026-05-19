@@ -10,6 +10,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { SectionHeader } from '../components/SectionHeader';
 import { Link } from 'react-router-dom';
+import { getApiOrigin } from '../lib/api-url';
 
 export function ServicesPage() {
   const [offers, setOffers] = useState<ServiceOffer[]>([]);
@@ -140,7 +141,7 @@ export function ServicesPage() {
                       <div className="grid grid-cols-3 gap-2">
                         {pillarProjects.map(proj => (
                           <div key={proj.id} className="aspect-square rounded-xl overflow-hidden group relative cursor-pointer">
-                            <img src={proj.coverUrl?.startsWith('http') ? proj.coverUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${proj.coverUrl}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" />
+                            <img src={proj.coverUrl?.startsWith('http') ? proj.coverUrl : `${getApiOrigin()}${proj.coverUrl}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" />
                             <div className="absolute inset-0 bg-gray-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <Star size={14} className="text-white fill-white" />
                             </div>

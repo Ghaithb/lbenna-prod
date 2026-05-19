@@ -102,3 +102,9 @@ docker_info.txt
 
 # Dev notes
 todo.txt
+
+# Local admin bootstrap scripts (may contain credentials)
+backend/insert_admin*.js
+backend/create_admin.js
+backend/tech_audit_native.js
+**/crash_report.txt

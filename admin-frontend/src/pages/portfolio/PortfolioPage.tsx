@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Switch, DatePicker, Tag, Upload } from 'antd';
 import type { UploadFile } from 'antd';
 import { portfolioService, PortfolioItem } from '../../services/portfolio';
+import { resolveApiBaseUrl } from '../../lib/api-base';
 import { EditOutlined, DeleteOutlined, PlusOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { Play } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -89,8 +90,20 @@ export default function PortfolioPage() {
             fetchItems();
         } catch (error: any) {
             const data = error?.response?.data;
-            console.error('[PORTFOLIO ERROR]', data);
-            message.error(data?.message || 'Erreur lors de l\'enregistrement');
+            console.error('[PORTFOLIO ERROR]', data ?? error?.message);
+            const detail =
+                typeof data?.message === 'string'
+                    ? data.message
+                    : Array.isArray(data?.message)
+                      ? data.message.map((e: { constraints?: Record<string, string> }) =>
+                            Object.values(e.constraints ?? {}).join(', '),
+                        ).join(' · ')
+                      : undefined;
+            const fallback =
+                error?.code === 'ERR_NETWORK'
+                    ? 'API inaccessible (proxy /api ou CORS). Sur Vercel admin : supprime VITE_API_URL=https://… et redéploie.'
+                    : error?.message;
+            message.error(detail || fallback || 'Erreur lors de l\'enregistrement');
         }
     };
 
@@ -111,7 +124,8 @@ export default function PortfolioPage() {
             key: 'cover',
             width: 100,
             render: (url: string, record: PortfolioItem) => {
-                const finalUrl = url?.startsWith('http') ? url : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${url}`;
+                const apiRoot = resolveApiBaseUrl().replace(/\/api\/?$/, '') || '';
+                const finalUrl = url?.startsWith('http') ? url : `${apiRoot}${url}`;
                 
                 if (record.videoUrl && !url) {
                     return <div className="w-[80px] h-[60px] bg-blue-50 flex items-center justify-center rounded-lg border border-blue-100"><Play size={20} className="text-blue-500" /></div>;

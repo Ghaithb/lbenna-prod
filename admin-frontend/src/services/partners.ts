@@ -13,7 +13,8 @@ export interface Partner {
 export const partnersService = {
   getAll: async (): Promise<Partner[]> => {
     const response = await api.get('/partners');
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : [];
   },
 
   create: async (data: Partial<Partner>): Promise<Partner> => {

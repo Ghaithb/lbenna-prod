@@ -28,3 +28,9 @@ Si `databaseUrlConfigured: false` → ajouter `DATABASE_URL` puis **Redeploy**.
 
 Définir `VITE_API_URL=/api` (ou laisser le `vercel.json` du frontend le faire).
 Ne pas utiliser l’URL complète du backend dans le navigateur (évite CORS).
+
+**Important :** dans le dashboard Vercel du projet **admin** (et frontend), **supprime** toute variable
+`VITE_API_URL` = `https://lbenna-prod.vercel.app/api`. Elle écrase le build et provoque des erreurs CORS.
+L’admin force déjà `/api` sur `*.vercel.app` au runtime ; un redeploy suffit après suppression.
+
+Upload portfolio : limite ~4,5 Mo par requête sur Vercel (hobby). Au-delà → 500 sans en-têtes CORS visibles.

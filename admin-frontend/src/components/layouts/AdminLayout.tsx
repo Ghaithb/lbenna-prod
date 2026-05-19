@@ -7,7 +7,8 @@ import {
   BellOutlined, UserOutlined, MessageOutlined,
   AuditOutlined,
   PictureOutlined,
-  UnorderedListOutlined, StarOutlined
+  UnorderedListOutlined, StarOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -23,43 +24,65 @@ export default function AdminLayout() {
     token: { colorBgContainer },
   } = theme.useToken();
 
+  const go = (path: string) => () => navigate(path);
+
+  // Sous-menus (pas type: 'group') — les groupes disparaissent quand la sidebar est repliée.
   const menuItems: MenuProps['items'] = [
     {
-      key: 'production',
-      label: 'Studio & Production',
-      type: 'group',
-      children: [
-        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Tableau de bord', onClick: () => navigate('/dashboard') },
-        { key: '/services/bookings', icon: <CalendarOutlined />, label: 'Réservations', onClick: () => navigate('/services/bookings') },
-        { key: '/services/calendar', icon: <CalendarOutlined />, label: 'Calendrier', onClick: () => navigate('/services/calendar') },
-        { key: '/services/offers', icon: <AppstoreOutlined />, label: 'Offres & Services', onClick: () => navigate('/services/offers') },
-        { key: '/services/categories', icon: <UnorderedListOutlined />, label: 'Catégories', onClick: () => navigate('/services/categories') },
-        { key: '/services/portfolio', icon: <PictureOutlined />, label: 'Portfolio', onClick: () => navigate('/services/portfolio') },
-      ]
+      key: '/dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Tableau de bord',
+      onClick: go('/dashboard'),
     },
     {
-      key: 'system',
-      label: 'Configuration',
-      type: 'group',
+      key: 'production',
+      icon: <AppstoreOutlined />,
+      label: 'Studio & Production',
       children: [
-        { key: '/settings', icon: <SettingOutlined />, label: 'Paramètres', onClick: () => navigate('/settings') },
-        { key: '/system/audit', icon: <AuditOutlined />, label: 'Audit Logs', onClick: () => navigate('/system/audit') },
-      ]
+        { key: '/services/bookings', icon: <CalendarOutlined />, label: 'Réservations', onClick: go('/services/bookings') },
+        { key: '/services/calendar', icon: <CalendarOutlined />, label: 'Calendrier', onClick: go('/services/calendar') },
+        { key: '/services/offers', icon: <AppstoreOutlined />, label: 'Offres & Services', onClick: go('/services/offers') },
+        { key: '/services/categories', icon: <UnorderedListOutlined />, label: 'Catégories', onClick: go('/services/categories') },
+        { key: '/services/portfolio', icon: <PictureOutlined />, label: 'Portfolio', onClick: go('/services/portfolio') },
+        { key: '/services/partners', icon: <ShopOutlined />, label: 'Logos partenaires', onClick: go('/services/partners') },
+      ],
     },
     {
       key: 'marketing',
+      icon: <MessageOutlined />,
       label: 'Marketing & Com',
-      type: 'group',
       children: [
-        { key: '/users', icon: <TeamOutlined />, label: 'Clients', onClick: () => navigate('/users') },
-        { key: '/marketing/messages', icon: <MessageOutlined />, label: 'Messages', onClick: () => navigate('/marketing/messages') },
-        { key: '/marketing/reviews', icon: <StarOutlined />, label: 'Avis Clients', onClick: () => navigate('/marketing/reviews') },
-        { key: '/marketing/faqs', icon: <FileTextOutlined />, label: 'FAQs', onClick: () => navigate('/marketing/faqs') },
-        { key: '/marketing/partners', icon: <FileTextOutlined />, label: 'Partenaires', onClick: () => navigate('/marketing/partners') },
-        { key: '/marketing/announcements', icon: <BellOutlined />, label: 'Annonces', onClick: () => navigate('/marketing/announcements') },
-      ]
+        { key: '/users', icon: <TeamOutlined />, label: 'Clients', onClick: go('/users') },
+        { key: '/marketing/messages', icon: <MessageOutlined />, label: 'Messages', onClick: go('/marketing/messages') },
+        { key: '/marketing/reviews', icon: <StarOutlined />, label: 'Avis Clients', onClick: go('/marketing/reviews') },
+        { key: '/marketing/faqs', icon: <FileTextOutlined />, label: 'FAQs', onClick: go('/marketing/faqs') },
+        { key: '/marketing/announcements', icon: <BellOutlined />, label: 'Annonces', onClick: go('/marketing/announcements') },
+      ],
+    },
+    {
+      key: 'system',
+      icon: <SettingOutlined />,
+      label: 'Configuration',
+      children: [
+        { key: '/settings', icon: <SettingOutlined />, label: 'Paramètres', onClick: go('/settings') },
+        { key: '/system/audit', icon: <AuditOutlined />, label: 'Audit Logs', onClick: go('/system/audit') },
+      ],
     },
   ];
+
+  const selectedKey =
+    location.pathname === '/marketing/partners'
+      ? '/services/partners'
+      : location.pathname;
+
+  const openKeysFromPath = () => {
+    if (location.pathname.startsWith('/services') || location.pathname === '/dashboard') return ['production'];
+    if (location.pathname.startsWith('/marketing') || location.pathname.startsWith('/users')) return ['marketing'];
+    if (location.pathname.startsWith('/system') || location.pathname === '/settings') return ['system'];
+    return ['production'];
+  };
+
+  const [openKeys, setOpenKeys] = useState<string[]>(openKeysFromPath);
 
   const userMenu = {
     items: [
@@ -72,9 +95,10 @@ export default function AdminLayout() {
         key: 'settings',
         label: 'Préférences',
         icon: <SettingOutlined />,
+        onClick: go('/settings'),
       },
       {
-        type: 'divider',
+        type: 'divider' as const,
       },
       {
         key: 'logout',
@@ -86,7 +110,6 @@ export default function AdminLayout() {
     ],
   };
 
-  // Generate breadcrumbs from location
   const breadcrumbs = location.pathname.split('/').filter(i => i).map((item: string, index: number, arr: string[]) => ({
     title: item.charAt(0).toUpperCase() + item.slice(1),
     href: '/' + arr.slice(0, index + 1).join('/'),
@@ -109,13 +132,13 @@ export default function AdminLayout() {
           borderRight: '1px solid #f0f0f0',
           zIndex: 100,
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         }}
       >
         <div className="flex items-center justify-center p-4 border-b border-gray-100 shrink-0">
-          <img 
-            src="/logo-horizontal.png" 
-            alt="L Benna Production" 
+          <img
+            src="/logo-horizontal.png"
+            alt="L Benna Production"
             className={`transition-all duration-300 ${collapsed ? 'h-8' : 'h-10'} object-contain`}
           />
         </div>
@@ -124,8 +147,9 @@ export default function AdminLayout() {
           <div style={{ paddingBottom: '80px' }}>
             <Menu
               mode="inline"
-              selectedKeys={[location.pathname]}
-              defaultOpenKeys={['production', 'marketing', 'system']}
+              selectedKeys={[selectedKey]}
+              openKeys={collapsed ? undefined : openKeys}
+              onOpenChange={(keys: string[]) => setOpenKeys(keys)}
               items={menuItems}
               style={{ borderRight: 0 }}
             />
@@ -161,7 +185,7 @@ export default function AdminLayout() {
         </Content>
 
         <div className="text-center p-6 text-gray-400 text-xs">
-          L'Benna Production Admin &copy; {new Date().getFullYear()} - Version 1.0 (Ready for Success)
+          L&apos;Benna Production Admin &copy; {new Date().getFullYear()}
         </div>
       </Layout>
     </Layout>

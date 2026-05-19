@@ -3,14 +3,15 @@ import { PartnersService } from './partners.service';
 import { CreatePartnerDto } from './dto/create-partner.dto';
 import { UpdatePartnerDto } from './dto/update-partner.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; // Assume standard auth guard
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @ApiTags('partners')
 @Controller('partners')
 export class PartnersController {
   constructor(private readonly partnersService: PartnersService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new partner' })
   create(@Body() createPartnerDto: CreatePartnerDto) {
@@ -29,14 +30,14 @@ export class PartnersController {
     return this.partnersService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a partner' })
   update(@Param('id') id: string, @Body() updatePartnerDto: UpdatePartnerDto) {
     return this.partnersService.update(id, updatePartnerDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a partner' })
   remove(@Param('id') id: string) {

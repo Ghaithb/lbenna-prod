@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface PortfolioItem {
     id: string;
@@ -21,12 +20,12 @@ export interface PortfolioItem {
 
 export const portfolioService = {
     getAll: async () => {
-        const response = await axios.get<PortfolioItem[]>(`${API_URL}/portfolio-items`);
+        const response = await axios.get<PortfolioItem[]>(`${getApiUrl()}/portfolio-items`);
         return response.data;
     },
 
     getOne: async (id: string) => {
-        const response = await axios.get<PortfolioItem>(`${API_URL}/portfolio-items/${id}`);
+        const response = await axios.get<PortfolioItem>(`${getApiUrl()}/portfolio-items/${id}`);
         return response.data;
     }
 };

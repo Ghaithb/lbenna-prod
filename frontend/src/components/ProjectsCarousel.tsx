@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Play, Image as ImageIcon, Calendar, MapPin } from 'lucide-react';
 import { portfolioService, PortfolioItem } from '../services/portfolio';
+import { getApiOrigin } from '../lib/api-url';
 
 const fallbackProjects = [
   {
@@ -48,7 +49,7 @@ export default function ProjectsCarousel() {
             category: (p as any).cat?.name || p.category || 'Film',
             date: p.eventDate ? new Date(p.eventDate).toLocaleDateString('fr-FR') : '',
             location: 'Tunisie', // Location not in model, default or optional
-            image: p.coverUrl?.startsWith('http') ? p.coverUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${p.coverUrl}`,
+            image: p.coverUrl?.startsWith('http') ? p.coverUrl : `${getApiOrigin()}${p.coverUrl}`,
             description: p.description || '',
             galleryUrls: p.galleryUrls,
             videoUrl: p.videoUrl

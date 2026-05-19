@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, message, Space, Modal, Form, Input, Switch, InputNumber, Upload } from 'antd';
+import { Table, Button, Popconfirm, message, Space, Modal, Form, Input, Switch, InputNumber, Upload, Alert } from 'antd';
 import { partnersService, Partner } from '../../services/partners';
 import { mediaService } from '../../services/media';
+import { resolveApiBaseUrl } from '../../lib/api-base';
 import { DeleteOutlined, EditOutlined, PlusOutlined, PictureOutlined, UploadOutlined } from '@ant-design/icons';
 
 export default function PartnersPage() {
@@ -11,14 +12,22 @@ export default function PartnersPage() {
     const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
     const [fileList, setFileList] = useState<any[]>([]);
     const [uploading, setUploading] = useState(false);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [form] = Form.useForm();
 
     const fetchPartners = async () => {
         setLoading(true);
+        setLoadError(null);
         try {
             const data = await partnersService.getAll();
             setPartners(data);
-        } catch (error) {
+        } catch (error: any) {
+            const msg =
+                error?.response?.data?.message ||
+                (error?.code === 'ERR_NETWORK'
+                    ? 'Impossible de joindre l\'API. Vérifie VITE_API_URL=/api sur Vercel admin.'
+                    : 'Erreur lors du chargement des partenaires');
+            setLoadError(typeof msg === 'string' ? msg : 'Erreur lors du chargement');
             message.error('Erreur lors du chargement des partenaires');
         } finally {
             setLoading(false);
@@ -68,7 +77,7 @@ export default function PartnersPage() {
 
             const payload = {
                 ...values,
-                logoUrl: finalLogoUrl
+                logoUrl: finalLogoUrl || editingPartner?.logoUrl,
             };
 
             if (editingPartner) {
@@ -82,7 +91,14 @@ export default function PartnersPage() {
             setIsModalOpen(false);
             fetchPartners();
         } catch (error: any) {
-            message.error(error.message || 'Erreur lors de l\'enregistrement');
+            const detail = error?.response?.data?.message;
+            const msg =
+                typeof detail === 'string'
+                    ? detail
+                    : error?.code === 'ERR_NETWORK'
+                      ? 'Upload impossible (connexion API). Vérifie que tu es connecté et que VITE_API_URL=/api sur Vercel.'
+                      : error?.message;
+            message.error(msg || 'Erreur lors de l\'enregistrement');
         } finally {
             setUploading(false);
         }
@@ -94,7 +110,8 @@ export default function PartnersPage() {
             dataIndex: 'logoUrl',
             key: 'logoUrl',
             render: (url: string) => {
-                const finalUrl = url && url.startsWith('http') ? url : `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${url}`;
+                const apiRoot = resolveApiBaseUrl().replace(/\/api\/?$/, '') || '';
+                const finalUrl = url && url.startsWith('http') ? url : `${apiRoot}${url}`;
                 return url ? (
                  <img src={finalUrl} alt="Logo" className="h-10 object-contain" />
             ) : <PictureOutlined className="text-gray-400 text-2xl" />
@@ -157,12 +174,12 @@ export default function PartnersPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Partenaires (Logos)</h1>
-                    <p className="text-gray-500">Gérez les logos des sociétés affichés sur la page d'accueil.</p>
+                    <h1 className="text-2xl font-bold">Logos partenaires</h1>
+                    <p className="text-gray-500">Bandeau sur la page d&apos;accueil du site client (« Ils nous confient leur image »).</p>
                 </div>
-                <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />} 
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
                     onClick={() => {
                         setEditingPartner(null);
                         setFileList([]); // Clear file list on new
@@ -174,6 +191,36 @@ export default function PartnersPage() {
                     Ajouter un Partenaire
                 </Button>
             </div>
+
+            {loadError && (
+                <Alert
+                    type="error"
+                    showIcon
+                    className="mb-6"
+                    message="Impossible de charger les partenaires"
+                    description={loadError}
+                    action={
+                        <Button size="small" onClick={fetchPartners}>
+                            Réessayer
+                        </Button>
+                    }
+                />
+            )}
+
+            <Alert
+                type="info"
+                showIcon
+                className="mb-6"
+                message="Comment ajouter un logo sur le site public"
+                description={
+                    <ol className="list-decimal pl-4 mb-0 space-y-1">
+                        <li>Clique sur « Ajouter un Partenaire ».</li>
+                        <li>Renseigne le nom, puis choisis une image (PNG ou JPEG recommandé).</li>
+                        <li>Active « Afficher sur le site » (interrupteur vert).</li>
+                        <li>Enregistre — le logo apparaît sur l&apos;accueil du site client, section « Ils nous confient leur image ».</li>
+                    </ol>
+                }
+            />
 
             <Table
                 dataSource={partners}

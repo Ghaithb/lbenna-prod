@@ -3,11 +3,21 @@ import { Link } from 'react-router-dom';
 import { Menu, X, Phone, Mail, Settings, ChevronDown, Calendar, Zap, Video, Lock } from 'lucide-react';
 import { CompactLogo } from './AnimatedLogo';
 import { useAuth } from '../context';
+import { useSettings } from '../hooks/useSettings';
+
+function phoneTelHref(phone: string): string {
+  const digits = phone.replace(/[^\d+]/g, '');
+  return digits.startsWith('+') ? `tel:${digits}` : `tel:+${digits.replace(/^\+/, '')}`;
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
+  const { settings } = useSettings();
   const isAuth = !!user;
+
+  const phone = settings?.contact_phone || '+216 71 000 000';
+  const email = settings?.contact_email || 'contact@lbennaproduction.tn';
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
@@ -22,13 +32,13 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center gap-6">
-              <a href="tel:+21612345678" className="flex items-center gap-2 hover:text-white/80 transition">
+              <a href={phoneTelHref(phone)} className="flex items-center gap-2 hover:text-white/80 transition">
                 <Phone className="w-4 h-4" />
-                <span className="hidden sm:inline">+216 12 345 678</span>
+                <span className="hidden sm:inline">{phone}</span>
               </a>
-              <a href="mailto:contact@lbenna.tn" className="flex items-center gap-2 hover:text-white/80 transition">
+              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-white/80 transition">
                 <Mail className="w-4 h-4" />
-                <span className="hidden sm:inline">contact@lbenna.tn</span>
+                <span className="hidden sm:inline">{email}</span>
               </a>
             </div>
             <div className="text-xs sm:text-sm">
@@ -85,7 +95,7 @@ export function Header() {
                 <div className="flex items-center gap-3">
                   {user?.role === 'ADMIN' && (
                     <a
-                      href="http://localhost:5174"
+                      href={import.meta.env.VITE_ADMIN_URL || (import.meta.env.DEV ? 'http://localhost:5174' : '#')}
                       className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-all border border-gray-700"
                     >
                       <Settings size={18} className="animate-spin-slow" />
@@ -158,7 +168,7 @@ export function Header() {
                 <div className="space-y-2">
                   {user?.role === 'ADMIN' && (
                     <a
-                      href="http://localhost:5174"
+                      href={import.meta.env.VITE_ADMIN_URL || (import.meta.env.DEV ? 'http://localhost:5174' : '#')}
                       onClick={() => setIsMenuOpen(false)}
                       className="block px-4 py-3 bg-gray-900 text-white rounded-lg font-semibold text-center hover:bg-gray-800 transition-all"
                     >

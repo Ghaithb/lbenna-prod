@@ -48,15 +48,17 @@ async function bootstrap() {
     // Global prefix
     app.setGlobalPrefix('api');
 
-    // Swagger documentation
-    const config = new DocumentBuilder()
-      .setTitle('Photoskop Prod API')
-      .setDescription('API pour la plateforme Photoskop Prod - Production et Services')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api/docs', app, document);
+    // Swagger — development only (not exposed on production serverless)
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      const config = new DocumentBuilder()
+        .setTitle('L Benna Production API')
+        .setDescription('API plateforme L Benna Production')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build();
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup('api/docs', app, document);
+    }
 
     const port = process.env.PORT || 3001;
     // Serve static uploads directory (read-only)

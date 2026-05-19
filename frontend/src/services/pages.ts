@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface Page {
     id: string;
@@ -15,7 +14,7 @@ export interface Page {
 
 export const pagesService = {
     getBySlug: async (slug: string): Promise<Page> => {
-        const response = await axios.get(`${API_URL}/pages/slug/${slug}?isAdmin=false`);
+        const response = await axios.get(`${getApiUrl()}/pages/slug/${slug}?isAdmin=false`);
         return response.data;
     }
 };

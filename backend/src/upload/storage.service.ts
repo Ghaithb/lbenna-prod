@@ -18,8 +18,9 @@ export class StorageService {
         if (!supabaseUrl) this.logger.error('SUPABASE_URL is missing!');
         if (!supabaseKey) this.logger.error('SUPABASE_KEY is missing!');
         
-        if (supabaseKey) {
-            this.logger.log(`SUPABASE_KEY starts with: ${supabaseKey.substring(0, 10)}... (Type: ${supabaseKey.startsWith('sb_publishable') ? 'PUBLIC' : 'SECRET/SERVICE_ROLE'})`);
+        if (supabaseKey && process.env.NODE_ENV !== 'production') {
+            const keyType = supabaseKey.startsWith('sb_publishable') ? 'PUBLIC' : 'SERVICE_ROLE';
+            this.logger.log(`SUPABASE_KEY configured (${keyType})`);
         }
 
         this.supabase = createClient(supabaseUrl || '', supabaseKey || '');

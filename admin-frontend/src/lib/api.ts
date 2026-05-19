@@ -1,14 +1,12 @@
 import axios from 'axios';
+import { resolveApiBaseUrl } from './api-base';
 
 // Move getAdminToken logic directly here to avoid circular dependency
 const getAdminToken = () => {
   return typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
 };
 
-// Resolve API URL using Vite's import.meta.env
-// In production, use VITE_API_URL from .env
-// In development, defaults to '/api' but we override it in .env  
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const BASE_URL = resolveApiBaseUrl();
 
 export const api = axios.create({
   baseURL: BASE_URL,

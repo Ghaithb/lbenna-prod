@@ -35,12 +35,12 @@ export const portfolioService = {
         return response.data;
     },
 
-    create: async (data: CreatePortfolioItemDto) => {
+    create: async (data: FormData) => {
         const response = await api.post<PortfolioItem>('/portfolio-items', data);
         return response.data;
     },
 
-    update: async (id: string, data: Partial<CreatePortfolioItemDto>) => {
+    update: async (id: string, data: FormData) => {
         const response = await api.patch<PortfolioItem>(`/portfolio-items/${id}`, data);
         return response.data;
     },

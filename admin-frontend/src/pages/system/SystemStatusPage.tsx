@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DashboardOutlined, CloudServerOutlined, DatabaseOutlined, ClusterOutlined, HddOutlined, ReloadOutlined, CheckCircleOutlined, ClockCircleOutlined, GlobalOutlined, LineChartOutlined } from '@ant-design/icons';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '@/lib/api-url';
 
 export default function SystemStatusPage() {
     const [status, setStatus] = useState<any>(null);
@@ -18,8 +17,8 @@ export default function SystemStatusPage() {
     const fetchStatus = async () => {
         setRefreshing(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/health`, {
+            const token = localStorage.getItem('admin_token');
+            const response = await axios.get(`${getApiUrl()}/health`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setStatus(response.data);

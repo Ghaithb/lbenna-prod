@@ -46,7 +46,7 @@ export class UploadController {
         fileSize: 10 * 1024 * 1024, // 10MB
       },
       fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|svg|pdf)$/i)) {
           return cb(new BadRequestException('Only image and PDF files are allowed!'), false);
         }
         cb(null, true);
@@ -109,7 +109,9 @@ export class UploadController {
   }
 
   @Post('public')
-  @ApiOperation({ summary: 'Upload a file (Public for Orders)' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload a file (authenticated users)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

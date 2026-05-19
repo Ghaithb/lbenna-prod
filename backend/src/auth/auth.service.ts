@@ -87,9 +87,8 @@ export class AuthService {
     firstName?: string;
     lastName?: string;
     phone?: string;
-    role?: UserRole;
   }) {
-    console.log('Registering user:', data.email);
+    console.log('Registering client:', data.email);
     const existingUser = await this.prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -107,12 +106,66 @@ export class AuthService {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
-        role: (data.role as UserRole) || UserRole.CLIENT,
+        role: UserRole.CLIENT,
       },
     });
 
     const { passwordHash, ...result } = user;
     return this.login(result);
+  }
+
+  async getRegistrationStatus() {
+    const adminCount = await this.prisma.user.count({
+      where: { role: UserRole.ADMIN },
+    });
+    return {
+      adminRegistrationOpen: adminCount === 0,
+      hasAdmin: adminCount > 0,
+    };
+  }
+
+  async registerAdmin(data: {
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    setupSecret?: string;
+  }) {
+    const adminCount = await this.prisma.user.count({
+      where: { role: UserRole.ADMIN },
+    });
+    const requiredSecret = process.env.ADMIN_REGISTRATION_SECRET?.trim();
+
+    if (adminCount > 0) {
+      if (!requiredSecret || data.setupSecret !== requiredSecret) {
+        throw new UnauthorizedException(
+          'Admin registration is disabled. Contact an existing administrator.',
+        );
+      }
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if (existingUser) {
+      throw new UnauthorizedException('Email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const user = await this.prisma.user.create({
+      data: {
+        email: data.email,
+        passwordHash: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        role: UserRole.ADMIN,
+      },
+    });
+
+    const { passwordHash, ...result } = user;
+    return this.loginAdmin(result);
   }
 
   async verifyToken(token: string) {

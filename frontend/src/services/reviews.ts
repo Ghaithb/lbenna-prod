@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface Review {
     id: string;
@@ -16,7 +15,7 @@ export interface Review {
 
 export const reviewsService = {
     async getPublic() {
-        const response = await axios.get<Review[]>(`${API_URL}/reviews`);
+        const response = await axios.get<Review[]>(`${getApiUrl()}/reviews`);
         return response.data;
     }
 };

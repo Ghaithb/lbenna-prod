@@ -1,36 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 
 export function RegisterPage() {
     const navigate = useNavigate();
     const { register: doRegister } = useAuth();
+    const [registrationOpen, setRegistrationOpen] = useState<boolean | null>(null);
+    const [setupSecret, setSetupSecret] = useState('');
     const [formData, setFormData] = useState({
         email: '',
         password: '',
         firstName: '',
         lastName: '',
         phone: '',
-        role: 'ADMIN' // Forcé en ADMIN pour cette page
     });
+
+    useEffect(() => {
+        api.get<{ adminRegistrationOpen: boolean }>('/auth/registration-status')
+            .then((r) => setRegistrationOpen(r.data.adminRegistrationOpen))
+            .catch(() => setRegistrationOpen(false));
+    }, []);
 
     const { mutate: register, isPending, error } = useMutation({
-        mutationFn: (data: typeof formData) => doRegister(data),
-        onSuccess: () => {
-            navigate('/', { replace: true });
-        }
+        mutationFn: (data: typeof formData & { setupSecret?: string }) => doRegister(data),
+        onSuccess: () => navigate('/', { replace: true }),
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            // Forcer le rôle ADMIN même si le state change par erreur
-            const payload = { ...formData, role: 'ADMIN' };
-            await register(payload);
-        } catch (err: any) {
-            console.error('Registration failed:', err?.response?.data || err.message);
-        }
+        register({ ...formData, setupSecret: setupSecret || undefined });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,114 +39,36 @@ export function RegisterPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-            <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100 animate-in fade-in zoom-in duration-500">
+            <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-3xl shadow-2xl border border-slate-100">
                 <div>
-                    <div className="flex justify-center mb-6">
-                        <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-600 rounded-2xl flex items-center justify-center font-black text-3xl text-white shadow-xl shadow-orange-500/30">
-                            L
-                        </div>
-                    </div>
-                    <h2 className="text-center text-3xl font-black text-slate-900 tracking-tight">
-                        Créer un compte Admin
-                    </h2>
-                    <p className="mt-2 text-center text-sm font-bold text-slate-400 uppercase tracking-widest">
-                        L Benna Production
-                    </p>
+                    <h2 className="text-center text-3xl font-black text-slate-900">Créer un compte Admin</h2>
+                    <p className="mt-2 text-center text-sm font-bold text-slate-400 uppercase">L Benna Production</p>
                 </div>
 
-                <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Prénom</label>
-                            <input
-                                name="firstName"
-                                type="text"
-                                required
-                                value={formData.firstName}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-bold"
-                                placeholder="John"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nom</label>
-                            <input
-                                name="lastName"
-                                type="text"
-                                required
-                                value={formData.lastName}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-bold"
-                                placeholder="Doe"
-                            />
-                        </div>
-                    </div>
+                {registrationOpen === false && (
+                    <p className="p-4 bg-amber-50 text-amber-800 text-xs font-bold rounded-2xl border border-amber-100 text-center">
+                        Un admin existe déjà. Saisissez le code secret d&apos;invitation.
+                    </p>
+                )}
 
-                    <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email</label>
-                        <input
-                            name="email"
-                            type="email"
-                            autoComplete="email"
-                            required
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-bold"
-                            placeholder="admin@lostudio.com"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Téléphone</label>
-                        <input
-                            name="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-bold"
-                            placeholder="+216 ..."
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Mot de passe</label>
-                        <input
-                            name="password"
-                            type="password"
-                            autoComplete="new-password"
-                            required
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-bold"
-                            placeholder="••••••••"
-                        />
-                    </div>
-
-                    {error && (
-                        <div className="p-4 bg-red-50 text-red-600 text-xs font-bold rounded-2xl border border-red-100 text-center animate-shake">
-                            {error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'inscription'}
-                        </div>
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                    <input name="firstName" placeholder="Prénom" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 rounded-2xl border" />
+                    <input name="lastName" placeholder="Nom" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 rounded-2xl border" />
+                    <input name="email" type="email" placeholder="Email" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 rounded-2xl border" />
+                    <input name="phone" type="tel" placeholder="Téléphone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 rounded-2xl border" />
+                    {registrationOpen === false && (
+                        <input type="password" placeholder="Code secret" required value={setupSecret} onChange={(e) => setSetupSecret(e.target.value)} className="w-full px-4 py-3 rounded-2xl border" />
                     )}
-
-                    <div className="pt-2">
-                        <button
-                            type="submit"
-                            disabled={isPending}
-                            className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isPending ? 'Création en cours...' : 'Créer mon compte'}
-                        </button>
-                    </div>
+                    <input name="password" type="password" placeholder="Mot de passe (8+ caractères)" required minLength={8} value={formData.password} onChange={handleChange} className="w-full px-4 py-3 rounded-2xl border" />
+                    {error && <p className="text-red-600 text-xs text-center">Erreur inscription</p>}
+                    <button type="submit" disabled={isPending || registrationOpen === null} className="w-full py-4 bg-orange-600 text-white rounded-2xl font-bold disabled:opacity-50">
+                        {isPending ? 'Création...' : 'Créer mon compte'}
+                    </button>
                 </form>
 
-                <div className="text-center pt-4">
-                    <p className="text-sm font-bold text-slate-400">
-                        Déjà un compte ?{' '}
-                        <Link to="/login" className="text-orange-600 hover:text-orange-700 transition-colors">
-                            Se connecter
-                        </Link>
-                    </p>
-                </div>
+                <p className="text-center text-sm text-slate-400">
+                    <Link to="/login" className="text-orange-600">Se connecter</Link>
+                </p>
             </div>
         </div>
     );

@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface Partner {
   id: string;
@@ -14,7 +13,7 @@ export interface Partner {
 
 export const partnersService = {
   getAll: async (): Promise<Partner[]> => {
-    const response = await axios.get(`${API_URL}/partners`);
+    const response = await axios.get(`${getApiUrl()}/partners`);
     return response.data;
   }
 };

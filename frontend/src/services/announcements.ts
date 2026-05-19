@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface Announcement {
     id: string;
@@ -13,7 +12,7 @@ export interface Announcement {
 
 export const announcementsService = {
     getAllActive: async (): Promise<Announcement[]> => {
-        const response = await axios.get(`${API_URL}/announcements?activeOnly=true`);
+        const response = await axios.get(`${getApiUrl()}/announcements?activeOnly=true`);
         return response.data;
     }
 };

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Download, Loader, AlertTriangle, CheckCircle } from 'lucide-react';
 import AnimatedLogo from '../components/AnimatedLogo';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export default function TransferPage() {
     const { token } = useParams();
@@ -20,7 +20,7 @@ export default function TransferPage() {
 
     const fetchBooking = async () => {
         try {
-            const response = await axios.get(`${API_URL}/bookings/transfer/${token}`);
+            const response = await axios.get(`${getApiUrl()}/bookings/transfer/${token}`);
             setBooking(response.data);
         } catch (err) {
             setError('Ce lien de transfert est invalide ou a expiré.');

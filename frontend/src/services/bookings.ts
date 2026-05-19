@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface Booking {
     id: string;
@@ -39,26 +38,26 @@ export interface CreateBookingDto {
 
 export const bookingsService = {
     getAll: async (): Promise<Booking[]> => {
-        const response = await axios.get(`${API_URL}/bookings`, {
+        const response = await axios.get(`${getApiUrl()}/bookings`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         return response.data;
     },
 
     create: async (data: CreateBookingDto) => {
-        const response = await axios.post(`${API_URL}/bookings`, data);
+        const response = await axios.post(`${getApiUrl()}/bookings`, data);
         return response.data;
     },
 
     updateStatus: async (id: string, status: string) => {
-        const response = await axios.patch(`${API_URL}/bookings/${id}/status`, { status }, {
+        const response = await axios.patch(`${getApiUrl()}/bookings/${id}/status`, { status }, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         return response.data;
     },
 
     getMyBookings: async (): Promise<Booking[]> => {
-        const response = await axios.get(`${API_URL}/bookings/my`, {
+        const response = await axios.get(`${getApiUrl()}/bookings/my`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         return response.data;

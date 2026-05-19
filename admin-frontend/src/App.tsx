@@ -52,8 +52,9 @@ function App() {
           {/* Content Routes Removed */}
 
 
-          {/* Marketing Routes */}
-          <Route path="/marketing/partners" element={<PartnersPage />} />
+          {/* Partenaires (logos accueil) */}
+          <Route path="/services/partners" element={<PartnersPage />} />
+          <Route path="/marketing/partners" element={<Navigate to="/services/partners" replace />} />
           <Route path="/marketing/announcements" element={<AnnouncementsPage />} />
           <Route path="/marketing/reviews" element={<ReviewsPage />} />
           <Route path="/marketing/faqs" element={<FAQsPage />} />

@@ -72,16 +72,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const register = async (data: any) => {
     try {
       // Step 1: Create the account
-      await api.post<{ access_token: string; user: any }>('/auth/register', data);
-      // Step 2: Immediately log in via admin/login to get a token with the correct ADMIN role
-      // (the register endpoint issues a CLIENT token regardless of the role field)
-      const loginResp = await api.post<{ access_token: string; user: any }>('/auth/admin/login', {
-        email: data.email,
-        password: data.password,
-      });
-      localStorage.setItem('admin_token', loginResp.data.access_token);
+      const { setupSecret, ...profile } = data;
+      const regResp = await api.post<{ access_token: string; user: any }>(
+        '/auth/register-admin',
+        { ...profile, setupSecret },
+      );
+      localStorage.setItem('admin_token', regResp.data.access_token);
       setIsAuthenticated(true);
-      setUser(loginResp.data.user);
+      setUser(regResp.data.user);
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;

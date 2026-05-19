@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export interface Faq {
     id: string;
@@ -12,7 +11,7 @@ export interface Faq {
 
 export const faqsService = {
     getAll: async (): Promise<Faq[]> => {
-        const response = await axios.get(`${API_URL}/faqs?isAdmin=false`);
+        const response = await axios.get(`${getApiUrl()}/faqs?isAdmin=false`);
         return response.data;
     }
 };

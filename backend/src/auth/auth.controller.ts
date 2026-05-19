@@ -5,21 +5,29 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
-import { UserRole } from '@prisma/client';
+import { RegisterAdminDto } from './dto/register-admin.dto';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) { }
 
+  @Get('registration-status')
+  @ApiOperation({ summary: 'Whether public admin signup is allowed (first admin only)' })
+  getRegistrationStatus() {
+    return this.authService.getRegistrationStatus();
+  }
+
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  async register(
-    @Body()
-    body: RegisterDto,
-  ) {
-    console.log('[AUTH] Register request received:', body.email, 'Role:', body.role);
+  @ApiOperation({ summary: 'Register a new client account' })
+  async register(@Body() body: RegisterDto) {
     return this.authService.register(body);
+  }
+
+  @Post('register-admin')
+  @ApiOperation({ summary: 'Register admin (first account or with ADMIN_REGISTRATION_SECRET)' })
+  async registerAdmin(@Body() body: RegisterAdminDto) {
+    return this.authService.registerAdmin(body);
   }
 
   @UseGuards(LocalAuthGuard)

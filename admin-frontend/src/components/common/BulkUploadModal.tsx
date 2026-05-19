@@ -25,11 +25,12 @@ export default function BulkUploadModal({ open, onClose, onUploadSuccess, title 
 
         setUploading(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/upload/bulk`, {
+            const token = localStorage.getItem('admin_token');
+            const { getApiUrl } = await import('@/lib/api-url');
+            const response = await fetch(`${getApiUrl()}/upload/bulk`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 },
                 body: formData,
             });

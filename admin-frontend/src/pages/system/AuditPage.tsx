@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AuditOutlined, ClockCircleOutlined, SearchOutlined, ExclamationCircleOutlined, LoadingOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, PlusOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '@/lib/api-url';
 
 interface AuditLog {
     id: string;
@@ -28,8 +27,8 @@ export default function AuditPage() {
 
     const fetchLogs = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/audit-logs`, {
+            const token = localStorage.getItem('admin_token');
+            const response = await axios.get(`${getApiUrl()}/audit-logs`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLogs(response.data);

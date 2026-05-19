@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 export type PublicSettings = {
   paymentEnabled: boolean;
@@ -18,7 +17,7 @@ export type PublicSettings = {
 
 export const settingsService = {
   async getPublic(): Promise<PublicSettings> {
-    const response = await axios.get(`${API_URL}/settings/public`);
+    const response = await axios.get(`${getApiUrl()}/settings/public`);
     return response.data;
   }
 };

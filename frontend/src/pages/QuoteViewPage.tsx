@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle, Clock, Package } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getApiUrl } from '../lib/api-url';
 
 interface QuoteItem {
     description: string;
@@ -39,7 +39,7 @@ export default function QuoteViewPage() {
 
     const loadQuote = async () => {
         try {
-            const response = await axios.get(`${API_URL}/quotes/number/${quoteNumber}`);
+            const response = await axios.get(`${getApiUrl()}/quotes/number/${quoteNumber}`);
             setQuote(response.data);
         } catch (error) {
             console.error('Failed to load quote', error);
@@ -52,7 +52,7 @@ export default function QuoteViewPage() {
         if (!quote) return;
         setActionLoading(true);
         try {
-            await axios.post(`${API_URL}/quotes/${quote.id}/accept`);
+            await axios.post(`${getApiUrl()}/quotes/${quote.id}/accept`);
             alert('Devis accepté avec succès ! Nous vous contacterons prochainement.');
             loadQuote();
         } catch (error) {
@@ -67,7 +67,7 @@ export default function QuoteViewPage() {
         const reason = prompt('Raison du refus (optionnel):');
         setActionLoading(true);
         try {
-            await axios.post(`${API_URL}/quotes/${quote.id}/reject`, { reason });
+            await axios.post(`${getApiUrl()}/quotes/${quote.id}/reject`, { reason });
             alert('Devis refusé.');
             loadQuote();
         } catch (error) {
@@ -227,7 +227,7 @@ export default function QuoteViewPage() {
                             onClick={async () => {
                                 setActionLoading(true);
                                 try {
-                                    await axios.post(`${API_URL}/quotes/${quote.id}/convert`, {}, {
+                                    await axios.post(`${getApiUrl()}/quotes/${quote.id}/convert`, {}, {
                                         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                                     });
                                     alert('Commande créée avec succès ! redirection vers votre tableau de bord...');

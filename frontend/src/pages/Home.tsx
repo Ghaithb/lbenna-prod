@@ -18,13 +18,13 @@ import { portfolioService } from '../services/portfolio';
 import { partnersService, Partner } from '../services/partners';
 import PacksSection from '../components/PacksSection';
 import { useSettings } from '../hooks/useSettings';
+import { getApiOrigin } from '../lib/api-url';
 
 const IconMap: any = {
   Camera, Shield, Zap, Check, Briefcase, Heart, Users, Award, Sparkles, ShieldCheck
 };
 
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
-const imgSrc = (url?: string) => (!url ? '' : url.startsWith('http') ? url : `${API}${url}`);
+const imgSrc = (url?: string) => (!url ? '' : url.startsWith('http') ? url : `${getApiOrigin()}${url}`);
 
 function DynamicIcon({ name, className }: { name: string, className?: string }) {
   const Icon = IconMap[name] || Camera;
@@ -298,7 +298,7 @@ function ClientLogos() {
       });
   }, []);
 
-  const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+  const BASE_URL = getApiOrigin();
 
   if (loading) return <div className="py-12 bg-white border-b border-gray-100 min-h-[140px]"></div>;
   if (partners.length === 0) return null;

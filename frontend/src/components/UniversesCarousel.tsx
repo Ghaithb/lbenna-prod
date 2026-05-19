@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ArrowRight, Loader2, Star } from 'lucide-react';
 import { categoriesService, Category } from '../services/categories';
+import { getApiOrigin } from '../lib/api-url';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop';
-const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
-const imgSrc = (url?: string) => (!url ? FALLBACK_IMAGE : url.startsWith('http') ? url : `${BASE_URL}${url}`);
+const imgSrc = (url?: string) => (!url ? FALLBACK_IMAGE : url.startsWith('http') ? url : `${getApiOrigin()}${url}`);
 
 function CategorySlideshow({ images, isActive }: { images: string[], isActive: boolean }) {
     const [current, setCurrent] = useState(0);
