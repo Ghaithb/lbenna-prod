@@ -8,7 +8,6 @@
     "VITE_API_URL": "/api"
   },
   "rewrites": [
-    { "handle": "filesystem" },
     {
       "source": "/api/:path*",
       "destination": "https://lbenna-prod.vercel.app/api/:path*"
