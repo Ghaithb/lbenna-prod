@@ -114,7 +114,7 @@ export default function AdminLayout() {
       >
         <div className="flex items-center justify-center p-4 border-b border-gray-100 shrink-0">
           <img 
-            src="/logo-horizontal.svg" 
+            src="/logo-horizontal.png" 
             alt="L Benna Production" 
             className={`transition-all duration-300 ${collapsed ? 'h-8' : 'h-10'} object-contain`}
           />
