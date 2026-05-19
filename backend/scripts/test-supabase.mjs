@@ -1,6 +1,15 @@
-import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
+
+function requireEnv(name) {
+  const v = process.env[name];
+  if (!v) {
+    console.error(`❌ Variable manquante: ${name}`);
+    console.error('   Lance depuis prod/backend avec un fichier .env configuré.');
+    process.exit(1);
+  }
+  return v;
+}
 
 const prisma = new PrismaClient();
 
@@ -11,10 +20,9 @@ async function testDatabase() {
 }
 
 async function testStorage() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_KEY;
+  const url = requireEnv('SUPABASE_URL');
+  const key = requireEnv('SUPABASE_KEY');
   const bucket = process.env.SUPABASE_BUCKET || 'portfolio';
-  if (!url || !key) throw new Error('SUPABASE_URL or SUPABASE_KEY missing');
 
   const supabase = createClient(url, key);
   const { data, error } = await supabase.storage.from(bucket).list('', { limit: 5 });
