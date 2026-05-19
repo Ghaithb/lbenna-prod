@@ -23,7 +23,16 @@ export class SettingsService implements OnModuleInit {
   constructor(private prisma: PrismaService) { }
 
   async onModuleInit() {
-    await this.ensureDefaults();
+    try {
+      await this.ensureDefaults();
+    } catch (error) {
+      // Ne pas bloquer le boot serverless (Vercel) si la DB n'est pas prête
+      if (process.env.VERCEL) {
+        console.error('[SettingsService] ensureDefaults failed (run: npm run db:migrate):', error);
+        return;
+      }
+      throw error;
+    }
   }
 
   private defaultSettings(): AppSettings {
