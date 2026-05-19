@@ -8,11 +8,14 @@
 | `DIRECT_URL` | URL Postgres directe (Supabase : **Direct connection**, port 5432) — pour Prisma migrate |
 | `JWT_SECRET` | Secret long et aléatoire pour les tokens |
 
-## Exemple Supabase
+## Supabase (guide détaillé)
 
-1. Supabase → Project Settings → Database
-2. **DATABASE_URL** = `Transaction` mode URI + `?pgbouncer=true&connection_limit=1`
-3. **DIRECT_URL** = `Session` mode URI (sans pgbouncer)
+Voir **[SUPABASE-SETUP.md](./SUPABASE-SETUP.md)** — connexion DB, migrations, Storage, Vercel.
+
+Résumé :
+1. **DATABASE_URL** = mode Transaction, port **6543** + `?pgbouncer=true&connection_limit=1`
+2. **DIRECT_URL** = mode Session/Direct, port **5432**
+3. En local : `npm run db:migrate` après avoir rempli `.env`
 
 ## Vérification après deploy
 
