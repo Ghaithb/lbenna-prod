@@ -159,7 +159,8 @@ Sur les projets **frontend** et **admin** :
 | Erreur Prisma / pgbouncer | `DATABASE_URL` doit avoir `?pgbouncer=true` (port 6543) |
 | `migrate deploy` échoue | Utilise `DIRECT_URL` (port 5432), pas l’URL poolée |
 | 500 sur Vercel | Logs → Functions ; vérifie `DATABASE_URL` + **Redeploy** |
-| Upload images KO | `SUPABASE_KEY` = **service_role**, bucket existant |
+| Upload images KO / `Bucket not found` | `SUPABASE_KEY` = **service_role**, bucket **`portfolio`** public (créé auto au boot ou manuellement dans Storage) |
+| `SUPABASE_BUCKET` | Doit correspondre au nom exact du bucket (défaut: `portfolio`) |
 
 ---
 

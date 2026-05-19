@@ -32,4 +32,12 @@ export function ensureDatabaseEnv(): void {
   if (!process.env.SUPABASE_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY) {
     process.env.SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   }
+
+  if (!process.env.SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    process.env.SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  }
+
+  if (!process.env.SUPABASE_BUCKET?.trim()) {
+    process.env.SUPABASE_BUCKET = 'portfolio';
+  }
 }

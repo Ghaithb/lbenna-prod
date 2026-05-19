@@ -1,96 +1,175 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { extname } from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
-export class StorageService {
-    private supabase: SupabaseClient;
-    private bucket: string;
-    private readonly logger = new Logger(StorageService.name);
+export class StorageService implements OnModuleInit {
+  private supabase: SupabaseClient;
+  private bucket: string;
+  private bucketReady = false;
+  private readonly logger = new Logger(StorageService.name);
+  private readonly isServerless = Boolean(process.env.VERCEL);
 
-    constructor(private configService: ConfigService) {
-        const supabaseUrl = this.configService.get<string>('SUPABASE_URL')?.trim();
-        const supabaseKey = this.configService.get<string>('SUPABASE_KEY')?.trim();
-        this.bucket = this.configService.get<string>('SUPABASE_BUCKET')?.trim() || 'portfolio';
+  constructor(private configService: ConfigService) {
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL')?.trim();
+    const supabaseKey = this.configService.get<string>('SUPABASE_KEY')?.trim();
+    this.bucket =
+      this.configService.get<string>('SUPABASE_BUCKET')?.trim() || 'portfolio';
 
-        this.logger.log(`Initializing StorageService with bucket: ${this.bucket}`);
-        if (!supabaseUrl) this.logger.error('SUPABASE_URL is missing!');
-        if (!supabaseKey) this.logger.error('SUPABASE_KEY is missing!');
-        
-        if (supabaseKey && process.env.NODE_ENV !== 'production') {
-            const keyType = supabaseKey.startsWith('sb_publishable') ? 'PUBLIC' : 'SERVICE_ROLE';
-            this.logger.log(`SUPABASE_KEY configured (${keyType})`);
-        }
+    this.logger.log(`StorageService bucket="${this.bucket}" serverless=${this.isServerless}`);
 
-        this.supabase = createClient(supabaseUrl || '', supabaseKey || '');
+    if (!supabaseUrl) {
+      this.logger.error('SUPABASE_URL is missing on Vercel → link Supabase integration or set env var');
+    }
+    if (!supabaseKey) {
+      this.logger.error('SUPABASE_KEY is missing → use service_role key, not anon');
     }
 
-    /**
-     * Upload a file buffer directly to Supabase Storage
-     */
-    async uploadFile(file: Express.Multer.File, folder: string = 'uploads'): Promise<string> {
-        if (!file || !file.buffer) {
-            throw new Error('File buffer is empty or missing');
-        }
+    this.supabase = createClient(supabaseUrl || '', supabaseKey || '');
+  }
 
-        const randomName = Array(32).fill(null).map(() => Math.round(Math.random() * 16).toString(16)).join('');
-        const filename = `${folder}/${Date.now()}-${randomName}${extname(file.originalname)}`;
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.ensureBucketExists();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Storage bucket check failed: ${msg}`);
+    }
+  }
 
-        try {
-            this.logger.log(`Attempting upload to Supabase: ${filename} (${file.size} bytes)`);
-
-            const { data, error } = await this.supabase.storage
-                .from(this.bucket)
-                .upload(filename, file.buffer, {
-                    contentType: file.mimetype,
-                    upsert: false
-                });
-
-            if (error) {
-                throw new Error(error.message);
-            }
-
-            const { data: publicUrlData } = this.supabase.storage
-                .from(this.bucket)
-                .getPublicUrl(filename);
-
-            if (!publicUrlData || !publicUrlData.publicUrl) {
-                throw new Error(`No public URL returned`);
-            }
-
-            return publicUrlData.publicUrl;
-        } catch (error) {
-            this.logger.warn(`Supabase Upload failed (${error.message}). Falling back to local storage.`);
-            try {
-                // Fallback to local storage
-                const fs = require('fs');
-                const path = require('path');
-                const uploadDir = path.join(process.cwd(), 'uploads', folder);
-                
-                if (!fs.existsSync(uploadDir)) {
-                    fs.mkdirSync(uploadDir, { recursive: true });
-                }
-                
-                const localFilename = `${Date.now()}-${randomName}${extname(file.originalname)}`;
-                const localPath = path.join(uploadDir, localFilename);
-                
-                fs.writeFileSync(localPath, file.buffer);
-                this.logger.log(`Saved file locally to ${localPath}`);
-                
-                return `/uploads/${folder}/${localFilename}`;
-            } catch (localError) {
-                this.logger.error(`Local upload fallback also failed: ${localError.message}`);
-                throw new Error(`Both Supabase and Local Uploads failed.`);
-            }
-        }
+  /** Create public bucket if missing (requires service_role key). */
+  private async ensureBucketExists(): Promise<void> {
+    const url = this.configService.get<string>('SUPABASE_URL')?.trim();
+    const key = this.configService.get<string>('SUPABASE_KEY')?.trim();
+    if (!url || !key) {
+      return;
     }
 
-    /**
-     * Legacy method for S3 pre-signed URLs (kept for backward compatibility if needed, 
-     * but adapted to return Supabase format or throw error)
-     */
-    async getPresignedUploadUrl(filename: string, contentType: string): Promise<{ url: string; key: string; publicUrl: string }> {
-        throw new Error("Pre-signed URLs are not implemented for the Supabase integration yet. Use direct upload endpoint.");
+    const { data: buckets, error: listError } = await this.supabase.storage.listBuckets();
+    if (listError) {
+      throw new Error(`listBuckets: ${listError.message}`);
     }
+
+    const exists = buckets?.some((b) => b.name === this.bucket);
+    if (exists) {
+      this.bucketReady = true;
+      this.logger.log(`Supabase bucket "${this.bucket}" is ready`);
+      return;
+    }
+
+    this.logger.warn(`Bucket "${this.bucket}" not found — creating (public)`);
+    const { error: createError } = await this.supabase.storage.createBucket(this.bucket, {
+      public: true,
+      fileSizeLimit: 52_428_800, // 50 MB
+    });
+
+    if (createError) {
+      const alreadyExists =
+        createError.message.toLowerCase().includes('already exists') ||
+        createError.message.toLowerCase().includes('duplicate');
+      if (!alreadyExists) {
+        throw new Error(
+          `createBucket("${this.bucket}"): ${createError.message}. ` +
+            `Create it manually in Supabase → Storage → New bucket → name "${this.bucket}" → Public.`,
+        );
+      }
+    }
+
+    this.bucketReady = true;
+    this.logger.log(`Supabase bucket "${this.bucket}" created or already present`);
+  }
+
+  async uploadFile(file: Express.Multer.File, folder: string = 'uploads'): Promise<string> {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('File buffer is empty or missing');
+    }
+
+    if (!this.configService.get<string>('SUPABASE_URL')?.trim()) {
+      throw new InternalServerErrorException(
+        'SUPABASE_URL is not configured on the server. Add it in Vercel → backend → Environment Variables.',
+      );
+    }
+    if (!this.configService.get<string>('SUPABASE_KEY')?.trim()) {
+      throw new InternalServerErrorException(
+        'SUPABASE_KEY (service_role) is not configured on the server.',
+      );
+    }
+
+    if (!this.bucketReady) {
+      await this.ensureBucketExists();
+    }
+
+    const randomName = Array(32)
+      .fill(null)
+      .map(() => Math.round(Math.random() * 16).toString(16))
+      .join('');
+    const filename = `${folder}/${Date.now()}-${randomName}${extname(file.originalname)}`;
+
+    this.logger.log(`Uploading to Supabase ${this.bucket}/${filename} (${file.size} bytes)`);
+
+    const { error } = await this.supabase.storage.from(this.bucket).upload(filename, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false,
+    });
+
+    if (error) {
+      const hint = error.message.toLowerCase().includes('bucket not found')
+        ? ` Create a public bucket named "${this.bucket}" in Supabase → Storage, or set SUPABASE_BUCKET on Vercel.`
+        : '';
+      this.logger.error(`Supabase upload failed: ${error.message}${hint}`);
+
+      if (this.isServerless) {
+        throw new InternalServerErrorException(
+          `Upload Supabase échoué: ${error.message}.${hint}`,
+        );
+      }
+
+      return this.saveLocalFallback(file, folder, randomName);
+    }
+
+    const { data: publicUrlData } = this.supabase.storage
+      .from(this.bucket)
+      .getPublicUrl(filename);
+
+    if (!publicUrlData?.publicUrl) {
+      throw new InternalServerErrorException('Supabase did not return a public URL');
+    }
+
+    return publicUrlData.publicUrl;
+  }
+
+  private saveLocalFallback(
+    file: Express.Multer.File,
+    folder: string,
+    randomName: string,
+  ): string {
+    const baseDir = this.isServerless
+      ? path.join('/tmp', 'uploads', folder)
+      : path.join(process.cwd(), 'uploads', folder);
+
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true });
+    }
+
+    const localFilename = `${Date.now()}-${randomName}${extname(file.originalname)}`;
+    const localPath = path.join(baseDir, localFilename);
+    fs.writeFileSync(localPath, file.buffer);
+    this.logger.log(`Saved locally: ${localPath}`);
+    return `/uploads/${folder}/${localFilename}`;
+  }
+
+  async getPresignedUploadUrl(): Promise<{ url: string; key: string; publicUrl: string }> {
+    throw new Error(
+      'Pre-signed URLs are not implemented for Supabase. Use POST /api/upload instead.',
+    );
+  }
 }
