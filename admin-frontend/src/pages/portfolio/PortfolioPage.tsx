@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Popconfirm, message, Modal, Form, Input, Select, Switch, DatePicker, Tag, Upload } from 'antd';
 import type { UploadFile } from 'antd';
-import { portfolioService, PortfolioItem } from '../../services/portfolio';
+import { portfolioService, PortfolioItem, MAX_UPLOAD_BYTES } from '../../services/portfolio';
+import { mediaService } from '../../services/media';
 import { resolveApiBaseUrl } from '../../lib/api-base';
 import { EditOutlined, DeleteOutlined, PlusOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { Play } from 'lucide-react';
@@ -15,6 +16,7 @@ export default function PortfolioPage() {
     const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [saving, setSaving] = useState(false);
     const [form] = Form.useForm();
 
     const fetchItems = async () => {
@@ -44,43 +46,76 @@ export default function PortfolioPage() {
     };
 
     const handleSave = async (values: any) => {
+        setSaving(true);
         try {
-            const formData = new FormData();
-            
-            // Basic fields
-            const fields = ['title', 'description', 'categoryId', 'category', 'eventDate', 'isActive'];
-            fields.forEach(key => {
-                const val = values[key];
-                if (key === 'eventDate' && val) {
-                    formData.append(key, val.toISOString());
-                } else if (val !== undefined && val !== null && val !== '') {
-                    formData.append(key, String(val));
-                }
-            });
-
-            // Handle multiple files (images and video)
             const validFiles = fileList.filter((f: UploadFile) => f.originFileObj);
             const imageFiles = validFiles
                 .filter((f: UploadFile) => f.originFileObj!.type.startsWith('image/'))
                 .map((f: UploadFile) => f.originFileObj!);
-            const videoFile = validFiles.find((f: UploadFile) => f.originFileObj!.type.startsWith('video/'))?.originFileObj;
+            const videoFile = validFiles.find((f: UploadFile) =>
+                f.originFileObj!.type.startsWith('video/'),
+            )?.originFileObj;
 
-            if (videoFile) {
-                formData.append('video', videoFile);
-            }
-
-            if (imageFiles.length > 0) {
-                formData.append('file', imageFiles[0]); // first image is cover
-                for (let i = 1; i < imageFiles.length; i++) {
-                    formData.append('gallery', imageFiles[i]); // remaining images are gallery
+            for (const file of [...imageFiles, ...(videoFile ? [videoFile] : [])]) {
+                if (file.size > MAX_UPLOAD_BYTES) {
+                    message.error(
+                        `${file.name} est trop lourd (${(file.size / 1024 / 1024).toFixed(1)} Mo). Max ~4 Mo par fichier.`,
+                    );
+                    return;
                 }
             }
 
+            let coverUrl = editingItem?.coverUrl;
+            let galleryUrls = editingItem?.galleryUrls ? [...editingItem.galleryUrls] : [];
+            let videoUrl = editingItem?.videoUrl;
+
+            if (imageFiles.length > 0) {
+                message.loading({ content: 'Upload de la couverture…', key: 'portfolio-upload' });
+                const cover = await mediaService.uploadSingle(imageFiles[0], MAX_UPLOAD_BYTES);
+                coverUrl = cover.url;
+            }
+
+            if (imageFiles.length > 1) {
+                for (let i = 1; i < imageFiles.length; i++) {
+                    message.loading({
+                        content: `Galerie ${i}/${imageFiles.length - 1}…`,
+                        key: 'portfolio-upload',
+                    });
+                    const uploaded = await mediaService.uploadSingle(imageFiles[i], MAX_UPLOAD_BYTES);
+                    galleryUrls.push(uploaded.url);
+                }
+            }
+
+            if (videoFile) {
+                message.loading({ content: 'Upload vidéo…', key: 'portfolio-upload' });
+                const uploaded = await mediaService.uploadSingle(videoFile, MAX_UPLOAD_BYTES);
+                videoUrl = uploaded.url;
+            }
+
+            message.destroy('portfolio-upload');
+
+            if (!coverUrl) {
+                message.error('Ajoutez au moins une image de couverture');
+                return;
+            }
+
+            const payload = {
+                title: values.title,
+                description: values.description,
+                categoryId: values.categoryId,
+                category: values.category,
+                coverUrl,
+                galleryUrls,
+                videoUrl,
+                eventDate: values.eventDate ? values.eventDate.toISOString() : undefined,
+                isActive: values.isActive !== false,
+            };
+
             if (editingItem) {
-                await portfolioService.update(editingItem.id, formData as any);
+                await portfolioService.update(editingItem.id, payload);
                 message.success('Projet mis à jour');
             } else {
-                await portfolioService.create(formData as any);
+                await portfolioService.create(payload);
                 message.success('Projet créé');
             }
             setIsModalOpen(false);
@@ -89,21 +124,23 @@ export default function PortfolioPage() {
             form.resetFields();
             fetchItems();
         } catch (error: any) {
+            message.destroy('portfolio-upload');
+            const status = error?.response?.status;
             const data = error?.response?.data;
             console.error('[PORTFOLIO ERROR]', data ?? error?.message);
+            if (status === 413) {
+                message.error(
+                    'Fichier trop volumineux pour Vercel (max ~4 Mo par image). Compressez ou réduisez la taille.',
+                );
+                return;
+            }
             const detail =
                 typeof data?.message === 'string'
                     ? data.message
-                    : Array.isArray(data?.message)
-                      ? data.message.map((e: { constraints?: Record<string, string> }) =>
-                            Object.values(e.constraints ?? {}).join(', '),
-                        ).join(' · ')
-                      : undefined;
-            const fallback =
-                error?.code === 'ERR_NETWORK'
-                    ? 'API inaccessible (proxy /api ou CORS). Sur Vercel admin : supprime VITE_API_URL=https://… et redéploie.'
                     : error?.message;
-            message.error(detail || fallback || 'Erreur lors de l\'enregistrement');
+            message.error(detail || 'Erreur lors de l\'enregistrement');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -224,6 +261,7 @@ export default function PortfolioPage() {
                 forceRender
                 onCancel={() => setIsModalOpen(false)}
                 onOk={() => form.submit()}
+                confirmLoading={saving}
                 width={500}
                 centered
                 okText="Enregistrer"

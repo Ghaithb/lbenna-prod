@@ -18,16 +18,20 @@ export interface PortfolioItem {
     createdAt: string;
 }
 
-export interface CreatePortfolioItemDto {
+export type PortfolioItemPayload = {
     title: string;
     description?: string;
-    category: string;
-    coverUrl: string;
+    category?: string;
+    categoryId?: string;
+    coverUrl?: string;
     galleryUrls?: string[];
     videoUrl?: string;
     eventDate?: string;
     isActive?: boolean;
-}
+};
+
+/** Vercel request body limit ~4.5 MB per HTTP call — upload files via /upload first. */
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 export const portfolioService = {
     getAll: async () => {
@@ -35,12 +39,12 @@ export const portfolioService = {
         return response.data;
     },
 
-    create: async (data: FormData) => {
+    create: async (data: PortfolioItemPayload) => {
         const response = await api.post<PortfolioItem>('/portfolio-items', data);
         return response.data;
     },
 
-    update: async (id: string, data: FormData) => {
+    update: async (id: string, data: Partial<PortfolioItemPayload>) => {
         const response = await api.patch<PortfolioItem>(`/portfolio-items/${id}`, data);
         return response.data;
     },
